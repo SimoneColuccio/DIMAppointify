@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "759896925593",
+    "project_id": "dimappointfy",
+    "storage_bucket": "dimappointfy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759896925593:android:a76fee1310741f59d45f08",
+        "android_client_info": {
+          "package_name": "com.example.my_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "759896925593-4e0fr9uj57o1jvs4q0o7n0hfv7rdj5r8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8Xwgw-9T1kws5URCwQJvWwzC29Sj74O4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "759896925593-4e0fr9uj57o1jvs4q0o7n0hfv7rdj5r8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "759896925593-q33ek3lec7a4nqbvhurn6p89v3ieqbon.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dimappointfy"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
