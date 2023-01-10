@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:759896925593:android:0976068a99ebb135d45f08",
+        "mobilesdk_app_id": "1:759896925593:android:e65665dff32f12a3d45f08",
         "android_client_info": {
-          "package_name": "com.example.my_app"
+          "package_name": "com.mida.appointfy"
         }
       },
       "oauth_client": [
