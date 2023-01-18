@@ -1,30 +1,29 @@
-
 import 'package:flutter/material.dart';
-//Feature/Stream Builder
-class AccountPage extends StatefulWidget {
-  const AccountPage({super.key, required this.index});
 
+class ActivityPage {
   final int index;
+  final String title;
 
-  @override
-  State<AccountPage> createState() => _AccountPageState(this.index);
+  ActivityPage(this.index, this.title);
 }
 
-class _AccountPageState extends State<AccountPage>{
-  _AccountPageState(this.ind);
-  final int ind;
-  final title = "Account";
+
+class ActivityPageScreen extends StatelessWidget {
+  const ActivityPageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Extract the arguments from the current ModalRoute
+    // settings and cast them as ScreenArguments.
+    final args = ModalRoute.of(context)!.settings.arguments as ActivityPage;
+
     return Scaffold(
         appBar: AppBar(
-          title: Text(title),
-          automaticallyImplyLeading: false,
+          title: Text(args.title),
           centerTitle: true,
         ),
         bottomNavigationBar: BottomNavigationBar(
-            currentIndex: ind,
+            currentIndex: args.index,
             selectedItemColor: Colors.red,
             unselectedItemColor: Colors.red.withOpacity(.60),
             onTap: (value) {
@@ -37,6 +36,9 @@ class _AccountPageState extends State<AccountPage>{
                   break;
                 case 2:
                   Navigator.pushNamed(context, '/past');
+                  break;
+                case 3:
+                  Navigator.pushNamed(context, '/account');
                   break;
               }
             },
@@ -60,5 +62,6 @@ class _AccountPageState extends State<AccountPage>{
             ]
         )
     );
+
   }
 }

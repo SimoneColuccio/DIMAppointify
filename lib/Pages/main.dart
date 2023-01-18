@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'accountPage.dart';
+import 'activityPage.dart';
 import 'homePage.dart';
 import 'incomingAppointmentsPage.dart';
 import 'pastAppointmentsPage.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/incoming': (context) => const IncomingAppPage(index: 1),
         '/past': (context) => const PastAppPage(index: 2),
         '/account': (context) => const AccountPage(index: 3),
+        '/activity': (context) => const ActivityPageScreen(),
       },
     );
   }

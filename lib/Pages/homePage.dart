@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_app/Data/activity.dart';
+import 'package:my_app/Pages/activityPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.index, required this.title});
@@ -17,8 +18,6 @@ class _HomePageState extends State<HomePage> {
   _HomePageState(this.ind, this.tit);
   final int ind;
   final String tit;
-  //Icon customIcon = const Icon(Icons.search);
-  //Widget customSearchBar = const Text('Search for an activity');
 
   final controller = TextEditingController();
   List<Activity> activities = allActivities;
@@ -68,11 +67,14 @@ class _HomePageState extends State<HomePage> {
                   suffixIcon: createSuffix(),
                 ),
                 onSubmitted: (text) {
-                  Navigator.pushNamed(context, '/account');//When submitted go to account page
-                  },
-                onChanged: (text) {
+                  Navigator.pushNamed(
+                      context,
+                      '/activity',
+                      arguments: ActivityPage(ind, text),
+                  );
                   setState(() {});
                 },
+                onChanged: searchActivity,
                 onTap: () => setState(() {
                   sug = true;
                 }),
@@ -130,17 +132,34 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                if(!searchFocusNode.hasFocus & !filtering) const Divider(),
+                if (!searchFocusNode.hasFocus) const Divider(),
                 if(!searchFocusNode.hasFocus & !filtering) Container(
                   height: 1000,
                   color: Colors.white,
                   child: const Text('Activities to scroll'),
                 ),
-                if(sug & !filtering) Container(
-                  height: 1000,
-                  color: Colors.white,
-                  child: const Text('Suggestions to scroll'),
-                ),
+                if(sug & !filtering)
+                  Expanded(
+                      child: ListView.builder(
+                        itemCount: activities.length,
+                        itemBuilder: (context, index) {
+                          final activity = activities[index];
+                          return ListTile(
+                              title: Column(
+                                children: [
+                                  Text(activity.name),
+                                  const Text("suggestion"),
+                                ],
+                              ),
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                '/activity',
+                                arguments: ActivityPage(ind, activity.name),
+                              ),
+                          );
+                        },
+                      )
+                  ),
               ]
             ),
           ),
@@ -153,6 +172,10 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.red.withOpacity(.60),
         onTap: (value) {
           switch (value) {
+            case 0:
+              setState(() {
+              });
+              break;
             case 1:
               Navigator.pushNamed(context, '/incoming');
               break;
@@ -197,5 +220,14 @@ class _HomePageState extends State<HomePage> {
           },
           icon: const Icon(Icons.clear)
         ) : null;
+  }
+
+  void searchActivity(String query) {
+    final suggestions = allActivities.where((activity) {
+      final activityName = activity.name.toLowerCase();
+      final input = query.toLowerCase();
+      return activityName.contains(input);
+    }).toList();
+    setState(() => activities = suggestions);
   }
 }

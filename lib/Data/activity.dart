@@ -6,8 +6,8 @@ class Activity{
   });
 }
 const allActivities = [
-  Activity(name: 'Name1'),
-  Activity(name: 'Name2'),
-  Activity(name: 'Name3'),
-  Activity(name: 'Name4'),
+  Activity(name: 'Barber'),
+  Activity(name: 'Restaurant'),
+  Activity(name: 'Spa'),
+  Activity(name: 'Dentist'),
 ];
