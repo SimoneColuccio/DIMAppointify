@@ -72,6 +72,8 @@ class _HomePageState extends State<HomePage> {
                       '/activity',
                       arguments: ActivityPage(ind, text),
                   );
+                  controller.text = "";
+                  sug = false;
                   setState(() {});
                 },
                 onChanged: searchActivity,
@@ -85,6 +87,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     filtering = !filtering;
                     searchFocusNode.unfocus();
+                    sug = false;
                     setState(() {});
                     },//Open filtering options
                   child: const Icon(Icons.filter_alt, color: Colors.black,)
@@ -94,6 +97,29 @@ class _HomePageState extends State<HomePage> {
           SliverList(
             delegate: SliverChildListDelegate(
               [
+                if(sug & !filtering)
+                  Container(
+                    height: 2000,
+                    alignment: Alignment.centerLeft,
+                    child: ListView.builder(
+                      itemCount: activities.length,
+                      itemBuilder: (context, index) {
+                        final activity = activities[index];
+                        return ListTile(
+                          title: Column(
+                            children: [
+                              Text(activity.name),
+                            ],
+                          ),
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            '/activity',
+                            arguments: ActivityPage(ind, activity.name),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 if (filtering) Column(
                   children: [
                     for (int i = 0; i<10; i++) Row(
@@ -138,28 +164,6 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.white,
                   child: const Text('Activities to scroll'),
                 ),
-                if(sug & !filtering)
-                  Expanded(
-                      child: ListView.builder(
-                        itemCount: activities.length,
-                        itemBuilder: (context, index) {
-                          final activity = activities[index];
-                          return ListTile(
-                              title: Column(
-                                children: [
-                                  Text(activity.name),
-                                  const Text("suggestion"),
-                                ],
-                              ),
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                '/activity',
-                                arguments: ActivityPage(ind, activity.name),
-                              ),
-                          );
-                        },
-                      )
-                  ),
               ]
             ),
           ),
@@ -215,6 +219,7 @@ class _HomePageState extends State<HomePage> {
           onPressed: (){
             controller.text = "";
             searchFocusNode.unfocus();
+            sug = false;
             setState(() {});
             return;
           },
