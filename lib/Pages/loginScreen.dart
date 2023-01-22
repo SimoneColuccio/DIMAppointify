@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -70,7 +71,26 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         }
         break;
       case "Facebook":
-      //TODO: Implement Facebook Sign in
+        final facebookLogin = FacebookAuth.instance.login();
+      try {
+        final result = await facebookLogin;
+        if (result.accessToken != null) {
+          final facebookAuthCredential = FacebookAuthProvider.credential(result.accessToken!.token);
+          await auth.signInWithCredential(facebookAuthCredential);
+          print("successfully login!");
+        }
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          errorMessageMail = e.message!;
+        });
+      }
+      catch (e) {
+        setState(() {
+          errorMessageMail = "Something went wrong";
+        });
+        print(e.toString());
+      }
+
         break;
       case "Apple":
       //TODO: Implement Apple Sign in

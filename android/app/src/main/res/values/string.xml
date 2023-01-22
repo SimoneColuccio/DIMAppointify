@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DIMAppointfy</string>
+    <string name="facebook_app_id">5525452980917796</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">e15d12c5ff8b63910fef3df8050d0553</string>
+
+
+</resources>
