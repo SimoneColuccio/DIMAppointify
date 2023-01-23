@@ -1,6 +1,12 @@
 
 import 'package:flutter/material.dart';
+import 'package:my_app/Buttons/bottomMenu.dart';
 //Feature/Stream Builder
+
+bool isLoggedAsUser = false;
+
+bool isLoggedAsActivity = false;
+
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key, required this.index});
 
@@ -23,6 +29,31 @@ class _AccountPageState extends State<AccountPage>{
           automaticallyImplyLeading: false,
           centerTitle: true,
         ),
+        body: !(isLoggedAsUser | isLoggedAsActivity) ? Column(
+          children: [
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsUser = true;
+                setState(() {});
+                },
+              child: const Text("Log In as user"),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsActivity = true;
+                setState(() {});
+              },
+              child: const Text("Log In as activity"),
+            )
+          ],
+        ) : OutlinedButton(
+          onPressed: () {
+            isLoggedAsUser = false;
+            isLoggedAsActivity = false;
+            setState(() {});
+          },
+          child: const Text("Log Out"),
+        ),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: ind,
             selectedItemColor: Colors.red,
@@ -40,24 +71,7 @@ class _AccountPageState extends State<AccountPage>{
                   break;
               }
             },
-            items: const [
-              BottomNavigationBarItem(
-                label: 'HomePage',
-                icon: Icon(Icons.home),
-              ),
-              BottomNavigationBarItem(
-                label: 'Incoming',
-                icon: Icon(Icons.calendar_today),
-              ),
-              BottomNavigationBarItem(
-                label: 'Past Appointments',
-                icon: Icon(Icons.calendar_month),
-              ),
-              BottomNavigationBarItem(
-                label: 'Account',
-                icon: Icon(Icons.account_circle),
-              ),
-            ]
+            items: getBottomMenu()
         )
     );
   }

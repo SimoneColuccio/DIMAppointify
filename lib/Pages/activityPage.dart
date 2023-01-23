@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/Buttons/bottomMenu.dart';
 
 class ActivityPage {
   final int index;
@@ -42,24 +43,7 @@ class ActivityPageScreen extends StatelessWidget {
                   break;
               }
             },
-            items: const [
-              BottomNavigationBarItem(
-                label: 'HomePage',
-                icon: Icon(Icons.home),
-              ),
-              BottomNavigationBarItem(
-                label: 'Incoming',
-                icon: Icon(Icons.calendar_today),
-              ),
-              BottomNavigationBarItem(
-                label: 'Past Appointments',
-                icon: Icon(Icons.calendar_month),
-              ),
-              BottomNavigationBarItem(
-                label: 'Account',
-                icon: Icon(Icons.account_circle),
-              ),
-            ]
+            items: getBottomMenu()
         )
     );
 
