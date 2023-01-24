@@ -49,7 +49,7 @@ class _PastAppPageState extends State<PastAppPage>{
               snap: false,
               title: Text(title),
               centerTitle: true,
-              leading: (!filtering & (isLoggedAsUser | isLoggedAsActivity)) ? TextButton(
+              leading: ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) ? TextButton(
                   onPressed: () {
                     ordering = true;
                     setState(() {});
@@ -57,9 +57,10 @@ class _PastAppPageState extends State<PastAppPage>{
                   child: const Icon(Icons.list, color: Colors.white,)
               ) : null,
               actions: [
-                if (!filtering & (isLoggedAsUser | isLoggedAsActivity)) TextButton(
+                if ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) TextButton(
                     onPressed: () {
-                      filtering = !filtering;
+                      filtering = true;
+                      ordering = false;
                       setState(() {});
                     },//Open filtering options
                     child: const Icon(Icons.filter_alt, color: Colors.white,)
@@ -78,6 +79,29 @@ class _PastAppPageState extends State<PastAppPage>{
                               children: [
                                 const SizedBox(
                                     width: 150,
+                                    child: Text("Sort by")
+                                ),
+                                SizedBox(
+                                  width: 260,
+                                  height: 50,
+                                  child: DropdownButtonFormField<String>(
+                                    value: parameter,
+                                    items: columns.map((cat) => DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                                      ),
+                                    )).toList(),
+                                    onChanged: (cat) => setState(() =>  parameter = cat),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
                                     child: Text("Order")
                                 ),
                                 SizedBox(
@@ -91,29 +115,6 @@ class _PastAppPageState extends State<PastAppPage>{
                                       ),
                                     )).toList(),
                                     onChanged: (cat) => setState(() =>  ascending = cat),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Column")
-                                ),
-                                SizedBox(
-                                  width: 260,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: parameter,
-                                    items: columns.map((cat) => DropdownMenuItem<String>(
-                                      value: cat,
-                                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                                      ),
-                                    )).toList(),
-                                    onChanged: (cat) => setState(() =>  parameter = cat),
                                   ),
                                 ),
                               ],
@@ -146,7 +147,7 @@ class _PastAppPageState extends State<PastAppPage>{
                       ),
                     ),
                     if (filtering) Container(
-                      height: 280,
+                      height: 140,
                       child: Column(
                         children: [
                           Expanded(
@@ -240,7 +241,7 @@ class _PastAppPageState extends State<PastAppPage>{
                       ),
                     ),
                     if (filtering & (isLoggedAsUser | isLoggedAsActivity)) const Divider(),
-                    if(!filtering & (isLoggedAsUser | isLoggedAsActivity)) Container(
+                    if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
                       child: Column(

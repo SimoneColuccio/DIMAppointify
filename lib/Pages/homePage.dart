@@ -121,6 +121,7 @@ class _HomePageState extends State<HomePage> {
               TextButton(
                   onPressed: () {
                     filtering = true;
+                    ordering = false;
                     searchFocusNode.unfocus();
                     sug = false;
                     setState(() {});
@@ -133,7 +134,7 @@ class _HomePageState extends State<HomePage> {
             delegate: SliverChildListDelegate(
               [
                 if(sug & !filtering & !ordering)
-                  Container(
+                  SizedBox(
                     height: 2000,
                     child: ListView.builder(
                       itemCount: activities.length,
@@ -155,10 +156,33 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                if (ordering) Container(
+                if (ordering) SizedBox(
                   height: 140,
                   child: Column(
                     children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                                width: 150,
+                                child: Text("Sort by")
+                            ),
+                            SizedBox(
+                              width: 260,
+                              height: 50,
+                              child: DropdownButtonFormField<String>(
+                                value: parameter,
+                                items: columns.map((cat) => DropdownMenuItem<String>(
+                                  value: cat,
+                                  child: Text(cat, style: const TextStyle(fontSize: 15),
+                                  ),
+                                )).toList(),
+                                onChanged: (cat) => setState(() =>  parameter = cat),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       Expanded(
                         child: Row(
                           children: [
@@ -177,29 +201,6 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 )).toList(),
                                 onChanged: (cat) => setState(() =>  ascending = cat),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                                width: 150,
-                                child: Text("Column")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              height: 50,
-                              child: DropdownButtonFormField<String>(
-                                value: parameter,
-                                items: columns.map((cat) => DropdownMenuItem<String>(
-                                  value: cat,
-                                  child: Text(cat, style: const TextStyle(fontSize: 15),
-                                  ),
-                                )).toList(),
-                                onChanged: (cat) => setState(() =>  parameter = cat),
                               ),
                             ),
                           ],
@@ -231,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                if (filtering) Container(
+                if (filtering) SizedBox(
                   height: 280,
                   child: Column(
                     children: [

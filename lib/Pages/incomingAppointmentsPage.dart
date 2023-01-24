@@ -48,7 +48,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
               snap: false,
               title: Text(title),
               centerTitle: true,
-              leading: (!filtering & (isLoggedAsUser | isLoggedAsActivity)) ? TextButton(
+              leading: ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) ? TextButton(
                   onPressed: () {
                     ordering = true;
                     setState(() {});
@@ -56,9 +56,10 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                   child: const Icon(Icons.list, color: Colors.white,)
               ) : null,
               actions: [
-                if (!filtering & (isLoggedAsUser | isLoggedAsActivity)) TextButton(
+                if ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) TextButton(
                     onPressed: () {
                       filtering = true;
+                      ordering = false;
                       setState(() {});
                     },//Open filtering options
                     child: const Icon(Icons.filter_alt, color: Colors.white,)
@@ -77,6 +78,29 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                               children: [
                                 const SizedBox(
                                     width: 150,
+                                    child: Text("Sort by")
+                                ),
+                                SizedBox(
+                                  width: 260,
+                                  height: 50,
+                                  child: DropdownButtonFormField<String>(
+                                    value: parameter,
+                                    items: columns.map((cat) => DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                                      ),
+                                    )).toList(),
+                                    onChanged: (cat) => setState(() =>  parameter = cat),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
                                     child: Text("Order")
                                 ),
                                 SizedBox(
@@ -90,29 +114,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                       ),
                                     )).toList(),
                                     onChanged: (cat) => setState(() =>  ascending = cat),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Column")
-                                ),
-                                SizedBox(
-                                  width: 260,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: parameter,
-                                    items: columns.map((cat) => DropdownMenuItem<String>(
-                                      value: cat,
-                                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                                      ),
-                                    )).toList(),
-                                    onChanged: (cat) => setState(() =>  parameter = cat),
                                   ),
                                 ),
                               ],
@@ -145,7 +146,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                       ),
                     ),
                     if (filtering) Container(
-                      height: 280,
+                      height: 140,
                       child: Column(
                         children: [
                           Expanded(
@@ -238,7 +239,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                         ],
                       ),
                     ),
-                    if(!filtering) SizedBox(
+                    if(!filtering & !ordering) SizedBox(
                       height: 200,
                       child: Center(
                         child: (isLoggedAsUser | isLoggedAsActivity) ? const Text(
@@ -247,7 +248,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                       ),
                     ),
                     if (isLoggedAsUser | isLoggedAsActivity) const Divider(),
-                    if(!filtering & (isLoggedAsUser | isLoggedAsActivity)) Container(
+                    if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
                       child: Column(
