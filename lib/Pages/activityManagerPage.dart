@@ -180,7 +180,7 @@ class EditActivityPageScreen extends StatelessWidget {
                   break;
               }
             },
-            items: getBottomMenu()
+            items: getBottomMenu(0)
         )
     );
   }

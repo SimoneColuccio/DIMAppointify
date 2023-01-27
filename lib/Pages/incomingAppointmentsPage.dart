@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
+import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import '../Data/category.dart';
 
@@ -32,11 +33,38 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   var columns = ["Name", "Date"];
   String? parameter = "Date";
 
+  List<Appointment> appointments = [];
+  List<Appointment> incomingAppointments = [];
+
+
   DateTime date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
   String? filteredCategory = "";
 
   @override
   Widget build(BuildContext context) {
+
+    for(int i = 0; i < allAppointments.length; i++) {
+      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
+        !incomingAppointments.contains(allAppointments[i]) &&
+        (allAppointments[i].dateTime.year == DateTime.now().year &&
+          allAppointments[i].dateTime.month == DateTime.now().month &&
+          (allAppointments[i].dateTime.day == DateTime.now().day ||
+          allAppointments[i].dateTime.day == DateTime.now().day + 1))) {
+        incomingAppointments.add(allAppointments[i]);
+      }
+    }
+
+    for(int i = 0; i < allAppointments.length; i++) {
+      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
+          !appointments.contains(allAppointments[i]) &&
+          !(allAppointments[i].dateTime.year == DateTime.now().year &&
+              allAppointments[i].dateTime.month == DateTime.now().month &&
+              (allAppointments[i].dateTime.day == DateTime.now().day ||
+                  allAppointments[i].dateTime.day == DateTime.now().day + 1))) {
+        appointments.add(allAppointments[i]);
+      }
+    }
+
     return Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -242,8 +270,39 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                     if(!filtering & !ordering) SizedBox(
                       height: 200,
                       child: Center(
-                        child: (isLoggedAsUser | isLoggedAsActivity) ? const Text(
-                          'Appointments for today and tomorrow',
+                        child: (isLoggedAsUser | isLoggedAsActivity) ? ListView.builder(
+                          itemCount: incomingAppointments.length,
+                          itemBuilder: (context, index) {
+                            final appointment = incomingAppointments[index];
+                              return ListTile(
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        appointment.activity.name,
+                                        textAlign: TextAlign.start,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        DateFormat('yyyy/MM/dd, kk:mm').format(appointment.dateTime),
+                                        textAlign: TextAlign.end,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.red
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => {
+                                  //Add to Google Calendar
+                                }
+                            );
+                          },
                         ) : const Text("You have to log in to see your appointments"),
                       ),
                     ),
@@ -251,14 +310,36 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                     if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
-                      child: Column(
-                        children: [
-                          const Text('Appointments to scroll'),
-                          Row(children: [
-                            Text(parameter!),
-                            Text(ascending!)
-                          ]),
-                        ],
+                      child: ListView.builder(
+                        itemCount: appointments.length,
+                        itemBuilder: (context, index) {
+                          final appointment = appointments[index];
+                          if(filteredCategory == "" || appointment.activity.category == filteredCategory) {
+                            return ListTile(
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      appointment.activity.name,
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      DateFormat('yyyy/MM/dd, kk:mm').format(appointment.dateTime),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () => {
+                                //Add to Google Calendar
+                              }
+                          );
+                          } else {
+                            return const SizedBox(width: 0, height: 0,);
+                          }
+                        },
                       ),
                     ),
                   ]
@@ -283,7 +364,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                   break;
               }
             },
-            items: getBottomMenu()
+            items: getBottomMenu(incomingAppointments.length)
         )
     );
   }

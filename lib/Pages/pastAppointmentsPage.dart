@@ -282,7 +282,7 @@ class _PastAppPageState extends State<PastAppPage>{
                   break;
               }
             },
-            items: getBottomMenu()
+            items: getBottomMenu(0)
         )
     );
   }

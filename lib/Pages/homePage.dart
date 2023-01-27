@@ -579,7 +579,7 @@ class _HomePageState extends State<HomePage> {
               break;
           }
         },
-        items: getBottomMenu()
+        items: getBottomMenu(0)
       )
     );
   }

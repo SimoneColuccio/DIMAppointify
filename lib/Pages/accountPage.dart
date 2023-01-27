@@ -36,13 +36,23 @@ class _AccountPageState extends State<AccountPage>{
             OutlinedButton(
               onPressed: () {
                 isLoggedAsUser = true;
+                user = "user1";
                 setState(() {});
                 },
-              child: const Text("Log In as user"),
+              child: const Text("Log In as user1"),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsUser = true;
+                user = "user2";
+                setState(() {});
+              },
+              child: const Text("Log In as user2"),
             ),
             OutlinedButton(
               onPressed: () {
                 isLoggedAsActivity = true;
+                user = "activity";
                 setState(() {});
               },
               child: const Text("Log In as activity"),
@@ -54,6 +64,7 @@ class _AccountPageState extends State<AccountPage>{
               onPressed: () {
                 isLoggedAsUser = false;
                 isLoggedAsActivity = false;
+                user = "";
                 setState(() {});
               },
               child: const Text("Log Out"),
@@ -81,8 +92,10 @@ class _AccountPageState extends State<AccountPage>{
                   break;
               }
             },
-            items: getBottomMenu()
+            items: getBottomMenu(0)
         )
     );
   }
 }
+
+String user = "";

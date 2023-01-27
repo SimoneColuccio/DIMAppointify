@@ -154,7 +154,7 @@ class ActivityPageScreen extends StatelessWidget {
                   break;
               }
             },
-            items: getBottomMenu()
+            items: getBottomMenu(0)
         )
     );
 
