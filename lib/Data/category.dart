@@ -1,8 +1,8 @@
 List<String> allCategories = [
   "",
+  "Beauty",
   "Food and drink",
-  "Hotels and travels",
   "Health",
+  "Hotels and travels",
   "Spa and Wellness",
-  "Beauty"
 ];

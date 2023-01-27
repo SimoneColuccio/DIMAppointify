@@ -22,8 +22,6 @@ class EditActivityPage{
 class EditActivityPageScreen extends StatelessWidget {
   const EditActivityPageScreen({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -39,8 +37,6 @@ class EditActivityPageScreen extends StatelessWidget {
 
     final descController = TextEditingController();
     final descFocusNode = FocusNode();
-
-    bool correct = false;
 
     String name = "";
     String description = "";
@@ -76,10 +72,7 @@ class EditActivityPageScreen extends StatelessWidget {
                     ),
                     onChanged: (text) {
                       if (isCorrect(controller.text)) {
-                        correct = isCorrect(descController.text) & isCorrect(filteredCategory);
                         name = controller.text;
-                      } else {
-                        correct = false;
                       }
                       //setState(() {});
                     },
@@ -93,20 +86,10 @@ class EditActivityPageScreen extends StatelessWidget {
                       child: Text(cat, style: const TextStyle(fontSize: 15),),
                       onTap: () {
                         filteredCategory = cat;
-                        if(isCorrect(filteredCategory)) {
-                          correct = isCorrect(descController.text) & isCorrect(controller.text);
-                        } else {
-                          correct = false;
-                        }
                       },
                     )).toList(),
                     onChanged: (cat) => (){
                       filteredCategory = cat!;
-                      if(isCorrect(filteredCategory)) {
-                        correct = isCorrect(descController.text) & isCorrect(controller.text);
-                      } else {
-                        correct = false;
-                      }
                       //setState(() {});
                     },
                   ),
@@ -124,19 +107,13 @@ class EditActivityPageScreen extends StatelessWidget {
                     ),
                     onChanged: (text) {
                       if (isCorrect(descController.text)) {
-                        correct = isCorrect(controller.text) & isCorrect(filteredCategory);
                         description = descController.text;
-                      } else {
-                        correct = false;
                       }
                       //setState(() {});
                     },
                     onTap: () {
                       if (isCorrect(descController.text)) {
-                        correct = isCorrect(controller.text) & isCorrect(filteredCategory);
                         description = descController.text;
-                      } else {
-                        correct = false;
                       }
                       //setState(() {});
                     },
@@ -146,7 +123,6 @@ class EditActivityPageScreen extends StatelessWidget {
                   const Divider(),
                   const Text("Location"),
                   const Divider(),
-                  correct ? const Text("correct") : const Text("incorrect"),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -163,17 +139,14 @@ class EditActivityPageScreen extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            //if (correct) {
                             deleteActivity(deletedActivity);
-                            createActivity(name, description, filteredCategory, 0.0, 0.0);
+                            createActivity(name, description, filteredCategory, 0.0, 0.0, DateTime.now());
                             controller.text = "";
                             descController.text = "";
                             name = "";
                             description = "";
                             filteredCategory = "";
-                            correct = false;
                             Navigator.pop(context);
-                            //}
                             //setState(() {});
                           },
                           child: const Text("Apply"),

@@ -1,9 +1,11 @@
 
 
 import 'dart:async';
-import 'dart:developer';
+import 'dart:math';
+//import 'dart:developer';
 
 import 'package:flutter/material.dart';
+//import 'package:geolocator/geolocator.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/accountPage.dart';
@@ -33,15 +35,13 @@ class _HomePageState extends State<HomePage> {
   final minController = TextEditingController();
   final maxController = TextEditingController();
   final dataController = TextEditingController();
-
-  List<Activity> activities = allActivities;
-
-  List<String> categories = allCategories;
-
   final searchFocusNode = FocusNode();
   final minFocusNode = FocusNode();
   final maxFocusNode = FocusNode();
   final dataFocusNode = FocusNode();
+
+  List<Activity> activities = allActivities;
+  List<String> categories = allCategories;
 
   bool filtering = false;
   bool sug = false;
@@ -49,7 +49,8 @@ class _HomePageState extends State<HomePage> {
 
   var order = ["Ascending", "Descending"];
   String? ascending = "Ascending";
-  var columns = ["Name", "Distance", "Rating"];
+  var userParameters = ["Name", "Distance", "Rating"];
+  var managerParameters = ["Name", "Category", "Date"];
   String? parameter = "Name";
 
   var distances = [0.0, double.infinity];
@@ -178,82 +179,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                if (ordering) SizedBox(
-                  height: 140,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                                width: 150,
-                                child: Text("Sort by")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              height: 50,
-                              child: DropdownButtonFormField<String>(
-                                value: parameter,
-                                items: columns.map((cat) => DropdownMenuItem<String>(
-                                  value: cat,
-                                  child: Text(cat, style: const TextStyle(fontSize: 15),
-                                  ),
-                                )).toList(),
-                                onChanged: (cat) => setState(() =>  parameter = cat),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                                width: 150,
-                                child: Text("Order")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              height: 50,
-                              child: DropdownButtonFormField<String>(
-                                value: ascending,
-                                items: order.map((cat) => DropdownMenuItem<String>(
-                                  value: cat,
-                                  child: Text(cat, style: const TextStyle(fontSize: 15),
-                                  ),
-                                )).toList(),
-                                onChanged: (cat) => setState(() =>  ascending = cat),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => setState(() {
-                                ordering = false;
-                                ascending = "Ascending";
-                                parameter = "Name";
-                              }), child: const Text("Reset"),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => setState(() {
-                                ordering = false;
-                              }), child: const Text("Apply"),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
+                if (ordering) orderActivities(userParameters),
                 if (filtering) SizedBox(
                   height: 280,
                   child: Column(
@@ -505,93 +431,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 if (!searchFocusNode.hasFocus) const Divider(),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    SizedBox(
-                      width: 138,
-                      child: Text("Name",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 132,
-                      child: Text("Category",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 50,
-                      child: Text("Rating",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 59,
-                      child: Text("Position",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
-                ),
+                if(!searchFocusNode.hasFocus & !filtering & !ordering) printActivityColumns(),
                 if(!searchFocusNode.hasFocus & !filtering & !ordering) const Divider(),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering)
-                  SizedBox(
-                    height: 1000,
-                    child: ListView.builder(
-                      itemCount: activities.length,
-                      itemBuilder: (context, index) {
-                        final activity = activities[index];
-                        log(activity.name);
-                        log(activity.category);
-                        log(activity.position.toString());
-                        log(activity.description);
-                        log(activity.rating.toString());
-                        if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (activity.position >= distances[0]) && (activity.position <= distances[1])){
-                          return ListTile(
-                            title: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 138,
-                                  child: Text(activity.name,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 132,
-                                  child: Text(activity.category,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 50,
-                                  child: Text(activity.rating.toString(),
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 59,
-                                  child: Text(activity.position.toString(),
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onTap: () => {
-                              Navigator.pushNamed(
-                                context,
-                                '/activity',
-                                arguments: ActivityPage(ind, activity.name),
-                              ),
-                            },
-                          );
-                        } else {
-                          return const SizedBox(width: 0, height: 0,);
-                        }
-                      },
-                    ),
-                  ),
+                if(!searchFocusNode.hasFocus & !filtering & !ordering) printUserActivityElement(),
               ]
             ),
           ),
@@ -619,7 +461,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pushNamed(
                     context,
                     '/addActivity',
-                    arguments: EditActivityPage(ind, "Add activity", Activity(name: '', description: '', category: '', position: 2, rating: 0)),
+                    arguments: EditActivityPage(ind, "Add activity", Activity('', '', '', '', 0, DateTime.now())),
                   ).then(onGoBack);
                 },
                 style: ElevatedButton.styleFrom(
@@ -639,7 +481,6 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     filtering = true;
                     ordering = false;
-                    log(filtering.toString());
                     setState(() {});
                   },//Open filtering options
                   child: const Icon(Icons.filter_alt, color: Colors.white,)
@@ -649,71 +490,10 @@ class _HomePageState extends State<HomePage> {
             SliverList(
               delegate: SliverChildListDelegate(
                   [
-                    if(!filtering & !ordering)
-                    SizedBox(
-                      height: 1000,
-                      child: ListView.builder(
-                        itemCount: activities.length,
-                        itemBuilder: (context, index) {
-                          final activity = activities[index];
-                          if(filteredCategory == "" || activity.category == filteredCategory) {
-                            return ListTile(
-                            title: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 145,
-                                  child: Text(activity.name,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 130,
-                                  child: Text(activity.category,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                                Expanded(
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        IconButton(
-                                          onPressed: () {
-                                            Navigator.pushNamed(
-                                              context,
-                                              '/addActivity',
-                                              arguments: EditActivityPage(
-                                                  ind, "Edit category",
-                                                  activity),
-                                            ).then(onGoBack);
-                                          },
-                                          icon: const Icon(Icons.edit),
-                                        ),
-                                        IconButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  _buildPopupDialogConfirm(
-                                                      context, activity),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.delete),
-                                        )
-                                      ],
-                                    )
-                                )
-                              ],
-                            ),
-                          );
-                          } else {
-                            return const SizedBox(width: 0, height: 0,);
-                          }
-                        },
-                      ),
-                    ),
+                    if(!filtering & !ordering) printActivityManagerElement(),
+                    if (ordering) orderActivities(managerParameters),
                     if (filtering) SizedBox(
-                      height: 280,
+                      height: 150,
                       child: Column(
                         children: [
                           Expanded(
@@ -725,7 +505,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 //const SizedBox(width: 60,),
                                 SizedBox(
-                                  width: 260,
+                                  width: 240,
                                   height: 50,
                                   child: DropdownButtonFormField<String>(
                                     value: filteredCategory,
@@ -863,5 +643,299 @@ class _HomePageState extends State<HomePage> {
 
   FutureOr onGoBack(dynamic value) {
     setState(() {});
+  }
+
+  void sortActivities(String? parameter, String? ascending) {
+    switch (parameter) {
+      case "Name":
+        if(ascending == "Ascending") {
+          allActivities.sort((a, b) => a.name.compareTo(b.name));
+        } else {
+          allActivities.sort((a, b) => - a.name.compareTo(b.name));
+        }
+        break;
+      case "Distance":
+        if(ascending == "Ascending") {
+          allActivities.sort((a, b) => a.position.compareTo(b.position));
+        } else {
+          allActivities.sort((a, b) => - a.position.compareTo(b.position));
+        }
+        break;
+      case "Category":
+        if(ascending == "Ascending") {
+          allActivities.sort((a, b) => a.category.compareTo(b.category));
+        } else {
+          allActivities.sort((a, b) => - a.category.compareTo(b.category));
+        }
+        break;
+      case "Rating":
+        if(ascending == "Ascending") {
+          allActivities.sort((a, b) => a.rating.compareTo(b.rating));
+        } else {
+          allActivities.sort((a, b) => - a.rating.compareTo(b.rating));
+        }
+        break;
+      case "Date":
+        if(ascending == "Ascending") {
+          allActivities.sort((a, b) => a.dateOfAdding.compareTo(b.dateOfAdding));
+        } else {
+          allActivities.sort((a, b) => - a.dateOfAdding.compareTo(b.dateOfAdding));
+        }
+        break;
+      default :
+        allActivities.sort((a, b) => a.name.compareTo(b.name));
+        break;
+    }
+  }
+
+  Widget printActivityColumns() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        SizedBox(
+          width: 138,
+          child: Text("Name",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+        SizedBox(
+          width: 132,
+          child: Text("Category",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+        SizedBox(
+          width: 50,
+          child: Text("Rating",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+        SizedBox(
+          width: 59,
+          child: Text("Distance",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /*Future<Widget>*/ Widget printUserActivityElement() /*async*/ {
+
+    //var currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    return SizedBox(
+      height: 1000,
+      child: ListView.builder(
+        itemCount: activities.length,
+        itemBuilder: (context, index) {
+          final activity = activities[index];
+
+          double distance = 0/*calculateDistance(
+            activity.coordinates?.latitude,
+            activity.coordinates?.longitude,
+            currentPosition.latitude,
+            currentPosition.longitude
+          )*/;
+
+          if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (distance >= distances[0]) && (distance <= distances[1])){
+            return ListTile(
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 138,
+                    child: Text(activity.name,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 132,
+                    child: Text(activity.category,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 50,
+                    child: Text(activity.rating.toString(),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 59,
+                    child: Text(activity.position.toString(),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () => {
+                Navigator.pushNamed(
+                  context,
+                  '/activity',
+                  arguments: ActivityPage(ind, activity.name),
+                ),
+              },
+            );
+          } else {
+            return const SizedBox(width: 0, height: 0,);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget printActivityManagerElement () {
+    return SizedBox(
+      height: 1000,
+      child: ListView.builder(
+        itemCount: activities.length,
+        itemBuilder: (context, index) {
+          final activity = activities[index];
+          if(filteredCategory == "" || activity.category == filteredCategory) {
+            return ListTile(
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 145,
+                    child: Text(activity.name,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: Text(activity.category,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/addActivity',
+                                arguments: EditActivityPage(
+                                    ind, "Edit category",
+                                    activity),
+                              ).then(onGoBack);
+                            },
+                            icon: const Icon(Icons.edit),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    _buildPopupDialogConfirm(
+                                        context, activity),
+                              );
+                            },
+                            icon: const Icon(Icons.delete),
+                          )
+                        ],
+                      )
+                  )
+                ],
+              ),
+            );
+          } else {
+            return const SizedBox(width: 0, height: 0,);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget orderActivities (List<String> parameters) {
+    return SizedBox(
+      height: 140,
+      child: Column(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                const SizedBox(
+                    width: 150,
+                    child: Text("Sort by")
+                ),
+                SizedBox(
+                  width: 260,
+                  height: 50,
+                  child: DropdownButtonFormField<String>(
+                    value: parameter,
+                    items: parameters.map((cat) => DropdownMenuItem<String>(
+                      value: cat,
+                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                      ),
+                    )).toList(),
+                    onChanged: (cat) => setState(() =>  parameter = cat),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                const SizedBox(
+                    width: 150,
+                    child: Text("Order")
+                ),
+                SizedBox(
+                  width: 260,
+                  height: 50,
+                  child: DropdownButtonFormField<String>(
+                    value: ascending,
+                    items: order.map((cat) => DropdownMenuItem<String>(
+                      value: cat,
+                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                      ),
+                    )).toList(),
+                    onChanged: (cat) => setState(() =>  ascending = cat),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => setState(() {
+                    ordering = false;
+                    ascending = "Ascending";
+                    parameter = "Name";
+                  }), child: const Text("Reset"),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => setState(() {
+                    ordering = false;
+                    sortActivities(parameter, ascending);
+                  }), child: const Text("Apply"),
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  double calculateDistance(lat1, lon1, lat2, lon2){
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 +
+        c(lat1 * p) * c(lat2 * p) *
+            (1 - c((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a));
   }
 }

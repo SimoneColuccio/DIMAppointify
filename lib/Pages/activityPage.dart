@@ -22,15 +22,16 @@ class ActivityPageScreen extends StatelessWidget {
 
     List<Activity> activities = [];
     for(int i = 0; i < allActivities.length; i++) {
-      if(allActivities[i].name.contains(args.title)) {
+      if(allActivities[i].name.toLowerCase().contains(args.title.toLowerCase())) {
         activities.add(allActivities[i]);
       }
     }
 
-    var a;
+    var a, r;
     for(int i = 0; i < allActivities.length; i++) {
       if(allActivities[i].name == args.title) {
         a = allActivities[i];
+        r = a.rating;
         break;
       }
     }
@@ -40,13 +41,76 @@ class ActivityPageScreen extends StatelessWidget {
           title: a != null ? Text(a.name) : Text("Results for $tit"),
           centerTitle: true,
         ),
-        body: a != null ? Column(
-          children: [
-            const Text("Category:"),
-            Text(a.category),
-            const Text("Description:"),
-            Text(a.description),
-          ],
+        body: a != null ? Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 70,
+                  child: Row(
+                    children: [
+                      Text(a.category,
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 135,),
+                      Text("$r/5",
+                        style: const TextStyle(
+                        fontSize: 17,
+                        ),
+                      ),
+                      const Icon(Icons.star,
+                        color: Colors.amber,
+                        size: 35,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.black12,
+                    width: 2,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    a.description,
+                    style: const TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  children: [
+                    const Text("Address",
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      a.position,
+                      style: const TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ): ListView.builder(
           itemCount: activities.length,
           itemBuilder: (context, index) {
@@ -66,6 +130,10 @@ class ActivityPageScreen extends StatelessWidget {
             );
           },
         ),
+        floatingActionButton: a != null ? FloatingActionButton(
+          onPressed: () {},
+          child: const Icon(Icons.bookmark_add)
+        ) : null,
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: args.index,
             selectedItemColor: Colors.red,
