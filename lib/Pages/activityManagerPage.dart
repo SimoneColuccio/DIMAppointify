@@ -23,15 +23,6 @@ class EditActivityPageScreen extends StatelessWidget {
   const EditActivityPageScreen({super.key});
 
 
-/*
-  final geoMethods = GeoMethods(
-    googleApiKey: 'AIzaSyACUxgMdmPSPmiW0x83Taju-ldHkuz3678',
-    language: 'en',
-    countryCode: 'us',
-    countryCodes: ['us', 'it', 'uk'],
-  );
-
- */
 
   @override
   Widget build(BuildContext context) {
