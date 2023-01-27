@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
+
+import '../Data/activity.dart';
 //Feature/Stream Builder
 
 bool isLoggedAsUser = false;
@@ -46,13 +48,21 @@ class _AccountPageState extends State<AccountPage>{
               child: const Text("Log In as activity"),
             )
           ],
-        ) : OutlinedButton(
-          onPressed: () {
-            isLoggedAsUser = false;
-            isLoggedAsActivity = false;
-            setState(() {});
-          },
-          child: const Text("Log Out"),
+        ) : Column(
+          children: [
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsUser = false;
+                isLoggedAsActivity = false;
+                setState(() {});
+              },
+              child: const Text("Log Out"),
+            ),
+            isLoggedAsActivity ? OutlinedButton(
+              onPressed: () => clearActivities(),
+              child: const Text("Clear")
+            ) : const Text(""),
+          ],
         ),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: ind,

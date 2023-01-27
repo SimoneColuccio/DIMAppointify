@@ -1,13 +1,30 @@
-class Activity{
+class Activity {
   final String name;
+  final String description;
+  final String category;
+  final double position;
+  final double rating;
 
-  const Activity({
-    required this.name
+  Activity({
+    required this.name,
+    required this.description,
+    required this.category,
+    required this.position,
+    required this.rating,
   });
 }
-const allActivities = [
-  Activity(name: 'Barber'),
-  Activity(name: 'Restaurant'),
-  Activity(name: 'Spa'),
-  Activity(name: 'Dentist'),
-];
+
+  List<Activity> allActivities = [];
+
+  void createActivity(name, description, category, position, rating) {
+    Activity a = Activity(name: name, description: description, category: category, position: position, rating: rating);
+    allActivities.add(a);
+  }
+
+  void clearActivities () {
+    allActivities = [];
+  }
+
+  void deleteActivity (Activity activity) {
+    allActivities.remove(activity);
+  }

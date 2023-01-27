@@ -1,13 +1,18 @@
 
 
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/activity.dart';
+import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
 
 import 'package:intl/intl.dart';
 
 import '../Data/category.dart';
+import 'activityManagerPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.index, required this.title});
@@ -56,6 +61,22 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     searchFocusNode.addListener(onFocusChanged);
+    minFocusNode.addListener(onMinFocusChanged);
+    maxFocusNode.addListener(onMaxFocusChanged);
+  }
+
+  void onMinFocusChanged() {
+    if((distances[0] > distances[1])) {
+      maxController.text = minController.text;
+      distances[1] = double.parse(minController.text);
+    }
+  }
+
+  void onMaxFocusChanged() {
+    if(distances[1] < distances[0]) {
+      minController.text = maxController.text;
+      distances[0] = double.parse(maxController.text);
+    }
   }
 
   void onFocusChanged() {
@@ -66,13 +87,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {});
     return Scaffold(
       appBar: AppBar(
         title: Text(tit),
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
-      body: CustomScrollView(
+      body: (!isLoggedAsActivity) ? CustomScrollView(
         slivers: [
           if (!filtering & !ordering) SliverAppBar(
             backgroundColor: Colors.redAccent,
@@ -284,10 +306,6 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       onChanged: (text) {
                                         distances[0] = double.parse(minController.text);
-                                        if((distances[0] > distances[1])) {
-                                          maxController.text = minController.text;
-                                          distances[1] = double.parse(minController.text);
-                                        }
                                         setState(() {});
                                       },
                                       onSubmitted: (text) {
@@ -312,10 +330,6 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       onChanged: (text) {
                                         distances[1] = double.parse(maxController.text);
-                                        if(distances[1] < distances[0]) {
-                                          minController.text = maxController.text;
-                                          distances[0] = distances[1];
-                                        }
                                         setState(() {});
                                       },
                                       onSubmitted: (text) {
@@ -415,7 +429,6 @@ class _HomePageState extends State<HomePage> {
                                         initialDate: DateTime.now(),
                                         firstDate: DateTime.now(),
                                         lastDate: DateTime(2100));
-
                                     if (pickedDate != null) {
                                       String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
                                       date = pickedDate;
@@ -492,26 +505,277 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 if (!searchFocusNode.hasFocus) const Divider(),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) Container(
-                  height: 1000,
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      const Text('Activities to scroll'),
-                      Row(children: [
-                        Text(parameter!),
-                        Text(ascending!)
-                      ]),
-                      Text(filteredCategory!),
-                    ],
-                  ),
+                if(!searchFocusNode.hasFocus & !filtering & !ordering) Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    SizedBox(
+                      width: 138,
+                      child: Text("Name",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 132,
+                      child: Text("Category",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 50,
+                      child: Text("Rating",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 59,
+                      child: Text("Position",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ],
                 ),
+                if(!searchFocusNode.hasFocus & !filtering & !ordering) const Divider(),
+                if(!searchFocusNode.hasFocus & !filtering & !ordering)
+                  SizedBox(
+                    height: 1000,
+                    child: ListView.builder(
+                      itemCount: activities.length,
+                      itemBuilder: (context, index) {
+                        final activity = activities[index];
+                        log(activity.name);
+                        log(activity.category);
+                        log(activity.position.toString());
+                        log(activity.description);
+                        log(activity.rating.toString());
+                        if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (activity.position >= distances[0]) && (activity.position <= distances[1])){
+                          return ListTile(
+                            title: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 138,
+                                  child: Text(activity.name,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 132,
+                                  child: Text(activity.category,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 50,
+                                  child: Text(activity.rating.toString(),
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 59,
+                                  child: Text(activity.position.toString(),
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () => {
+                              Navigator.pushNamed(
+                                context,
+                                '/activity',
+                                arguments: ActivityPage(ind, activity.name),
+                              ),
+                            },
+                          );
+                        } else {
+                          return const SizedBox(width: 0, height: 0,);
+                        }
+                      },
+                    ),
+                  ),
               ]
             ),
           ),
         ],
+      ) : CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: Colors.redAccent,
+            automaticallyImplyLeading: false,
+            floating: true,
+            pinned: true,
+            snap: false,
+            leading: (!filtering & !ordering) ? TextButton(
+                onPressed: () {
+                  ordering = true;
+                  filtering = false;
+                  setState(() {});
+                },//Open filtering options
+                child: const Icon(Icons.list, color: Colors.white,)
+            ) : null,
+            title: (!filtering && !ordering) ? SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/addActivity',
+                    arguments: EditActivityPage(ind, "Add activity", Activity(name: '', description: '', category: '', position: 2, rating: 0)),
+                  ).then(onGoBack);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white
+                ),
+                child: const Text("Add a new activity",
+                    style: TextStyle(
+                        color: Colors.red
+                    )
+                )
+              ),
+            ) :  Text(filtering ? "Filter your activities" : "Order your activities",
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              if (!filtering & !ordering) TextButton(
+                  onPressed: () {
+                    filtering = true;
+                    ordering = false;
+                    log(filtering.toString());
+                    setState(() {});
+                  },//Open filtering options
+                  child: const Icon(Icons.filter_alt, color: Colors.white,)
+              )
+            ],
+          ),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                  [
+                    if(!filtering & !ordering)
+                    SizedBox(
+                      height: 1000,
+                      child: ListView.builder(
+                        itemCount: activities.length,
+                        itemBuilder: (context, index) {
+                          final activity = activities[index];
+                          if(filteredCategory == "" || activity.category == filteredCategory) {
+                            return ListTile(
+                            title: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 145,
+                                  child: Text(activity.name,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 130,
+                                  child: Text(activity.category,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/addActivity',
+                                              arguments: EditActivityPage(
+                                                  ind, "Edit category",
+                                                  activity),
+                                            ).then(onGoBack);
+                                          },
+                                          icon: const Icon(Icons.edit),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) =>
+                                                  _buildPopupDialogConfirm(
+                                                      context, activity),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.delete),
+                                        )
+                                      ],
+                                    )
+                                )
+                              ],
+                            ),
+                          );
+                          } else {
+                            return const SizedBox(width: 0, height: 0,);
+                          }
+                        },
+                      ),
+                    ),
+                    if (filtering) SizedBox(
+                      height: 280,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
+                                    child: Text("Category")
+                                ),
+                                //const SizedBox(width: 60,),
+                                SizedBox(
+                                  width: 260,
+                                  height: 50,
+                                  child: DropdownButtonFormField<String>(
+                                    value: filteredCategory,
+                                    items: categories.map((cat) =>
+                                        DropdownMenuItem<String>(
+                                          value: cat,
+                                          child: Text(cat,
+                                            style: const TextStyle(
+                                                fontSize: 15),
+                                          ),
+                                        )).toList(),
+                                    onChanged: (cat) =>
+                                        setState(() => filteredCategory = cat),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () =>
+                                      setState(() {
+                                        filteredCategory = "";
+                                        filtering = false;
+                                      }), child: const Text("Reset"),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () =>
+                                      setState(() {
+                                        filtering = false;
+                                      }), child: const Text("Apply"),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ]
+              )
+          )
+        ]
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: ind,
         selectedItemColor: Colors.red,
@@ -519,6 +783,8 @@ class _HomePageState extends State<HomePage> {
         onTap: (value) {
           switch (value) {
             case 0:
+              filtering = false;
+              ordering = false;
               setState(() {
               });
               break;
@@ -559,5 +825,43 @@ class _HomePageState extends State<HomePage> {
       return activityName.contains(input);
     }).toList();
     setState(() => activities = suggestions);
+  }
+
+  Widget _buildPopupDialogConfirm(BuildContext context, Activity activity) {
+    return AlertDialog(
+      title: const Text('Are you sure?'),
+      content: const Text("If you delete this activity you'll lose all related data"),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("No"),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  deleteActivity(activity);
+                  setState(() {});
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Yes"),
+              ),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  FutureOr onGoBack(dynamic value) {
+    setState(() {});
   }
 }

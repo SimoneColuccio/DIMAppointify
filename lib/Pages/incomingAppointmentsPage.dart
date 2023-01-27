@@ -69,7 +69,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
             SliverList(
               delegate: SliverChildListDelegate(
                   [
-                    if (ordering) Container(
+                    if (ordering) SizedBox(
                       height: 140,
                       child: Column(
                         children: [

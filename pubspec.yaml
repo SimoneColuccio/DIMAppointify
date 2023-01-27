@@ -38,6 +38,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   intl: ^0.18.0
 
+  address_search_field: ^5.0.3
+  string_validator: ^0.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
