@@ -1,5 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:my_app/Buttons/bottomMenu.dart';
+
+import '../Data/activity.dart';
+//Feature/Stream Builder
+
+bool isLoggedAsUser = false;
+
+bool isLoggedAsActivity = false;
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key, required this.index});
@@ -13,10 +21,60 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage>{
   _AccountPageState(this.ind);
   final int ind;
+  final title = "Account";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text(title),
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+        ),
+        body: !(isLoggedAsUser | isLoggedAsActivity) ? Column(
+          children: [
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsUser = true;
+                user = "user1";
+                setState(() {});
+                },
+              child: const Text("Log In as user1"),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsUser = true;
+                user = "user2";
+                setState(() {});
+              },
+              child: const Text("Log In as user2"),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsActivity = true;
+                user = "activity";
+                setState(() {});
+              },
+              child: const Text("Log In as activity"),
+            )
+          ],
+        ) : Column(
+          children: [
+            OutlinedButton(
+              onPressed: () {
+                isLoggedAsUser = false;
+                isLoggedAsActivity = false;
+                user = "";
+                setState(() {});
+              },
+              child: const Text("Log Out"),
+            ),
+            isLoggedAsActivity ? OutlinedButton(
+              onPressed: () => clearActivities(),
+              child: const Text("Clear")
+            ) : const Text(""),
+          ],
+        ),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: ind,
             selectedItemColor: Colors.red,
@@ -34,25 +92,10 @@ class _AccountPageState extends State<AccountPage>{
                   break;
               }
             },
-            items: const [
-              BottomNavigationBarItem(
-                label: 'HomePage',
-                icon: Icon(Icons.home),
-              ),
-              BottomNavigationBarItem(
-                label: 'Incoming',
-                icon: Icon(Icons.calendar_today),
-              ),
-              BottomNavigationBarItem(
-                label: 'Past Appointments',
-                icon: Icon(Icons.calendar_month),
-              ),
-              BottomNavigationBarItem(
-                label: 'Account',
-                icon: Icon(Icons.account_circle),
-              ),
-            ]
+            items: getBottomMenu(0)
         )
     );
   }
 }
+
+String user = "";

@@ -1,5 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/Buttons/bottomMenu.dart';
+import 'package:my_app/Data/appointment.dart';
+import 'package:my_app/Pages/accountPage.dart';
+import '../Data/category.dart';
 
 class IncomingAppPage extends StatefulWidget {
   const IncomingAppPage({super.key, required this.index});
@@ -13,10 +18,335 @@ class IncomingAppPage extends StatefulWidget {
 class _IncomingAppPageState extends State<IncomingAppPage>{
   _IncomingAppPageState(this.ind);
   final int ind;
+  final title = "Incoming Appointments";
+  bool filtering = false;
+  bool ordering = false;
+
+  final dataController = TextEditingController();
+
+  List<String> categories = allCategories;
+
+  final dataFocusNode = FocusNode();
+
+  var order = ["Ascending", "Descending"];
+  String? ascending = "Ascending";
+  var columns = ["Name", "Date"];
+  String? parameter = "Date";
+
+  List<Appointment> appointments = [];
+  List<Appointment> incomingAppointments = [];
+
+
+  DateTime date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
+  String? filteredCategory = "";
 
   @override
   Widget build(BuildContext context) {
+
+    for(int i = 0; i < allAppointments.length; i++) {
+      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
+        !incomingAppointments.contains(allAppointments[i]) &&
+        (allAppointments[i].dateTime.year == DateTime.now().year &&
+          allAppointments[i].dateTime.month == DateTime.now().month &&
+          (allAppointments[i].dateTime.day == DateTime.now().day ||
+          allAppointments[i].dateTime.day == DateTime.now().day + 1))) {
+        incomingAppointments.add(allAppointments[i]);
+      }
+    }
+
+    for(int i = 0; i < allAppointments.length; i++) {
+      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
+          !appointments.contains(allAppointments[i]) &&
+          !(allAppointments[i].dateTime.year == DateTime.now().year &&
+              allAppointments[i].dateTime.month == DateTime.now().month &&
+              (allAppointments[i].dateTime.day == DateTime.now().day ||
+                  allAppointments[i].dateTime.day == DateTime.now().day + 1))) {
+        appointments.add(allAppointments[i]);
+      }
+    }
+
     return Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.red,
+              automaticallyImplyLeading: false,
+              floating: true,
+              pinned: true,
+              snap: false,
+              title: Text(title),
+              centerTitle: true,
+              leading: ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) ? TextButton(
+                  onPressed: () {
+                    ordering = true;
+                    setState(() {});
+                  },//Open filtering options
+                  child: const Icon(Icons.list, color: Colors.white,)
+              ) : null,
+              actions: [
+                if ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) TextButton(
+                    onPressed: () {
+                      filtering = true;
+                      ordering = false;
+                      setState(() {});
+                    },//Open filtering options
+                    child: const Icon(Icons.filter_alt, color: Colors.white,)
+                )
+              ],
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                  [
+                    if (ordering) SizedBox(
+                      height: 140,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
+                                    child: Text("Sort by")
+                                ),
+                                SizedBox(
+                                  width: 260,
+                                  height: 50,
+                                  child: DropdownButtonFormField<String>(
+                                    value: parameter,
+                                    items: columns.map((cat) => DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                                      ),
+                                    )).toList(),
+                                    onChanged: (cat) => setState(() =>  parameter = cat),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
+                                    child: Text("Order")
+                                ),
+                                SizedBox(
+                                  width: 260,
+                                  height: 50,
+                                  child: DropdownButtonFormField<String>(
+                                    value: ascending,
+                                    items: order.map((cat) => DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                                      ),
+                                    )).toList(),
+                                    onChanged: (cat) => setState(() =>  ascending = cat),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => setState(() {
+                                    ordering = false;
+                                    ascending = "Ascending";
+                                    parameter = "Date";
+                                  }), child: const Text("Reset"),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () => setState(() {
+                                    ordering = false;
+                                  }), child: const Text("Apply"),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    if (filtering) Container(
+                      height: 140,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
+                                    child: Text("Category")
+                                ),
+                                //const SizedBox(width: 60,),
+                                SizedBox(
+                                  width: 260,
+                                  height: 50,
+                                  child: DropdownButtonFormField<String>(
+                                    value: filteredCategory,
+                                    items: categories.map((cat) => DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Text(cat, style: const TextStyle(fontSize: 15),
+                                      ),
+                                    )).toList(),
+                                    onChanged: (cat) => setState(() => filteredCategory = cat),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                    width: 150,
+                                    child: Text("Date")
+                                ),
+                                SizedBox(
+                                  width: 260,
+                                  child: TextField(
+                                    controller: dataController,
+                                    focusNode: dataFocusNode,
+                                    decoration: const InputDecoration(
+                                        icon: Icon(Icons.calendar_today), //icon of text field
+                                        labelText: "Enter Date" //label text of field
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    keyboardType: TextInputType.datetime,
+                                    onTap: () async {
+                                      DateTime? pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100));
+
+                                      if (pickedDate != null) {
+                                        String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                        date = pickedDate;
+                                        setState(() {
+                                          dataController.text = formattedDate; //set output date to TextField value.
+                                        });
+                                      }
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => setState(() {
+                                    filteredCategory = "";
+                                    date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
+                                    filtering = false;
+                                    dataController.text = "";
+                                  }), child: const Text("Reset"),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () => setState(() {
+                                    filtering = false;
+                                    dataController.text = "";
+                                  }), child: const Text("Apply"),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    if(!filtering & !ordering) SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: (isLoggedAsUser | isLoggedAsActivity) ? ListView.builder(
+                          itemCount: incomingAppointments.length,
+                          itemBuilder: (context, index) {
+                            final appointment = incomingAppointments[index];
+                              return ListTile(
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        appointment.activity.name,
+                                        textAlign: TextAlign.start,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        DateFormat('yyyy/MM/dd, kk:mm').format(appointment.dateTime),
+                                        textAlign: TextAlign.end,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.red
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => {
+                                  //Add to Google Calendar
+                                }
+                            );
+                          },
+                        ) : const Text("You have to log in to see your appointments"),
+                      ),
+                    ),
+                    if (isLoggedAsUser | isLoggedAsActivity) const Divider(),
+                    if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
+                      height: 1000,
+                      color: Colors.white,
+                      child: ListView.builder(
+                        itemCount: appointments.length,
+                        itemBuilder: (context, index) {
+                          final appointment = appointments[index];
+                          if(filteredCategory == "" || appointment.activity.category == filteredCategory) {
+                            return ListTile(
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      appointment.activity.name,
+                                      textAlign: TextAlign.start,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      DateFormat('yyyy/MM/dd, kk:mm').format(appointment.dateTime),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () => {
+                                //Add to Google Calendar
+                              }
+                          );
+                          } else {
+                            return const SizedBox(width: 0, height: 0,);
+                          }
+                        },
+                      ),
+                    ),
+                  ]
+              ),
+            ) ,
+          ],
+        ),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: ind,
             selectedItemColor: Colors.red,
@@ -34,24 +364,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                   break;
               }
             },
-            items: const [
-              BottomNavigationBarItem(
-                label: 'HomePage',
-                icon: Icon(Icons.home),
-              ),
-              BottomNavigationBarItem(
-                label: 'Incoming',
-                icon: Icon(Icons.calendar_today),
-              ),
-              BottomNavigationBarItem(
-                label: 'Past Appointments',
-                icon: Icon(Icons.calendar_month),
-              ),
-              BottomNavigationBarItem(
-                label: 'Account',
-                icon: Icon(Icons.account_circle),
-              ),
-            ]
+            items: getBottomMenu(incomingAppointments.length)
         )
     );
   }
