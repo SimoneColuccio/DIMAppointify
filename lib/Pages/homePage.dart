@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
   var order = ["Ascending", "Descending"];
   String? ascending = "Ascending";
   var userParameters = ["Name", "Distance", "Rating"];
-  var managerParameters = ["Name", "Category", "Date"];
+  var managerParameters = ["Name", "Category", "Date of adding"];
   String? parameter = "Name";
 
   var distances = [0.0, double.infinity];
@@ -180,257 +180,229 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 if (ordering) orderActivities(userParameters),
-                if (filtering) SizedBox(
-                  height: 280,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Category")
-                            ),
-                            //const SizedBox(width: 60,),
-                            SizedBox(
-                              width: 260,
-                              height: 50,
-                              child: DropdownButtonFormField<String>(
-                                value: filteredCategory,
-                                items: categories.map((cat) => DropdownMenuItem<String>(
-                                  value: cat,
-                                  child: Text(cat, style: const TextStyle(fontSize: 15),
-                                  ),
-                                )).toList(),
-                                onChanged: (cat) => setState(() => filteredCategory = cat),
+                if (filtering) Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 280,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 150,
+                                child: Text("Category")
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Distance")
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: minController,
-                                      focusNode: minFocusNode,
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Min km',
-                                      ),
-                                      onChanged: (text) {
-                                        distances[0] = double.parse(minController.text);
-                                        setState(() {});
-                                      },
-                                      onSubmitted: (text) {
-                                        distances[0] = double.parse(minController.text);
-                                        if(distances[0] > distances[1]) {
-                                          maxController.text = minController.text;
-                                          distances[1] = double.parse(minController.text);
-                                        }
-                                        setState(() {});
-                                      },
-                                    )
-                                  ),
-                                  const SizedBox(width: 100,),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: maxController,
-                                      focusNode: maxFocusNode,
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Max km',
-                                      ),
-                                      onChanged: (text) {
-                                        distances[1] = double.parse(maxController.text);
-                                        setState(() {});
-                                      },
-                                      onSubmitted: (text) {
-                                        distances[1] = double.parse(maxController.text);
-                                        if(distances[1] < distances[0]) {
-                                          minController.text = maxController.text;
-                                          distances[0] = distances[1];
-                                        }
-                                        setState(() {});
-                                      },
+                              //const SizedBox(width: 60,),
+                              SizedBox(
+                                width: 240,
+                                height: 50,
+                                child: DropdownButtonFormField<String>(
+                                  value: filteredCategory,
+                                  items: categories.map((cat) => DropdownMenuItem<String>(
+                                    value: cat,
+                                    child: Text(cat, style: const TextStyle(fontSize: 15),
                                     ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Rating")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              child: Row(
-                                children: [
-                                  IconButton(onPressed: () {
-                                    if (minRating == 1) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 1;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 1) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 2) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 2;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 2) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 3) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 3;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 3) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 4) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 4;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 4) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 5) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 5;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 5) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Available date")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              child: TextField(
-                                controller: dataController,
-                                focusNode: dataFocusNode,
-                                decoration: const InputDecoration(
-                                    icon: Icon(Icons.calendar_today), //icon of text field
-                                    labelText: "Enter Date" //label text of field
+                                  )).toList(),
+                                  onChanged: (cat) => setState(() => filteredCategory = cat),
                                 ),
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.datetime,
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime.now(),
-                                        lastDate: DateTime(2100));
-                                    if (pickedDate != null) {
-                                      String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                      date = pickedDate;
-                                      setState(() {
-                                        dataController.text = formattedDate; //set output date to TextField value.
-                                      });
-                                    }
-                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 150,
+                                child: Text("Distance")
+                              ),
+                              SizedBox(
+                                width: 240,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: minController,
+                                        focusNode: minFocusNode,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Min km',
+                                        ),
+                                        onChanged: (text) {
+                                          distances[0] = double.parse(minController.text);
+                                          setState(() {});
+                                        },
+                                        onSubmitted: (text) {
+                                          distances[0] = double.parse(minController.text);
+                                          if(distances[0] > distances[1]) {
+                                            maxController.text = minController.text;
+                                            distances[1] = double.parse(minController.text);
+                                          }
+                                          setState(() {});
+                                        },
+                                      )
+                                    ),
+                                    const SizedBox(width: 75,),
+                                    Expanded(
+                                      child: TextField(
+                                        controller: maxController,
+                                        focusNode: maxFocusNode,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Max km',
+                                        ),
+                                        onChanged: (text) {
+                                          distances[1] = double.parse(maxController.text);
+                                          setState(() {});
+                                        },
+                                        onSubmitted: (text) {
+                                          distances[1] = double.parse(maxController.text);
+                                          if(distances[1] < distances[0]) {
+                                            minController.text = maxController.text;
+                                            distances[0] = distances[1];
+                                          }
+                                          setState(() {});
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 150,
+                                child: Text("Rating")
+                              ),
+                              SizedBox(
+                                width: 240,
+                                child: Row(
+                                  children: [
+                                    for(int i = 1; i <= 5; i++)
+                                      IconButton(onPressed: () {
+                                        if (minRating == i) {
+                                          minRating = 0;
+                                        } else {
+                                          minRating = i;
+                                        }
+                                        setState(() {});
+                                      }, icon: (minRating < i) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 150,
+                                child: Text("Available date")
+                              ),
+                              SizedBox(
+                                width: 240,
+                                child: TextField(
+                                  controller: dataController,
+                                  focusNode: dataFocusNode,
+                                  decoration: const InputDecoration(
+                                      icon: Icon(Icons.calendar_today), //icon of text field
+                                      labelText: "Enter Date" //label text of field
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  keyboardType: TextInputType.datetime,
+                                    onTap: () async {
+                                      DateTime? pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100));
+                                      if (pickedDate != null) {
+                                        String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                        date = pickedDate;
+                                        setState(() {
+                                          dataController.text = formattedDate; //set output date to TextField value.
+                                        });
+                                      }
+                                    },
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => setState(() {
+                                  filteredCategory = "";
+                                  distances = [0.0, double.infinity];
+                                  date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
+                                  minRating = 0;
+                                  filtering = false;
+                                  minController.text = "";
+                                  maxController.text = "";
+                                  dataController.text = "";
+                                }), child: const Text("Reset"),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => setState(() {
+                                  filtering = false;
+                                  minController.text = "";
+                                  maxController.text = "";
+                                  dataController.text = "";
+                                }), child: const Text("Apply"),
                               ),
                             )
                           ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => setState(() {
-                                filteredCategory = "";
-                                distances = [0.0, double.infinity];
-                                date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
-                                minRating = 0;
-                                filtering = false;
-                                minController.text = "";
-                                maxController.text = "";
-                                dataController.text = "";
-                              }), child: const Text("Reset"),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => setState(() {
-                                filtering = false;
-                                minController.text = "";
-                                maxController.text = "";
-                                dataController.text = "";
-                              }), child: const Text("Apply"),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) SizedBox(
-                  height: (categories.length) * 50,
-                  child: ListView.builder(
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final category = categories[index];
-                      if (category != "") {
-                        return ListTile(
-                          title: Text(
-                            category,
-                            style: (filteredCategory == category) ? const TextStyle(color: Colors.red) : const TextStyle(color: Colors.black),
-                            textAlign: TextAlign.start,
-                          ),
-                          onTap: () => {
-                            if (filteredCategory == category) {
-                              filteredCategory = ""
-                            } else {
-                              filteredCategory = category,
+                if(!searchFocusNode.hasFocus & !filtering & !ordering)
+                  SizedBox(
+                    height: 240,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        for(int i = 1; i < categories.length ; i++)
+                          TextButton(
+                            onPressed: () => {
+                              if (filteredCategory == categories[i]) {
+                                filteredCategory = ""
+                              } else {
+                                filteredCategory = categories[i],
+                              },
+                              setState(() {})
                             },
-                            setState(() {})
-                          }
-                      );
-                      } else {
-                        return const Divider();
-                      }
-                    },
+                            child: Text(
+                              categories[i],
+                              style: (filteredCategory == categories[i]) ? const TextStyle(color: Colors.red) : const TextStyle(color: Colors.black),
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
+                if (!searchFocusNode.hasFocus) const Divider(
+                  color: Colors.red,
                 ),
-                if (!searchFocusNode.hasFocus) const Divider(),
                 if(!searchFocusNode.hasFocus & !filtering & !ordering) printActivityColumns(),
                 if(!searchFocusNode.hasFocus & !filtering & !ordering) const Divider(),
                 if(!searchFocusNode.hasFocus & !filtering & !ordering) printUserActivityElement(),
@@ -492,64 +464,70 @@ class _HomePageState extends State<HomePage> {
                   [
                     if(!filtering & !ordering) printActivityManagerElement(),
                     if (ordering) orderActivities(managerParameters),
-                    if (filtering) SizedBox(
-                      height: 150,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
+                    if (filtering) Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 150,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                      width: 150,
+                                      child: Text("Category")
+                                  ),
+                                  //const SizedBox(width: 60,),
+                                  SizedBox(
+                                    width: 240,
+                                    height: 50,
+                                    child: DropdownButtonFormField<String>(
+                                      value: filteredCategory,
+                                      items: categories.map((cat) =>
+                                          DropdownMenuItem<String>(
+                                            value: cat,
+                                            child: Text(cat,
+                                              style: const TextStyle(
+                                                  fontSize: 15),
+                                            ),
+                                          )).toList(),
+                                      onChanged: (cat) =>
+                                          setState(() => filteredCategory = cat),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Category")
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () =>
+                                        setState(() {
+                                          filteredCategory = "";
+                                          filtering = false;
+                                        }), child: const Text("Reset"),
+                                  ),
                                 ),
-                                //const SizedBox(width: 60,),
-                                SizedBox(
-                                  width: 240,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: filteredCategory,
-                                    items: categories.map((cat) =>
-                                        DropdownMenuItem<String>(
-                                          value: cat,
-                                          child: Text(cat,
-                                            style: const TextStyle(
-                                                fontSize: 15),
-                                          ),
-                                        )).toList(),
-                                    onChanged: (cat) =>
-                                        setState(() => filteredCategory = cat),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () =>
+                                        setState(() {
+                                          filtering = false;
+                                        }), child: const Text("Apply"),
                                   ),
                                 ),
                               ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () =>
-                                      setState(() {
-                                        filteredCategory = "";
-                                        filtering = false;
-                                      }), child: const Text("Reset"),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () =>
-                                      setState(() {
-                                        filtering = false;
-                                      }), child: const Text("Apply"),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
+                    ),
+                    const Divider(
+                      color: Colors.red,
                     ),
                   ]
               )
@@ -851,81 +829,84 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget orderActivities (List<String> parameters) {
-    return SizedBox(
-      height: 140,
-      child: Column(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                const SizedBox(
-                    width: 150,
-                    child: Text("Sort by")
-                ),
-                SizedBox(
-                  width: 260,
-                  height: 50,
-                  child: DropdownButtonFormField<String>(
-                    value: parameter,
-                    items: parameters.map((cat) => DropdownMenuItem<String>(
-                      value: cat,
-                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                      ),
-                    )).toList(),
-                    onChanged: (cat) => setState(() =>  parameter = cat),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: 140,
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 130,
+                      child: Text("Sort by")
                   ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                const SizedBox(
-                    width: 150,
-                    child: Text("Order")
-                ),
-                SizedBox(
-                  width: 260,
-                  height: 50,
-                  child: DropdownButtonFormField<String>(
-                    value: ascending,
-                    items: order.map((cat) => DropdownMenuItem<String>(
-                      value: cat,
-                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                      ),
-                    )).toList(),
-                    onChanged: (cat) => setState(() =>  ascending = cat),
+                  SizedBox(
+                    width: 260,
+                    height: 50,
+                    child: DropdownButtonFormField<String>(
+                      value: parameter,
+                      items: parameters.map((cat) => DropdownMenuItem<String>(
+                        value: cat,
+                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                        ),
+                      )).toList(),
+                      onChanged: (cat) => setState(() =>  parameter = cat),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => setState(() {
-                    ordering = false;
-                    ascending = "Ascending";
-                    parameter = "Name";
-                  }), child: const Text("Reset"),
-                ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => setState(() {
-                    ordering = false;
-                    sortActivities(parameter, ascending);
-                  }), child: const Text("Apply"),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 130,
+                      child: Text("Order")
+                  ),
+                  SizedBox(
+                    width: 260,
+                    height: 50,
+                    child: DropdownButtonFormField<String>(
+                      value: ascending,
+                      items: order.map((cat) => DropdownMenuItem<String>(
+                        value: cat,
+                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                        ),
+                      )).toList(),
+                      onChanged: (cat) => setState(() =>  ascending = cat),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => setState(() {
+                      ordering = false;
+                      ascending = "Ascending";
+                      parameter = "Name";
+                    }), child: const Text("Reset"),
+                  ),
                 ),
-              )
-            ],
-          )
-        ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => setState(() {
+                      ordering = false;
+                      sortActivities(parameter, ascending);
+                    }), child: const Text("Apply"),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

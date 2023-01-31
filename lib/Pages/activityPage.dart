@@ -52,20 +52,30 @@ class ActivityPageScreen extends StatelessWidget {
                   height: 70,
                   child: Row(
                     children: [
-                      Text(a.category,
-                        style: const TextStyle(
-                          fontSize: 20,
+                      Expanded(
+                        child: Text(a.category,
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 135,),
-                      Text("$r/5",
-                        style: const TextStyle(
-                        fontSize: 17,
+                      //const SizedBox(width: 10,),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text("$r/5",
+                              style: const TextStyle(
+                              fontSize: 17,
+                              ),
+                            ),
+                            const Icon(Icons.star,
+                              color: Colors.amber,
+                              size: 35,
+                            ),
+                          ],
                         ),
-                      ),
-                      const Icon(Icons.star,
-                        color: Colors.amber,
-                        size: 35,
                       ),
                     ],
                   ),

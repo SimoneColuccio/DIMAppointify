@@ -19,7 +19,7 @@ List<Appointment> allAppointments = [
       allActivities[0].rating,
       allActivities[0].dateOfAdding,
     ),
-    DateTime(DateTime.now().year, DateTime.now().month + 1)
+    DateTime(DateTime.now().year, 02, 01)
   ),
   Appointment(
       "user2",

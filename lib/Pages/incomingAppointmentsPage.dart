@@ -46,10 +46,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
     for(int i = 0; i < allAppointments.length; i++) {
       if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
         !incomingAppointments.contains(allAppointments[i]) &&
-        (allAppointments[i].dateTime.year == DateTime.now().year &&
-          allAppointments[i].dateTime.month == DateTime.now().month &&
-          (allAppointments[i].dateTime.day == DateTime.now().day ||
-          allAppointments[i].dateTime.day == DateTime.now().day + 1))) {
+        isTodayOrTomorrow(i)) {
         incomingAppointments.add(allAppointments[i]);
       }
     }
@@ -57,10 +54,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
     for(int i = 0; i < allAppointments.length; i++) {
       if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
           !appointments.contains(allAppointments[i]) &&
-          !(allAppointments[i].dateTime.year == DateTime.now().year &&
-              allAppointments[i].dateTime.month == DateTime.now().month &&
-              (allAppointments[i].dateTime.day == DateTime.now().day ||
-                  allAppointments[i].dateTime.day == DateTime.now().day + 1))) {
+          !isTodayOrTomorrow(i)) {
         appointments.add(allAppointments[i]);
       }
     }
@@ -97,174 +91,180 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
             SliverList(
               delegate: SliverChildListDelegate(
                   [
-                    if (ordering) SizedBox(
-                      height: 140,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Sort by")
-                                ),
-                                SizedBox(
-                                  width: 260,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: parameter,
-                                    items: columns.map((cat) => DropdownMenuItem<String>(
-                                      value: cat,
-                                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                                      ),
-                                    )).toList(),
-                                    onChanged: (cat) => setState(() =>  parameter = cat),
+                    if (ordering) Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 140,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                      width: 130,
+                                      child: Text("Sort by")
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Order")
-                                ),
-                                SizedBox(
-                                  width: 260,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: ascending,
-                                    items: order.map((cat) => DropdownMenuItem<String>(
-                                      value: cat,
-                                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                                      ),
-                                    )).toList(),
-                                    onChanged: (cat) => setState(() =>  ascending = cat),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => setState(() {
-                                    ordering = false;
-                                    ascending = "Ascending";
-                                    parameter = "Date";
-                                  }), child: const Text("Reset"),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => setState(() {
-                                    ordering = false;
-                                  }), child: const Text("Apply"),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                    if (filtering) Container(
-                      height: 140,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Category")
-                                ),
-                                //const SizedBox(width: 60,),
-                                SizedBox(
-                                  width: 260,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: filteredCategory,
-                                    items: categories.map((cat) => DropdownMenuItem<String>(
-                                      value: cat,
-                                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                                      ),
-                                    )).toList(),
-                                    onChanged: (cat) => setState(() => filteredCategory = cat),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Date")
-                                ),
-                                SizedBox(
-                                  width: 260,
-                                  child: TextField(
-                                    controller: dataController,
-                                    focusNode: dataFocusNode,
-                                    decoration: const InputDecoration(
-                                        icon: Icon(Icons.calendar_today), //icon of text field
-                                        labelText: "Enter Date" //label text of field
+                                  SizedBox(
+                                    width: 260,
+                                    height: 50,
+                                    child: DropdownButtonFormField<String>(
+                                      value: parameter,
+                                      items: columns.map((cat) => DropdownMenuItem<String>(
+                                        value: cat,
+                                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                                        ),
+                                      )).toList(),
+                                      onChanged: (cat) => setState(() =>  parameter = cat),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    keyboardType: TextInputType.datetime,
-                                    onTap: () async {
-                                      DateTime? pickedDate = await showDatePicker(
-                                          context: context,
-                                          initialDate: DateTime.now(),
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2100));
-
-                                      if (pickedDate != null) {
-                                        String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                        date = pickedDate;
-                                        setState(() {
-                                          dataController.text = formattedDate; //set output date to TextField value.
-                                        });
-                                      }
-                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                      width: 130,
+                                      child: Text("Order")
+                                  ),
+                                  SizedBox(
+                                    width: 260,
+                                    height: 50,
+                                    child: DropdownButtonFormField<String>(
+                                      value: ascending,
+                                      items: order.map((cat) => DropdownMenuItem<String>(
+                                        value: cat,
+                                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                                        ),
+                                      )).toList(),
+                                      onChanged: (cat) => setState(() =>  ascending = cat),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () => setState(() {
+                                      ordering = false;
+                                      ascending = "Ascending";
+                                      parameter = "Date";
+                                    }), child: const Text("Reset"),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => setState(() {
+                                      ordering = false;
+                                    }), child: const Text("Apply"),
                                   ),
                                 )
                               ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => setState(() {
-                                    filteredCategory = "";
-                                    date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
-                                    filtering = false;
-                                    dataController.text = "";
-                                  }), child: const Text("Reset"),
-                                ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (filtering) Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 140,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                      width: 130,
+                                      child: Text("Category")
+                                  ),
+                                  //const SizedBox(width: 60,),
+                                  SizedBox(
+                                    width: 260,
+                                    height: 50,
+                                    child: DropdownButtonFormField<String>(
+                                      value: filteredCategory,
+                                      items: categories.map((cat) => DropdownMenuItem<String>(
+                                        value: cat,
+                                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                                        ),
+                                      )).toList(),
+                                      onChanged: (cat) => setState(() => filteredCategory = cat),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => setState(() {
-                                    filtering = false;
-                                    dataController.text = "";
-                                  }), child: const Text("Apply"),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                      width: 130,
+                                      child: Text("Date")
+                                  ),
+                                  SizedBox(
+                                    width: 260,
+                                    child: TextField(
+                                      controller: dataController,
+                                      focusNode: dataFocusNode,
+                                      decoration: const InputDecoration(
+                                          icon: Icon(Icons.calendar_today), //icon of text field
+                                          labelText: "Enter Date" //label text of field
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.datetime,
+                                      onTap: () async {
+                                        DateTime? pickedDate = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime.now(),
+                                            lastDate: DateTime(2100));
+
+                                        if (pickedDate != null) {
+                                          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                          date = pickedDate;
+                                          setState(() {
+                                            dataController.text = formattedDate; //set output date to TextField value.
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () => setState(() {
+                                      filteredCategory = "";
+                                      date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
+                                      filtering = false;
+                                      dataController.text = "";
+                                    }), child: const Text("Reset"),
+                                  ),
                                 ),
-                              )
-                            ],
-                          )
-                        ],
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => setState(() {
+                                      filtering = false;
+                                      dataController.text = "";
+                                    }), child: const Text("Apply"),
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                     if(!filtering & !ordering) SizedBox(
@@ -367,5 +367,59 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
             items: getBottomMenu(incomingAppointments.length)
         )
     );
+  }
+  
+  bool isTodayOrTomorrow (int i) {
+    
+    var months30 = [1, 3, 5, 7, 8, 10];
+    var months31 = [4, 6, 9, 11];
+    
+    //today
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+        allAppointments[i].dateTime.month == DateTime.now().month &&
+        allAppointments[i].dateTime.day == DateTime.now().day) {
+      return true;
+    }
+    
+    //easy tomorrow
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+        allAppointments[i].dateTime.month == DateTime.now().month &&
+        allAppointments[i].dateTime.day == DateTime.now().day + 1) {
+      return true;
+    }
+    
+    //today is 31 and tomorrow is 1
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+        months31.contains(DateTime.now().month) && DateTime.now().day == 31 &&
+        allAppointments[i].dateTime.month == DateTime.now().month + 1 &&
+        allAppointments[i].dateTime.day == 1) {
+      return true;
+    }
+
+    //today is 30 and tomorrow is 1
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+        months30.contains(DateTime.now().month) && DateTime.now().day == 30 &&
+        allAppointments[i].dateTime.month == DateTime.now().month + 1 &&
+        allAppointments[i].dateTime.day == 1) {
+      return true;
+    }
+
+    //today is 28/29 and tomorrow is 1
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+       (DateTime.now().month == 2 && DateTime.now().day == 28 && DateTime.now().year % 4 != 0 ||
+        DateTime.now().month == 2 && DateTime.now().day == 29 && DateTime.now().year % 4 == 0) &&
+        allAppointments[i].dateTime.month == DateTime.now().month + 1 &&
+        allAppointments[i].dateTime.day == 1) {
+      return true;
+    }
+    
+    //today is dec 31th and tomorrow is jan 1st
+    if(allAppointments[i].dateTime.year == DateTime.now().year + 1 &&
+        DateTime.now().month == 12 && DateTime.now().day == 31 &&
+        allAppointments[i].dateTime.month == 1 && allAppointments[i].dateTime.day == 1) {
+      return true;
+    }
+    
+    return false;
   }
 }
