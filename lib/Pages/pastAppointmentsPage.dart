@@ -1,8 +1,12 @@
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
+import 'package:my_app/Pages/incomingAppointmentsPage.dart';
 
+import '../Data/appointment.dart';
 import '../Data/category.dart';
 import 'accountPage.dart';
 
@@ -14,6 +18,8 @@ class PastAppPage extends StatefulWidget {
   @override
   State<PastAppPage> createState() => _PastAppPageState(this.index);
 }
+
+List<Appointment> pastAppointments = [];
 
 class _PastAppPageState extends State<PastAppPage>{
   _PastAppPageState(this.ind);
@@ -38,6 +44,17 @@ class _PastAppPageState extends State<PastAppPage>{
 
   @override
   Widget build(BuildContext context) {
+
+    for(int i = 0; i < allAppointments.length; i++) {
+      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
+          !pastAppointments.contains(allAppointments[i]) &&
+          !incomingAppointments.contains(allAppointments[i]) &&
+          !appointments.contains(allAppointments[i])) {
+        log(user);
+        pastAppointments.add(allAppointments[i]);
+      }
+    }
+
     return Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -245,14 +262,56 @@ class _PastAppPageState extends State<PastAppPage>{
                     if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
-                      child: Column(
-                        children: [
-                          const Text('Appointments to scroll'),
-                          Row(children: [
-                            Text(parameter!),
-                            Text(ascending!)
-                          ]),
-                        ],
+                      child: ListView.builder(
+                        itemCount: pastAppointments.length,
+                        itemBuilder: (context, index) {
+                          final appointment = pastAppointments[index];
+                          if(filteredCategory == "" || appointment.activity.category == filteredCategory) {
+                            return ListTile(
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        appointment.activity.name,
+                                        textAlign: TextAlign.start,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        DateFormat('yy/MM/dd').format(appointment.dateTime),
+                                        textAlign: TextAlign.end,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 144,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          IconButton(
+                                              onPressed: () {},
+                                              icon: const Icon(Icons.info)
+                                          ),
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: const Icon(Icons.thumb_up)
+                                          ),
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: const Icon(Icons.bookmark_add)
+                                          ),
+                                        ],
+                                      )
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => {
+                                  //Add to Google Calendar
+                                }
+                            );
+                          } else {
+                            return const SizedBox(width: 0, height: 0,);
+                          }
+                        },
                       ),
                     ),
                     if(!filtering & !(isLoggedAsUser | isLoggedAsActivity)) const SizedBox(

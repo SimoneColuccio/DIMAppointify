@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
+import 'package:my_app/Pages/pastAppointmentsPage.dart';
 
 import '../Data/activity.dart';
+import 'incomingAppointmentsPage.dart';
 //Feature/Stream Builder
 
 bool isLoggedAsUser = false;
@@ -65,6 +67,9 @@ class _AccountPageState extends State<AccountPage>{
                 isLoggedAsUser = false;
                 isLoggedAsActivity = false;
                 user = "";
+                appointments = [];
+                pastAppointments = [];
+                incomingAppointments = [];
                 setState(() {});
               },
               child: const Text("Log Out"),

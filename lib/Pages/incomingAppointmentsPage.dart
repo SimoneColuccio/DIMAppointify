@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
@@ -14,6 +16,9 @@ class IncomingAppPage extends StatefulWidget {
   @override
   State<IncomingAppPage> createState() => _IncomingAppPageState(this.index);
 }
+
+List<Appointment> appointments = [];
+List<Appointment> incomingAppointments = [];
 
 class _IncomingAppPageState extends State<IncomingAppPage>{
   _IncomingAppPageState(this.ind);
@@ -33,10 +38,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   var columns = ["Name", "Date"];
   String? parameter = "Date";
 
-  List<Appointment> appointments = [];
-  List<Appointment> incomingAppointments = [];
-
-
   DateTime date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
   String? filteredCategory = "";
 
@@ -47,6 +48,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
       if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
         !incomingAppointments.contains(allAppointments[i]) &&
         isTodayOrTomorrow(i)) {
+        log(user);
         incomingAppointments.add(allAppointments[i]);
       }
     }
@@ -54,7 +56,8 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
     for(int i = 0; i < allAppointments.length; i++) {
       if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
           !appointments.contains(allAppointments[i]) &&
-          !isTodayOrTomorrow(i)) {
+          !isTodayOrTomorrow(i) && isFuture(i)) {
+        log(user);
         appointments.add(allAppointments[i]);
       }
     }
@@ -372,7 +375,10 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
     //today
     if (allAppointments[i].dateTime.year == DateTime.now().year &&
         allAppointments[i].dateTime.month == DateTime.now().month &&
-        allAppointments[i].dateTime.day == DateTime.now().day) {
+        allAppointments[i].dateTime.day == DateTime.now().day &&
+        (allAppointments[i].dateTime.hour >= DateTime.now().hour ||
+        allAppointments[i].dateTime.hour == DateTime.now().hour &&
+        allAppointments[i].dateTime.minute >= DateTime.now().minute)) {
       return true;
     }
     
@@ -416,5 +422,34 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
     }
     
     return false;
+  }
+
+  bool isFuture(int i) {
+    //Appointment next year
+    if (allAppointments[i].dateTime.year > DateTime.now().year) {
+      return true;
+    }
+
+    //Appointment next month
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+        allAppointments[i].dateTime.month > DateTime.now().month) {
+      return true;
+    }
+
+    if (allAppointments[i].dateTime.year == DateTime.now().year &&
+        allAppointments[i].dateTime.month == DateTime.now().month &&
+        allAppointments[i].dateTime.day > DateTime.now().day + 1) {
+      return true;
+    }
+
+    return false;
+  }
+
+  List<Appointment> getIncomingAppointments() {
+    return incomingAppointments;
+  }
+
+  List<Appointment> getFutureAppointments() {
+    return appointments;
   }
 }
