@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                 if (filtering) Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
-                    height: 280,
+                    height: 300,
                     child: Column(
                       children: [
                         Expanded(
@@ -194,9 +194,7 @@ class _HomePageState extends State<HomePage> {
                                 child: Text("Category")
                               ),
                               //const SizedBox(width: 60,),
-                              SizedBox(
-                                width: 240,
-                                height: 50,
+                              Expanded(
                                 child: DropdownButtonFormField<String>(
                                   value: filteredCategory,
                                   items: categories.map((cat) => DropdownMenuItem<String>(
@@ -217,8 +215,7 @@ class _HomePageState extends State<HomePage> {
                                 width: 150,
                                 child: Text("Distance")
                               ),
-                              SizedBox(
-                                width: 240,
+                              Expanded(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -283,8 +280,7 @@ class _HomePageState extends State<HomePage> {
                                 width: 150,
                                 child: Text("Rating")
                               ),
-                              SizedBox(
-                                width: 240,
+                              Expanded(
                                 child: Row(
                                   children: [
                                     for(int i = 1; i <= 5; i++)
@@ -309,8 +305,7 @@ class _HomePageState extends State<HomePage> {
                                 width: 150,
                                 child: Text("Available date")
                               ),
-                              SizedBox(
-                                width: 240,
+                              Expanded(
                                 child: TextField(
                                   controller: dataController,
                                   focusNode: dataFocusNode,
@@ -339,6 +334,7 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -478,9 +474,7 @@ class _HomePageState extends State<HomePage> {
                                       child: Text("Category")
                                   ),
                                   //const SizedBox(width: 60,),
-                                  SizedBox(
-                                    width: 240,
-                                    height: 50,
+                                  Expanded(
                                     child: DropdownButtonFormField<String>(
                                       value: filteredCategory,
                                       items: categories.map((cat) =>
@@ -775,14 +769,12 @@ class _HomePageState extends State<HomePage> {
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: 145,
+                  Expanded(
                     child: Text(activity.name,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(
-                    width: 130,
+                  Expanded(
                     child: Text(activity.category,
                       style: const TextStyle(color: Colors.black),
                     ),
@@ -842,9 +834,7 @@ class _HomePageState extends State<HomePage> {
                       width: 130,
                       child: Text("Sort by")
                   ),
-                  SizedBox(
-                    width: 260,
-                    height: 50,
+                  Expanded(
                     child: DropdownButtonFormField<String>(
                       value: parameter,
                       items: parameters.map((cat) => DropdownMenuItem<String>(
@@ -865,9 +855,7 @@ class _HomePageState extends State<HomePage> {
                       width: 130,
                       child: Text("Order")
                   ),
-                  SizedBox(
-                    width: 260,
-                    height: 50,
+                  Expanded(
                     child: DropdownButtonFormField<String>(
                       value: ascending,
                       items: order.map((cat) => DropdownMenuItem<String>(
@@ -881,6 +869,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -902,9 +891,9 @@ class _HomePageState extends State<HomePage> {
                       sortActivities(parameter, ascending);
                     }), child: const Text("Apply"),
                   ),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

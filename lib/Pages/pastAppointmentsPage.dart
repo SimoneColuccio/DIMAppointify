@@ -73,7 +73,7 @@ class _PastAppPageState extends State<PastAppPage>{
                     if (ordering) Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
-                        height: 140,
+                        height: 150,
                         child: Column(
                           children: [
                             Expanded(
@@ -83,9 +83,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                       width: 130,
                                       child: Text("Sort by")
                                   ),
-                                  SizedBox(
-                                    width: 260,
-                                    height: 50,
+                                  Expanded(
                                     child: DropdownButtonFormField<String>(
                                       value: parameter,
                                       items: columns.map((cat) => DropdownMenuItem<String>(
@@ -106,9 +104,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                       width: 130,
                                       child: Text("Order")
                                   ),
-                                  SizedBox(
-                                    width: 260,
-                                    height: 50,
+                                  Expanded(
                                     child: DropdownButtonFormField<String>(
                                       value: ascending,
                                       items: order.map((cat) => DropdownMenuItem<String>(
@@ -122,6 +118,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -152,7 +149,7 @@ class _PastAppPageState extends State<PastAppPage>{
                     if (filtering) Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
-                        height: 140,
+                        height: 170,
                         child: Column(
                           children: [
                             Expanded(
@@ -163,9 +160,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                       child: Text("Category")
                                   ),
                                   //const SizedBox(width: 60,),
-                                  SizedBox(
-                                    width: 260,
-                                    height: 50,
+                                  Expanded(
                                     child: DropdownButtonFormField<String>(
                                       value: filteredCategory,
                                       items: categories.map((cat) => DropdownMenuItem<String>(
@@ -186,8 +181,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                       width: 130,
                                       child: Text("Date")
                                   ),
-                                  SizedBox(
-                                    width: 260,
+                                  Expanded(
                                     child: TextField(
                                       controller: dataController,
                                       focusNode: dataFocusNode,
@@ -217,6 +211,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -246,7 +241,7 @@ class _PastAppPageState extends State<PastAppPage>{
                         ),
                       ),
                     ),
-                    if (filtering & (isLoggedAsUser | isLoggedAsActivity)) const Divider(),
+                    if ((filtering || ordering) && (isLoggedAsUser | isLoggedAsActivity)) const Divider(color: Colors.red),
                     if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
