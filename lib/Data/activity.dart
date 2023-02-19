@@ -1,18 +1,21 @@
 
+import 'dart:developer';
+
 class Activity {
-  final String name;
-  final String description;
-  final String category;
-  final String position;
-  final double rating;
-  final DateTime dateOfAdding;
+  String name;
+  String description;
+  String category;
+  String position;
+  DateTime dateOfAdding;
   //Coordinates? coordinates;
+
+  double rating = 0.0;
+  int votes = 0;
 
   Activity( this.name,
      this.description,
      this.category,
      this.position,
-     this.rating,
      this.dateOfAdding,
       ) {/* coordinates = getCoordinates() as Coordinates;*/}
 
@@ -22,18 +25,34 @@ class Activity {
     return first.coordinates;
   }*/
 
+  void voteActivity (int vote) {
+    double r = rating * votes;
+    r = r + vote;
+    votes = votes + 1;
+    rating = r / votes;
+    log("voteActivity method");
+    log(rating.toString());
+    log(votes.toString());
+  }
+
+  void editActivity(name, category, description) {
+    this.name = name;
+    this.category = category;
+    this.description = description;
+  }
+
 }
 
   List<Activity> allActivities = [
-    Activity("first activity", "1st activity", "Beauty", "", 3.7, DateTime(DateTime.now().day - 1)),
-    Activity("second activity", "2nd activity", "Food and drink", "", 3.8, DateTime.now()),
-    Activity("third activity", "3rd activity", "Health", "", 4.1, DateTime(DateTime.now().day - 10)),
-    Activity("fourth activity", "4th activity", "Hotels and travels", "", 3.5, DateTime(DateTime.now().month - 1)),
-    Activity("fifth activity", "5th activity", "Spa and Wellness", "", 4.2, DateTime(DateTime.now().year - 1)),
+    Activity("first activity", "1st activity", "Beauty", "", DateTime(DateTime.now().day - 1)),
+    Activity("second activity", "2nd activity", "Food and drink", "", DateTime.now()),
+    Activity("third activity", "3rd activity", "Health", "", DateTime(DateTime.now().day - 10)),
+    Activity("fourth activity", "4th activity", "Hotels and travels", "", DateTime(DateTime.now().month - 1)),
+    Activity("fifth activity", "5th activity", "Spa and Wellness", "", DateTime(DateTime.now().year - 1)),
   ];
 
-  void createActivity(name, description, category, position, rating, dateOfAdding) {
-    Activity a = Activity(name, description, category, position, rating, dateOfAdding);
+  void createActivity(name, description, category, position, dateOfAdding) {
+    Activity a = Activity(name, description, category, position, dateOfAdding);
     allActivities.add(a);
   }
 

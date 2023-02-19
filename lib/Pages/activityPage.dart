@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/activity.dart';
@@ -141,7 +143,9 @@ class ActivityPageScreen extends StatelessWidget {
           },
         ),
         floatingActionButton: a != null ? FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, '/bookAppointment');
+          },
           child: const Icon(Icons.bookmark_add)
         ) : null,
         bottomNavigationBar: BottomNavigationBar(

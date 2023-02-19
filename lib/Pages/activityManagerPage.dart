@@ -30,8 +30,6 @@ class EditActivityPageScreen extends StatelessWidget {
     String title = args.title;
     Activity activity = args.activity;
 
-    Activity deletedActivity = activity;
-
     final controller = TextEditingController();
     final focusNode = FocusNode();
 
@@ -141,8 +139,7 @@ class EditActivityPageScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              deleteActivity(deletedActivity);
-                              createActivity(name, description, filteredCategory, 0.0, 0.0, DateTime.now());
+                              activity.editActivity(name, filteredCategory, description);
                               controller.text = "";
                               descController.text = "";
                               name = "";

@@ -1,5 +1,4 @@
 
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -48,7 +47,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
       if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
         !incomingAppointments.contains(allAppointments[i]) &&
         isTodayOrTomorrow(i)) {
-        log(user);
         incomingAppointments.add(allAppointments[i]);
       }
     }
@@ -57,7 +55,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
       if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
           !appointments.contains(allAppointments[i]) &&
           !isTodayOrTomorrow(i) && isFuture(i)) {
-        log(user);
         appointments.add(allAppointments[i]);
       }
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'accountPage.dart';
 import 'activityManagerPage.dart';
 import 'activityPage.dart';
+import 'bookAppointmentPage.dart';
 import 'homePage.dart';
 import 'incomingAppointmentsPage.dart';
 import 'pastAppointmentsPage.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/account': (context) => const AccountPage(index: 3),
         '/activity': (context) => const ActivityPageScreen(),
         '/addActivity': (context) => const EditActivityPageScreen(),
+        '/bookAppointment': (context) => const BookAppointmentPage(),
       },
     );
   }

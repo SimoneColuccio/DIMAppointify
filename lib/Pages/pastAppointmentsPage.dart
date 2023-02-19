@@ -1,9 +1,13 @@
 
+//import 'dart:developer';
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Buttons/bottomMenu.dart';
+import 'package:my_app/Data/activity.dart';
+//import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/incomingAppointmentsPage.dart';
 
 import '../Data/appointment.dart';
@@ -50,7 +54,6 @@ class _PastAppPageState extends State<PastAppPage>{
           !pastAppointments.contains(allAppointments[i]) &&
           !incomingAppointments.contains(allAppointments[i]) &&
           !appointments.contains(allAppointments[i])) {
-        log(user);
         pastAppointments.add(allAppointments[i]);
       }
     }
@@ -288,15 +291,36 @@ class _PastAppPageState extends State<PastAppPage>{
                                         mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           IconButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) =>
+                                                      _buildPopupDialogInfo(appointment),
+                                                );
+                                              },
                                               icon: const Icon(Icons.info)
                                           ),
-                                          IconButton(
-                                            onPressed: () {},
+                                          appointment.voted == -1 ? IconButton(
+                                              onPressed: () async {
+                                                await showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                    _buildPopupDialogVote(context, appointment),
+                                                );
+                                                for (var element in allActivities) {
+                                                  if(element.name == appointment.activity.name && element.dateOfAdding == appointment.activity.dateOfAdding && element.description == appointment.activity.description) {
+                                                    element.voteActivity(appointment.voted);
+                                                    break;
+                                                  }
+                                                }
+                                                setState(() {});
+                                              },
                                             icon: const Icon(Icons.thumb_up)
-                                          ),
+                                          ) : const SizedBox(width: 0, height: 0),
                                           IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.pushNamed(context, '/bookAppointment');
+                                            },
                                             icon: const Icon(Icons.bookmark_add)
                                           ),
                                         ],
@@ -346,4 +370,122 @@ class _PastAppPageState extends State<PastAppPage>{
         )
     );
   }
+
+  Widget _buildPopupDialogVote(BuildContext context, Appointment appointment) {
+    int vote = 0;
+    return AlertDialog(
+      title: const Text('Rate your experience'),
+      content: StatefulBuilder(
+        builder: (context, StateSetter setState) {
+          return SizedBox(
+            height: 100,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    for(int i = 1; i <= 5; i++)
+                      IconButton(onPressed: () {
+                        if (vote == i) {
+                          vote = 0;
+                        } else {
+                          vote = i;
+                        }
+                        setState(() {});
+                      }, icon: (vote < i) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                const Text("The vote cannot be zero"),
+              ],
+            ),
+          );
+        },
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Back"),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (vote > 0) {
+                      appointment.voted = vote;
+                      setState(() {});
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text("Confirm"),
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPopupDialogInfo(Appointment appointment) {
+    return AlertDialog(
+      title: const Text('Appointment info'),
+      content: SizedBox(
+        height: 170,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat('yy/MM/dd hh:mm').format(appointment.dateTime),
+              style: const TextStyle(fontSize: 19),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              appointment.appointType,
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 70),
+            Text(appointment.activity.name),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Text("pos"),
+                Text(appointment.activity.position),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SizedBox(
+                width: 100,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Back"),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
 }
