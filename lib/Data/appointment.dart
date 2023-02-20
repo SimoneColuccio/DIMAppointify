@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'activity.dart';
 
 class Appointment {
@@ -19,9 +21,10 @@ List<Appointment> allAppointments = [
       allActivities[0].category,
       allActivities[0].position,
       allActivities[0].dateOfAdding,
+      allActivities[0].appTypes,
     ),
     DateTime(DateTime.now().year, 02, 01, 23, 00),
-    "type1"
+    allActivities[0].appTypes.last
   ),
   Appointment(
       "user2",
@@ -31,8 +34,18 @@ List<Appointment> allAppointments = [
         allActivities[0].category,
         allActivities[0].position,
         allActivities[0].dateOfAdding,
+        allActivities[0].appTypes,
       ),
       DateTime.now(),
-      "type2"
+      allActivities[0].appTypes.last,
   ),
 ];
+
+void addAppointments(Appointment value) {
+  log(value.dateTime.year.toString());
+  log(value.dateTime.month.toString());
+  log(value.dateTime.day.toString());
+  log(value.dateTime.hour.toString());
+  log(value.dateTime.minute.toString());
+  allAppointments.add(value);
+}

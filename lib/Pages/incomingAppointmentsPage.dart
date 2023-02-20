@@ -1,11 +1,14 @@
 
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import '../Data/category.dart';
+import '../Widgets/bottomMenu.dart';
+import '../Widgets/infoPopup.dart';
 
 class IncomingAppPage extends StatefulWidget {
   const IncomingAppPage({super.key, required this.index});
@@ -293,9 +296,13 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                     ),
                                   ],
                                 ),
-                                onTap: () => {
-                                  //Add to Google Calendar
-                                }
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        appointmentInfoPopup(appointment, context),
+                                  );
+                                },
                             );
                           },
                         ) : const Text("You have to log in to see your appointments"),
@@ -327,9 +334,13 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                   ),
                                 ],
                               ),
-                              onTap: () => {
-                                //Add to Google Calendar
-                              }
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      appointmentInfoPopup(appointment, context),
+                                );
+                              },
                           );
                           } else {
                             return const SizedBox(width: 0, height: 0,);

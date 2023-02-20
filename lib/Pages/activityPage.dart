@@ -1,8 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/activity.dart';
+
+import '../Widgets/bottomMenu.dart';
+import 'accountPage.dart';
+import 'bookAppointmentPage.dart';
 
 class ActivityPage {
   final int index;
@@ -43,86 +46,112 @@ class ActivityPageScreen extends StatelessWidget {
           title: a != null ? Text(a.name) : Text("Results for $tit"),
           centerTitle: true,
         ),
-        body: a != null ? Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  height: 70,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(a.category,
-                          textAlign: TextAlign.start,
-                          style: const TextStyle(
-                            fontSize: 20,
+        body: a != null ?
+        CustomScrollView(
+          slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            height: 70,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(a.category,
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                                //const SizedBox(width: 10,),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text("$r/5",
+                                        style: const TextStyle(
+                                        fontSize: 17,
+                                        ),
+                                      ),
+                                      const Icon(Icons.star,
+                                        color: Colors.amber,
+                                        size: 35,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      //const SizedBox(width: 10,),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text("$r/5",
+                        Container(
+                          width: double.infinity,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black12,
+                              width: 2,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              a.description,
                               style: const TextStyle(
-                              fontSize: 17,
+                                fontSize: 15,
                               ),
                             ),
-                            const Icon(Icons.star,
-                              color: Colors.amber,
-                              size: 35,
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            children: [
+                              const Text("Address",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                              Text(
+                                a.position,
+                                style: const TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Services Provided",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                              for(var s in a.appTypes)
+                                s != "" ? Text("- "+s) : const SizedBox(height: 0,),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ]
               ),
-              Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.black12,
-                    width: 2,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    a.description,
-                    style: const TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  children: [
-                    const Text("Address",
-                      style: TextStyle(
-                        fontSize: 15,
-                      ),
-                    ),
-                    Text(
-                      a.position,
-                      style: const TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
+            ),
+          ],
         ): ListView.builder(
           itemCount: activities.length,
           itemBuilder: (context, index) {
@@ -144,7 +173,14 @@ class ActivityPageScreen extends StatelessWidget {
         ),
         floatingActionButton: a != null ? FloatingActionButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/bookAppointment');
+            Navigator.pushNamed(
+              context,
+              '/bookAppointment',
+              arguments: BookAppointmentArguments(
+                  a,
+                  user
+              ),
+            );
           },
           child: const Icon(Icons.bookmark_add)
         ) : null,

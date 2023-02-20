@@ -5,7 +5,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 //import 'package:geolocator/geolocator.dart';
-import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
@@ -13,6 +12,7 @@ import 'package:my_app/Pages/activityPage.dart';
 import 'package:intl/intl.dart';
 
 import '../Data/category.dart';
+import '../Widgets/bottomMenu.dart';
 import 'activityManagerPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -873,7 +873,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(
                 context,
                 '/addActivity',
-                arguments: EditActivityPage(ind, "Add activity", Activity('', '', '', '', DateTime.now())),
+                arguments: EditActivityPage(ind, "Add activity", createActivity('', '', '', '', DateTime.now(), [''])),
               ).then(onGoBack);
             },
             style: ElevatedButton.styleFrom(

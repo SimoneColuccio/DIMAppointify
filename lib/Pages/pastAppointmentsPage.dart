@@ -5,14 +5,16 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_app/Buttons/bottomMenu.dart';
 import 'package:my_app/Data/activity.dart';
 //import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/incomingAppointmentsPage.dart';
+import 'package:my_app/Widgets/infoPopup.dart';
 
 import '../Data/appointment.dart';
 import '../Data/category.dart';
+import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
+import 'bookAppointmentPage.dart';
 
 class PastAppPage extends StatefulWidget {
   const PastAppPage({super.key, required this.index});
@@ -295,7 +297,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                                 showDialog(
                                                   context: context,
                                                   builder: (BuildContext context) =>
-                                                      _buildPopupDialogInfo(appointment),
+                                                      appointmentInfoPopup(appointment, context),
                                                 );
                                               },
                                               icon: const Icon(Icons.info)
@@ -319,7 +321,14 @@ class _PastAppPageState extends State<PastAppPage>{
                                           ) : const SizedBox(width: 0, height: 0),
                                           IconButton(
                                             onPressed: () {
-                                              Navigator.pushNamed(context, '/bookAppointment');
+                                              Navigator.pushNamed(
+                                                context,
+                                                '/bookAppointment',
+                                                arguments: BookAppointmentArguments(
+                                                  appointment.activity,
+                                                  appointment.user
+                                                ),
+                                              );
                                             },
                                             icon: const Icon(Icons.bookmark_add)
                                           ),
@@ -435,57 +444,4 @@ class _PastAppPageState extends State<PastAppPage>{
       ],
     );
   }
-
-  Widget _buildPopupDialogInfo(Appointment appointment) {
-    return AlertDialog(
-      title: const Text('Appointment info'),
-      content: SizedBox(
-        height: 170,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              DateFormat('yy/MM/dd hh:mm').format(appointment.dateTime),
-              style: const TextStyle(fontSize: 19),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              appointment.appointType,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 70),
-            Text(appointment.activity.name),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Text("pos"),
-                Text(appointment.activity.position),
-              ],
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: 100,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Back"),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
 }
