@@ -1,6 +1,8 @@
 
 import 'dart:developer';
 
+import 'package:my_app/Data/appointment.dart';
+
 class Activity {
   String name;
   String description;
@@ -67,6 +69,12 @@ class Activity {
   }
 
   void deleteActivity (Activity activity) {
+    for(int i = 0; i < allAppointments.length; i++) {
+      if(allAppointments[i].activity.name == activity.name && allAppointments[i].activity.category == activity.category && allAppointments[i].activity.dateOfAdding == activity.dateOfAdding) {
+        allAppointments.remove(allAppointments[i]);
+        log("Appointment removed");
+      }
+    }
     allActivities.remove(activity);
     log("Activity discarded");
   }

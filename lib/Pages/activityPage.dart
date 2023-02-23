@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:my_app/Data/activity.dart';
+import 'package:my_app/Data/appointment.dart';
 
 import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
@@ -177,8 +178,7 @@ class ActivityPageScreen extends StatelessWidget {
               context,
               '/bookAppointment',
               arguments: BookAppointmentArguments(
-                  a,
-                  user
+                createAppointment(user, a, DateTime.now(), "")
               ),
             );
           },

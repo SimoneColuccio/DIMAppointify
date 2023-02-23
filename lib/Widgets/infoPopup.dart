@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/appointment.dart';
 
-Widget appointmentInfoPopup(Appointment appointment, BuildContext context) {
+import '../Pages/accountPage.dart';
+
+Widget appointmentInfoPopup(Appointment appointment, BuildContext context, String date) {
   return AlertDialog(
     title: const Text('Appointment info'),
     content: SizedBox(
@@ -19,8 +21,10 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context) {
             appointment.appointType,
             style: const TextStyle(fontSize: 16),
           ),
-          const SizedBox(height: 70),
+          const SizedBox(height: 40),
           Text(appointment.activity.name),
+          const SizedBox(height: 10),
+          Text(appointment.activity.category),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -34,20 +38,48 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context) {
     actions: [
       Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Stack(
           children: [
-            SizedBox(
-              width: 100,
-              child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Back"),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Back"),
+                ),
+              ],
             ),
-          ],
+            date == "i" ? StatefulBuilder(
+              builder: (context, setState) {
+                if(isLoggedAsUser && !appointment.userGoogleCalendar || !isLoggedAsUser && !appointment.actGoogleCalendar) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      FloatingActionButton(
+                        onPressed: () {
+                          appointment.addToCalendar(isLoggedAsUser);
+                          setState(() {});
+                        },
+                        child: const Icon(Icons.edit_calendar),
+                      )
+                    ],
+                  );
+                } else {
+                  return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: const [
+                        Text("\nAdded to Google Calendar")
+                      ]
+                  );
+                }
+              }
+            ) : const SizedBox(height: 0),
+          ]
         ),
       ),
     ],

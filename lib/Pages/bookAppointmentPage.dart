@@ -15,27 +15,43 @@ class BookAppointmentPage extends StatefulWidget {
 }
 
 class BookAppointmentArguments{
-  BookAppointmentArguments(this.activity, this.user);
-  final Activity activity;
-  final String user;
+  BookAppointmentArguments(this.appointment);
+  Appointment appointment;
 }
 
 class _BookAppointmentPageState extends State<BookAppointmentPage>{
 
   final dataController = TextEditingController();
   final dataFocusNode = FocusNode();
-  DateTime date = DateTime.now();
+
+  late double pressed;
+
+  String? appointType;
+  late DateTime date;
   List<int> hour = [];
 
-  double pressed = -1;
-  String? appointType = "";
+  bool modified = false;
 
   @override
   Widget build(BuildContext context) {
 
-    final args = ModalRoute.of(context)!.settings.arguments as BookAppointmentArguments;
-    Activity a = args.activity;
-    String user = args.user;
+    var args = ModalRoute.of(context)!.settings.arguments as BookAppointmentArguments;
+    final Activity a = args.appointment.activity;
+
+    if(!modified) {
+      date = args.appointment.dateTime;
+      pressed = (args.appointment.dateTime.hour + 0.01 * args.appointment.dateTime.minute);
+      appointType = args.appointment.appointType;
+      if(args.appointment.appointType != "") {
+        hour = [args.appointment.dateTime.hour, args.appointment.dateTime.minute];
+      }
+    }
+
+    if(args.appointment.appointType == "" && !modified) {
+      pressed = -1;
+      appointType = args.appointment.appointType;
+      date = args.appointment.dateTime;
+    }
 
     Activity activity = a;
     for(var aa in allActivities) {
@@ -48,7 +64,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Book a new appointment"),
+        title: Text(activity.name),
         centerTitle: true,
       ),
       body: Padding(
@@ -64,7 +80,10 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                 child: Text(cat, style: const TextStyle(fontSize: 15),
                 ),
               )).toList(),
-              onChanged: (cat) => setState(() => appointType = cat),
+              onChanged: (cat) {
+                modified = true;
+                setState(() => appointType = cat);
+              },
             ),
             const SizedBox(height: 50),
             const Text("Date"),
@@ -78,9 +97,10 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
               textAlign: TextAlign.left,
               keyboardType: TextInputType.datetime,
               onTap: () async {
+                modified = true;
                 DateTime? pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now(),
+                    initialDate: date,
                     firstDate: DateTime.now(),
                     lastDate: DateTime(2100));
                 if (pickedDate != null) {
@@ -90,7 +110,13 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                     dataController.text = formattedDate; //set output date to TextField value.
                   });
                 }
-              },
+                if(pressed != -1){
+                    if (checkFuture(hour.first, hour.last)) {
+                      pressed = -1;
+                      hour = [];
+                    }
+                  }
+                },
             ),
             const SizedBox(height: 50),
             const Text("Hour"),
@@ -105,8 +131,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           for(int j = 0; j < 60; j = j + 30)
                             checkFuture(i,j) ?
                             const SizedBox(height: 0) :
-                            TextButton(
+                            OutlinedButton(
                               onPressed: () => {
+                                modified = true,
                                 pressed = (i + 0.01 * j),
                                 hour = [i, j],
                                 setNewState(() {}),
@@ -124,18 +151,19 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           for (int j = 0; j < 60; j = j + 30)
                             !checkFuture(i,j) ?
                               (ii != i || jj != j) ?
-                                TextButton(
+                                OutlinedButton(
                                   onPressed: () => {
+                                    modified = true,
                                     pressed = (i + 0.01 * j),
                                     hour = [i, j],
                                     setNewState(() {}),
                                   },
                                   child: printTime(i, j),
                                 )
-                              : OutlinedButton(
+                              : ElevatedButton(
                                   onPressed: () {
+                                    modified = true;
                                     pressed = -1;
-                                    date = DateTime.now();
                                     hour = [];
                                     setNewState(() {});
                                   },
@@ -158,6 +186,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                     onPressed: () {
                       pressed = -1;
                       appointType = "";
+                      if(args.appointment.appointType == "") {
+                        deleteAppointment(args.appointment);
+                      }
                       Navigator.pop(context);
                       //setState(() {});
                     }, child: const Text("Back"),
@@ -175,9 +206,8 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         hour.first,
                         hour.last
                         );
-                        Appointment a = Appointment(user, activity, date, appointType!);
-                        addAppointments(a);
-                        Navigator.pop(context);
+                        args.appointment.editAppointment(date, appointType);
+                        Navigator.pushNamed(context, '/incoming');
                       }
 
                       //setState(() {});

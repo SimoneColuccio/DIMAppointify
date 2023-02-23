@@ -1,6 +1,7 @@
 
 //import 'dart:developer';
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -51,14 +52,7 @@ class _PastAppPageState extends State<PastAppPage>{
   @override
   Widget build(BuildContext context) {
 
-    for(int i = 0; i < allAppointments.length; i++) {
-      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
-          !pastAppointments.contains(allAppointments[i]) &&
-          !incomingAppointments.contains(allAppointments[i]) &&
-          !appointments.contains(allAppointments[i])) {
-        pastAppointments.add(allAppointments[i]);
-      }
-    }
+    checkDates();
 
     return Scaffold(
         body: CustomScrollView(
@@ -159,6 +153,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                   child: ElevatedButton(
                                     onPressed: () => setState(() {
                                       ordering = false;
+                                      allAppointments = sortAppointments(parameter, ascending, allAppointments);
                                     }), child: const Text("Apply"),
                                   ),
                                 )
@@ -277,17 +272,17 @@ class _PastAppPageState extends State<PastAppPage>{
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        appointment.activity.name,
+                                        isLoggedAsUser ? appointment.activity.name : appointment.user,
                                         textAlign: TextAlign.start,
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
-                                        DateFormat('yy/MM/dd').format(appointment.dateTime),
+                                        isLoggedAsUser ? DateFormat('yy/MM/dd').format(appointment.dateTime) : DateFormat('yy/MM/dd kk:mm').format(appointment.dateTime),
                                         textAlign: TextAlign.end,
                                       ),
                                     ),
-                                    SizedBox(
+                                    isLoggedAsUser ? SizedBox(
                                       width: 144,
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.end,
@@ -297,7 +292,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                                 showDialog(
                                                   context: context,
                                                   builder: (BuildContext context) =>
-                                                      appointmentInfoPopup(appointment, context),
+                                                      appointmentInfoPopup(appointment, context, "p"),
                                                 );
                                               },
                                               icon: const Icon(Icons.info)
@@ -325,16 +320,32 @@ class _PastAppPageState extends State<PastAppPage>{
                                                 context,
                                                 '/bookAppointment',
                                                 arguments: BookAppointmentArguments(
-                                                  appointment.activity,
-                                                  appointment.user
+                                                  createAppointment(appointment.user, appointment.activity, DateTime.now(), "")
                                                 ),
-                                              );
+                                              ).then(onGoBack);
                                             },
                                             icon: const Icon(Icons.bookmark_add)
                                           ),
                                         ],
                                       )
-                                    ),
+                                    ) : SizedBox(
+                                        width: 50,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) =>
+                                                        appointmentInfoPopup(appointment, context, "p"),
+                                                  );
+                                                },
+                                                icon: const Icon(Icons.info)
+                                            ),
+                                          ],
+                                        )
+                                    ) ,
                                   ],
                                 ),
                                 onTap: () => {
@@ -378,6 +389,10 @@ class _PastAppPageState extends State<PastAppPage>{
             items: getBottomMenu(0)
         )
     );
+  }
+
+  FutureOr onGoBack(dynamic value) {
+    setState(() {});
   }
 
   Widget _buildPopupDialogVote(BuildContext context, Appointment appointment) {

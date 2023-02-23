@@ -1,5 +1,6 @@
 
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:my_app/Pages/accountPage.dart';
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
 import '../Widgets/infoPopup.dart';
+import 'bookAppointmentPage.dart';
+import 'homePage.dart';
 
 class IncomingAppPage extends StatefulWidget {
   const IncomingAppPage({super.key, required this.index});
@@ -30,37 +33,37 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   bool ordering = false;
 
   final dataController = TextEditingController();
+  final dataFocusNode = FocusNode();
+
+  final controller = TextEditingController();
+  final searchFocusNode = FocusNode();
 
   List<String> categories = allCategories;
-
-  final dataFocusNode = FocusNode();
 
   var order = ["Ascending", "Descending"];
   String? ascending = "Ascending";
   var columns = ["Name", "Date"];
-  String? parameter = "Date";
+  String? parameter = "Name";
 
   DateTime date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
   String? filteredCategory = "";
+  String filteredClient = "";
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.addListener(onFocusChanged);
+  }
+  void onFocusChanged() {
+    if(searchFocusNode.hasFocus) {
+      controller.text = filteredClient;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    for(int i = 0; i < allAppointments.length; i++) {
-      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
-        !incomingAppointments.contains(allAppointments[i]) &&
-        isTodayOrTomorrow(i)) {
-        incomingAppointments.add(allAppointments[i]);
-      }
-    }
-
-    for(int i = 0; i < allAppointments.length; i++) {
-      if (allAppointments[i].user.toLowerCase() == user.toLowerCase() &&
-          !appointments.contains(allAppointments[i]) &&
-          !isTodayOrTomorrow(i) && isFuture(i)) {
-        appointments.add(allAppointments[i]);
-      }
-    }
+    checkDates();
 
     return Scaffold(
         body: CustomScrollView(
@@ -115,7 +118,10 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                         child: Text(cat, style: const TextStyle(fontSize: 15),
                                         ),
                                       )).toList(),
-                                      onChanged: (cat) => setState(() =>  parameter = cat),
+                                      onChanged: (cat) => setState(() {
+                                        parameter = cat;
+                                        log(parameter.toString());
+                                      }),
                                     ),
                                   ),
                                 ],
@@ -161,6 +167,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                   child: ElevatedButton(
                                     onPressed: () => setState(() {
                                       ordering = false;
+                                      allAppointments = sortAppointments(parameter, ascending, allAppointments);
                                     }), child: const Text("Apply"),
                                   ),
                                 )
@@ -173,9 +180,20 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                     if (filtering) Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
-                        height: 170,
+                        height: 240,
                         child: Column(
                           children: [
+                            isLoggedAsActivity ? TextField(
+                              controller: controller,
+                              focusNode: searchFocusNode,
+                              onTap: () => setState(() {}),
+                              onChanged: (text) => setState(() {}),
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(Icons.search),
+                                hintText: 'Search for a specific client...',
+                                suffixIcon: createSuffix(),
+                              ),
+                            ) : const SizedBox(height: 0),
                             Expanded(
                               child: Row(
                                 children: [
@@ -247,6 +265,8 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                       date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
                                       filtering = false;
                                       dataController.text = "";
+                                      controller.text = "";
+                                      filteredClient = "";
                                     }), child: const Text("Reset"),
                                   ),
                                 ),
@@ -254,7 +274,10 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () => setState(() {
+                                      filteredClient = controller.text;
+                                      log(filteredClient);
                                       filtering = false;
+                                      controller.text = "";
                                       dataController.text = "";
                                     }), child: const Text("Apply"),
                                   ),
@@ -277,7 +300,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        appointment.activity.name,
+                                        isLoggedAsUser ? appointment.activity.name : appointment.user,
                                         textAlign: TextAlign.start,
                                         style: const TextStyle(
                                           fontSize: 17,
@@ -300,7 +323,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) =>
-                                        appointmentInfoPopup(appointment, context),
+                                        appointmentInfoPopup(appointment, context, "i"),
                                   );
                                 },
                             );
@@ -308,21 +331,22 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                         ) : const Text("You have to log in to see your appointments"),
                       ),
                     ),
-                    if (filtering || ordering &(isLoggedAsUser | isLoggedAsActivity)) const Divider(color: Colors.red),
-                    if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
+                    if (filtering || ordering &&(isLoggedAsUser || isLoggedAsActivity)) const Divider(color: Colors.red),
+                    if((!filtering && !ordering) && (isLoggedAsUser || isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
                       child: ListView.builder(
                         itemCount: appointments.length,
                         itemBuilder: (context, index) {
                           final appointment = appointments[index];
-                          if(filteredCategory == "" || appointment.activity.category == filteredCategory) {
+                          if((filteredCategory == "" || appointment.activity.category == filteredCategory) &&
+                            (filteredClient == "" || appointment.user == filteredClient)) {
                             return ListTile(
                               title: Row(
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      appointment.activity.name,
+                                      isLoggedAsUser ? appointment.activity.name : appointment.user,
                                       textAlign: TextAlign.start,
                                     ),
                                   ),
@@ -332,13 +356,23 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                       textAlign: TextAlign.end,
                                     ),
                                   ),
+                                  IconButton(
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/bookAppointment',
+                                          arguments: BookAppointmentArguments(appointment),
+                                        ).then(onGoBack);
+                                      },
+                                      icon: const Icon(Icons.edit)
+                                  ),
                                 ],
                               ),
                               onTap: () {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) =>
-                                      appointmentInfoPopup(appointment, context),
+                                      appointmentInfoPopup(appointment, context, "i"),
                                 );
                               },
                           );
@@ -374,90 +408,47 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
         )
     );
   }
-  
-  bool isTodayOrTomorrow (int i) {
-    
-    var months30 = [1, 3, 5, 7, 8, 10];
-    var months31 = [4, 6, 9, 11];
-    
-    //today
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-        allAppointments[i].dateTime.month == DateTime.now().month &&
-        allAppointments[i].dateTime.day == DateTime.now().day &&
-        (allAppointments[i].dateTime.hour >= DateTime.now().hour ||
-        allAppointments[i].dateTime.hour == DateTime.now().hour &&
-        allAppointments[i].dateTime.minute >= DateTime.now().minute)) {
-      return true;
-    }
-    
-    //easy tomorrow
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-        allAppointments[i].dateTime.month == DateTime.now().month &&
-        allAppointments[i].dateTime.day == DateTime.now().day + 1) {
-      return true;
-    }
-    
-    //today is 31 and tomorrow is 1
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-        months31.contains(DateTime.now().month) && DateTime.now().day == 31 &&
-        allAppointments[i].dateTime.month == DateTime.now().month + 1 &&
-        allAppointments[i].dateTime.day == 1) {
-      return true;
-    }
 
-    //today is 30 and tomorrow is 1
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-        months30.contains(DateTime.now().month) && DateTime.now().day == 30 &&
-        allAppointments[i].dateTime.month == DateTime.now().month + 1 &&
-        allAppointments[i].dateTime.day == 1) {
-      return true;
-    }
-
-    //today is 28/29 and tomorrow is 1
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-       (DateTime.now().month == 2 && DateTime.now().day == 28 && DateTime.now().year % 4 != 0 ||
-        DateTime.now().month == 2 && DateTime.now().day == 29 && DateTime.now().year % 4 == 0) &&
-        allAppointments[i].dateTime.month == DateTime.now().month + 1 &&
-        allAppointments[i].dateTime.day == 1) {
-      return true;
-    }
-    
-    //today is dec 31th and tomorrow is jan 1st
-    if(allAppointments[i].dateTime.year == DateTime.now().year + 1 &&
-        DateTime.now().month == 12 && DateTime.now().day == 31 &&
-        allAppointments[i].dateTime.month == 1 && allAppointments[i].dateTime.day == 1) {
-      return true;
-    }
-    
-    return false;
+  IconButton? createSuffix(){
+    return searchFocusNode.hasFocus
+        ? IconButton(
+        onPressed: (){
+          controller.text = "";
+          searchFocusNode.unfocus();
+          setState(() {});
+          return;
+        },
+        icon: const Icon(Icons.clear)
+    ) : null;
   }
 
-  bool isFuture(int i) {
-    //Appointment next year
-    if (allAppointments[i].dateTime.year > DateTime.now().year) {
-      return true;
-    }
+  FutureOr onGoBack(dynamic value) {
+    setState(() {});
+  }
+}
 
-    //Appointment next month
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-        allAppointments[i].dateTime.month > DateTime.now().month) {
-      return true;
-    }
-
-    if (allAppointments[i].dateTime.year == DateTime.now().year &&
-        allAppointments[i].dateTime.month == DateTime.now().month &&
-        allAppointments[i].dateTime.day > DateTime.now().day + 1) {
-      return true;
-    }
-
-    return false;
+List<Appointment> sortAppointments(String? parameter, String? ascending, List<Appointment> app) {
+  log(parameter!);
+  log(ascending!);
+  switch (parameter) {
+    case "Name":
+      if(ascending == "Ascending") {
+        app.sort((a, b) => a.activity.name.compareTo(b.activity.name));
+      } else {
+        app.sort((a, b) => - a.activity.name.compareTo(b.activity.name));
+      }
+      break;
+    case "Date":
+      if(ascending == "Ascending") {
+        app.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+      } else {
+        app.sort((a, b) => - a.dateTime.compareTo(b.dateTime));
+      }
+      break;
+    default :
+      app.sort((a, b) => a.activity.name.compareTo(b.activity.name));
+      break;
   }
 
-  List<Appointment> getIncomingAppointments() {
-    return incomingAppointments;
-  }
-
-  List<Appointment> getFutureAppointments() {
-    return appointments;
-  }
+  return app;
 }
