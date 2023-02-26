@@ -13,16 +13,6 @@ class OpeningTime{
   ];
   List<bool> continued = [true, true, true, true, true, true, true];
 
-  List<List<bool>> completed = [
-    [false, false, false, false],
-    [false, false, false, false],
-    [false, false, false, false],
-    [false, false, false, false],
-    [false, false, false, false],
-    [false, false, false, false],
-    [false, false, false, false]
-  ];
-
   List<int> allHours = [0] + List<int>.generate(24, (i) => i + 1);
   List<int> allMinutes = [0, 15, 30, 45];
 
@@ -37,6 +27,19 @@ class OpeningTime{
       }
     }
     return ret;
+  }
+
+  void initializeHours() {
+    hours = [
+      [-1, -1, -1, -1],
+      [-1, -1, -1, -1],
+      [-1, -1, -1, -1],
+      [-1, -1, -1, -1],
+      [-1, -1, -1, -1],
+      [-1, -1, -1, -1],
+      [-1, -1, -1, -1],
+    ];
+    continued = [true, true, true, true, true, true, true];
   }
 
   String weekDay(int i) {

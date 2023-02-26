@@ -386,7 +386,7 @@ class _PastAppPageState extends State<PastAppPage>{
                   break;
               }
             },
-            items: getBottomMenu(0)
+            items: getBottomMenu(incomingAppointments.length)
         )
     );
   }

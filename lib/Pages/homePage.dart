@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 //import 'package:geolocator/geolocator.dart';
 import 'package:my_app/Data/activity.dart';
+import 'package:my_app/Data/openingTime.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
 
@@ -14,6 +15,7 @@ import 'package:intl/intl.dart';
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
 import 'activityManagerPage.dart';
+import 'incomingAppointmentsPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.index, required this.title});
@@ -150,7 +152,7 @@ class _HomePageState extends State<HomePage> {
               break;
           }
         },
-        items: getBottomMenu(0)
+        items: getBottomMenu(incomingAppointments.length)
       )
     );
   }
@@ -873,7 +875,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(
                 context,
                 '/addActivity',
-                arguments: EditActivityPage(ind, "Add activity", createActivity('', '', '', '', DateTime.now(), [''])),
+                arguments: EditActivityPage(ind, "Add activity", createActivity('', '', '', '', DateTime.now(), [''], 30, 1, OpeningTime())),
               ).then(onGoBack);
             },
             style: ElevatedButton.styleFrom(

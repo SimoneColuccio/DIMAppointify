@@ -97,7 +97,7 @@ class _AccountPageState extends State<AccountPage>{
                   break;
               }
             },
-            items: getBottomMenu(0)
+            items: getBottomMenu(incomingAppointments.length)
         )
     );
   }

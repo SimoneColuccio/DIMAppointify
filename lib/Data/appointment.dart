@@ -42,22 +42,28 @@ List<Appointment> allAppointments = [
       allActivities[0].position,
       allActivities[0].dateOfAdding,
       allActivities[0].appTypes,
+      allActivities[0].duration,
+      allActivities[0].concurrentAppointments,
+      allActivities[0].times
     ),
     DateTime(DateTime.now().year, 02, 01, 11, 00),
     allActivities[0].appTypes.last
   ),
   Appointment(
-      "user2",
-      Activity(
-        allActivities[0].name,
-        allActivities[0].description,
-        allActivities[0].category,
-        allActivities[0].position,
-        allActivities[0].dateOfAdding,
-        allActivities[0].appTypes,
-      ),
-    DateTime(DateTime.now().year, 03, 01, 11, 00),
-      allActivities[0].appTypes.last,
+    "user2",
+    Activity(
+      allActivities[0].name,
+      allActivities[0].description,
+      allActivities[0].category,
+      allActivities[0].position,
+      allActivities[0].dateOfAdding,
+      allActivities[0].appTypes,
+      allActivities[0].duration,
+      allActivities[0].concurrentAppointments,
+      allActivities[0].times
+    ),
+  DateTime(DateTime.now().year, 03, 01, 11, 00),
+    allActivities[0].appTypes.last,
   ),
 ];
 

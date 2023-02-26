@@ -6,6 +6,7 @@ import 'package:my_app/Data/appointment.dart';
 
 import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
+import 'activityManagerPage.dart';
 import 'bookAppointmentPage.dart';
 
 class ActivityPage {
@@ -146,6 +147,46 @@ class ActivityPageScreen extends StatelessWidget {
                             ],
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Weekly hours",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                              for(int i = 0; i < a.times.hours.length; i++)
+                                Row(
+                                  children: [
+                                    SizedBox(width: 100, child: Text(a.times.weekDay(i))),
+                                    SizedBox(width: 50, child: printTime(
+                                        getHour(a.times.hours[i][0]),
+                                        getMinute(a.times.hours[i][0])
+                                      ),
+                                    ),
+                                    SizedBox(width: 50, child: printTime(
+                                        getHour(a.times.hours[i][1]),
+                                        getMinute(a.times.hours[i][1])
+                                      ),
+                                    ),
+                                    !a.times.continued[i] ? SizedBox(width: 50, child: printTime(
+                                        getHour(a.times.hours[i][2]),
+                                        getMinute(a.times.hours[i][2])
+                                      ),
+                                    ) : const SizedBox(),
+                                    !a.times.continued[i] ? SizedBox(width: 50, child: printTime(
+                                        getHour(a.times.hours[i][3]),
+                                        getMinute(a.times.hours[i][3])
+                                      ),
+                                    ): const SizedBox(),
+
+                                  ],
+                                ),
+                            ]
+                          ),
+                        )
                       ],
                     ),
                   )

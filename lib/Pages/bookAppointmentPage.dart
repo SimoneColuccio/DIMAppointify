@@ -245,13 +245,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
     );
   }
 
-  Widget printTime(int i, int j) {
-    if (i >= 10 && j >= 10) return Text("$i:$j");
-    if (i < 10 && j >= 10) return Text("0$i:$j");
-    if (i >= 10 && j < 10) return Text("$i:0$j");
-    return Text("0$i:0$j");
-  }
-
   bool checkFuture(int i, int j) {
     return (date.year == DateTime.now().year &&
         date.month == DateTime.now().month &&
@@ -259,4 +252,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
         (i == DateTime.now().hour && j <= DateTime.now().minute ||
             i < DateTime.now().hour));
   }
+}
+
+Widget printTime(int i, int j) {
+  if (i >= 10 && j >= 10) return Text("$i:$j");
+  if (i < 10 && j >= 10) return Text("0$i:$j");
+  if (i >= 10 && j < 10) return Text("$i:0$j");
+  return Text("0$i:0$j");
 }
