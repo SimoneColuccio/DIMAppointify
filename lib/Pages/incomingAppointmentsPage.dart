@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Pages/accountPage.dart';
+import '../Data/activity.dart';
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
 import '../Widgets/infoPopup.dart';
 import 'bookAppointmentPage.dart';
-import 'homePage.dart';
 
 class IncomingAppPage extends StatefulWidget {
   const IncomingAppPage({super.key, required this.index});
@@ -366,6 +366,17 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                       },
                                       icon: const Icon(Icons.edit)
                                   ),
+                                  IconButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              _buildPopupDialogConfirm(
+                                                  context, appointment, setState),
+                                        );
+                                      },
+                                      icon: const Icon(Icons.delete)
+                                  ),
                                 ],
                               ),
                               onTap: () {
@@ -425,6 +436,41 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   FutureOr onGoBack(dynamic value) {
     setState(() {});
   }
+
+  Widget _buildPopupDialogConfirm(BuildContext context, Appointment appointment, void Function(VoidCallback fn) setState) {
+    return AlertDialog(
+      title: const Text('Are you sure?'),
+      content: const Text("If you delete this appointment you'll lose all related data"),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("No"),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  deleteAppointment(appointment);
+                  setState(() {});
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Yes"),
+              ),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
 }
 
 List<Appointment> sortAppointments(String? parameter, String? ascending, List<Appointment> app) {

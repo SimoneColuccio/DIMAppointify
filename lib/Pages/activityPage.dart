@@ -45,7 +45,6 @@ class ActivityPageScreen extends StatelessWidget {
         break;
       }
     }
-    log(a.hours.toString());
 
     return Scaffold(
         appBar: AppBar(

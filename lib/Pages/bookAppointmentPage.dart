@@ -132,11 +132,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         for(int i = getHour(activity.hours[day][0]); i <= getHour(activity.hours[day][1] - 0.01 * activity.duration); i++)
                           for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration) && j < 60; j = j + 30)
                             checkFuture(i,j) ?
-                            const SizedBox(height: 0) :
+                            const SizedBox() :
                             OutlinedButton(
                               onPressed: () => {
                                 modified = true,
-                                pressed = (i + 0.01 * j),
+                                pressed = toDouble(i, j),
                                 hour = [i, j],
                                 setNewState(() {}),
                               },
@@ -145,19 +145,19 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                       ],
                     );
                   } else {
-                    int ii = pressed.toInt();
-                    int jj = ((pressed % 1) * 100).floor();
+                    int ii = getHour(pressed);
+                    int jj = getMinute(pressed);
                     int day = getWeekDay(date);
                     return Row(
                       children: [
                         for(int i = getHour(activity.hours[day][0]); i <= getHour(activity.hours[day][1] - 0.01 * activity.duration); i++)
-                          for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration); j = j + 30)
+                          for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration) && j < 60; j = j + 30)
                             !checkFuture(i,j) ?
                               (ii != i || jj != j) ?
                                 OutlinedButton(
                                   onPressed: () => {
                                     modified = true,
-                                    pressed = (i + 0.01 * j),
+                                    pressed = toDouble(i, j),
                                     hour = [i, j],
                                     setNewState(() {}),
                                   },
@@ -172,7 +172,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                   },
                                   child: printTime(ii, jj),
                                 )
-                            : const SizedBox(height: 0),
+                            : const SizedBox(),
                       ],
                     );
                   }
@@ -230,15 +230,27 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
         onTap: (value) {
           switch (value) {
             case 0:
+              if(args.appointment.appointType == "") {
+                deleteAppointment(args.appointment);
+              }
               Navigator.pushNamed(context, '/');
               break;
             case 1:
+              if(args.appointment.appointType == "") {
+                deleteAppointment(args.appointment);
+              }
               Navigator.pushNamed(context, '/incoming');
               break;
             case 2:
+              if(args.appointment.appointType == "") {
+                deleteAppointment(args.appointment);
+              }
               Navigator.pushNamed(context, '/past');
               break;
             case 3:
+              if(args.appointment.appointType == "") {
+                deleteAppointment(args.appointment);
+              }
               Navigator.pushNamed(context, '/account');
               break;
           }
@@ -255,6 +267,5 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
         (i == DateTime.now().hour && j <= DateTime.now().minute ||
             i < DateTime.now().hour));
   }
-
 
 }
