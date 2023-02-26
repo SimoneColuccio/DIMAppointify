@@ -875,7 +875,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(
                 context,
                 '/addActivity',
-                arguments: EditActivityPage(ind, "Add activity", createActivity('', '', '', '', DateTime.now(), [''], 30, 1, OpeningTime())),
+                arguments: EditActivityPage(ind, "Add activity", createActivity('', '', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns())),
               ).then(onGoBack);
             },
             style: ElevatedButton.styleFrom(

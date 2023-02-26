@@ -29,18 +29,6 @@ class OpeningTime{
     return ret;
   }
 
-  void initializeHours() {
-    hours = [
-      [-1, -1, -1, -1],
-      [-1, -1, -1, -1],
-      [-1, -1, -1, -1],
-      [-1, -1, -1, -1],
-      [-1, -1, -1, -1],
-      [-1, -1, -1, -1],
-      [-1, -1, -1, -1],
-    ];
-    continued = [true, true, true, true, true, true, true];
-  }
 
   String weekDay(int i) {
     switch(i) {
@@ -62,5 +50,22 @@ class OpeningTime{
         return "Week";
     }
   }
+}
+
+
+List<List<double>> initializeHours() {
+  return [
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+  ];
+}
+
+List<bool> initializeTurns() {
+  return [true, true, true, true, true, true, true];
 }
 

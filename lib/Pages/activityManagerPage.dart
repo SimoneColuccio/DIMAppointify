@@ -51,11 +51,11 @@ class EditActivityPageScreen extends StatelessWidget {
     String services = "";
     int? duration = 30;
     int concurrentAppointments = 1;
-    OpeningTime times = OpeningTime();
-    List<List<double>> hours = times.hours;
-    List<bool> continued = times.continued;
+    List<List<double>> hours = initializeHours();
+    List<bool> continued = initializeTurns();
 
     //State variables
+    OpeningTime times = OpeningTime();
     List<List<bool>> completed = [
       [false, false, false, false],
       [false, false, false, false],
@@ -78,7 +78,8 @@ class EditActivityPageScreen extends StatelessWidget {
     duration = activity.duration;
     concurrentAppointments = activity.concurrentAppointments;
     appController.text = activity.concurrentAppointments.toString();
-    times = activity.times;
+    hours = activity.hours;
+    continued = activity.continued;
 
     return StatefulBuilder(
         builder: (context, setState) {
@@ -114,6 +115,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                     onChanged: (text) {
                                       if (isCorrect(controller.text)) {
                                         name = controller.text;
+                                        log(name);
                                       }
                                       //setState(() {});
                                     },
@@ -463,11 +465,12 @@ class EditActivityPageScreen extends StatelessWidget {
                                           selectedCategory = "";
                                           duration = 30;
                                           concurrentAppointments = 1;
-                                          times.initializeHours();
+                                          hours = initializeHours();
+                                          continued = initializeTurns();
                                           if (!checkInputs(
                                               name, selectedCategory,
                                               toList(services), duration,
-                                              concurrentAppointments, times)) {
+                                              concurrentAppointments, hours, continued)) {
                                             deleteActivity(activity);
                                           }
                                           Navigator.pop(context);
@@ -482,7 +485,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                           if (checkInputs(
                                               name, selectedCategory,
                                               toList(services), duration,
-                                              concurrentAppointments, times)) {
+                                              concurrentAppointments, hours, continued)) {
                                             activity.editActivity(
                                                 name,
                                                 selectedCategory,
@@ -490,7 +493,9 @@ class EditActivityPageScreen extends StatelessWidget {
                                                 toList(services),
                                                 duration,
                                                 concurrentAppointments,
-                                                times);
+                                                hours,
+                                                continued
+                                            );
                                             controller.text = "";
                                             descController.text = "";
                                             servController.text = "";
@@ -500,7 +505,8 @@ class EditActivityPageScreen extends StatelessWidget {
                                             selectedCategory = "";
                                             duration = 30;
                                             concurrentAppointments = 1;
-                                            times.initializeHours();
+                                            hours = initializeHours();
+                                            continued = initializeTurns();
                                             Navigator.pop(context);
                                             setState(() {});
                                           }
@@ -528,7 +534,7 @@ class EditActivityPageScreen extends StatelessWidget {
                       case 0:
                         if (!checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.duration,
-                            activity.concurrentAppointments, activity.times)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/');
@@ -536,7 +542,7 @@ class EditActivityPageScreen extends StatelessWidget {
                       case 1:
                         if (!checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.duration,
-                            activity.concurrentAppointments, activity.times)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/incoming');
@@ -544,7 +550,7 @@ class EditActivityPageScreen extends StatelessWidget {
                       case 2:
                         if (!checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.duration,
-                            activity.concurrentAppointments, activity.times)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/past');
@@ -552,7 +558,7 @@ class EditActivityPageScreen extends StatelessWidget {
                       case 3:
                         if (!checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.duration,
-                            activity.concurrentAppointments, activity.times)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/account');
@@ -598,49 +604,58 @@ class EditActivityPageScreen extends StatelessWidget {
   }
 
   bool checkInputs(String name, String selectedCategory, List<String> list,
-      int? duration, int concurrentAppointments, OpeningTime times) {
-    if (name
-        .trim()
-        .isEmpty) {
+      int? duration, int concurrentAppointments, List<List<double>> hours, List<bool> continued) {
+    if (name.trim().isEmpty) {
+      log("a");
       return false;
     }
     if (selectedCategory == "") {
+      log("b");
       return false;
     }
 
     if (list.length <= 1) {
+      log("c");
       return false;
     }
 
     if (concurrentAppointments == 0) {
+      log("d");
       return false;
     }
 
     if (duration == null) {
+      log("e");
       return false;
     }
     double min = 60;
     for (int i = 0; i < 7; i++) {
       for (int j = 1; j < 4; j++) {
-        double m = 100 * times.hours[i][j] - 100 * times.hours[i][j - 1];
+        if (j > 1 && continued[i]) {
+          continue;
+        }
+        double m = 100 * hours[i][j] - 100 * hours[i][j - 1];
         if (m < min) {
           min = m;
         }
       }
     }
     if (min < duration) {
+      log("f");
       return false;
     }
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 4; j++) {
-        if (j > 1 && times.continued[i]) {
+        if (j > 1 && continued[i]) {
           continue;
         }
-        if (times.hours[i][j] == -1) {
+        if (hours[i][j] == -1) {
+          log("g");
           return false;
         }
-        if (j > 0 && times.hours[i][j] == times.hours[i][j - 1]) {
+        if (j > 0 && hours[i][j] == hours[i][j - 1]) {
+          log("h");
           return false;
         }
       }

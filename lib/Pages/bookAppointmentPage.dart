@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Data/appointment.dart';
+import 'package:my_app/Pages/activityManagerPage.dart';
 
 import '../Widgets/bottomMenu.dart';
 
@@ -125,10 +126,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
               child: StatefulBuilder(
                 builder: (context, setNewState) {
                   if (pressed == -1) {
+                    int day = getWeekDay(date);
                     return Row(
                       children: [
-                        for(int i = 8; i <= 20; i++)
-                          for(int j = 0; j < 60; j = j + 30)
+                        for(int i = getHour(activity.hours[day][0]); i <= getHour(activity.hours[day][1] - 0.01 * activity.duration); i++)
+                          for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration) && j < 60; j = j + 30)
                             checkFuture(i,j) ?
                             const SizedBox(height: 0) :
                             OutlinedButton(
@@ -145,10 +147,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                   } else {
                     int ii = pressed.toInt();
                     int jj = ((pressed % 1) * 100).floor();
+                    int day = getWeekDay(date);
                     return Row(
                       children: [
-                        for(int i = 8; i <= 20; i++)
-                          for (int j = 0; j < 60; j = j + 30)
+                        for(int i = getHour(activity.hours[day][0]); i <= getHour(activity.hours[day][1] - 0.01 * activity.duration); i++)
+                          for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration); j = j + 30)
                             !checkFuture(i,j) ?
                               (ii != i || jj != j) ?
                                 OutlinedButton(
@@ -252,6 +255,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
         (i == DateTime.now().hour && j <= DateTime.now().minute ||
             i < DateTime.now().hour));
   }
+
+  int getWeekDay(DateTime date) {
+    return date.weekday - 1;
+  }
+
 }
 
 Widget printTime(int i, int j) {

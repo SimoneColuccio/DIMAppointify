@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Data/appointment.dart';
+import 'package:my_app/Data/openingTime.dart';
 
 import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
@@ -27,6 +28,8 @@ class ActivityPageScreen extends StatelessWidget {
     final args = ModalRoute.of(context)!.settings.arguments as ActivityPage;
     String tit = args.title;
 
+    OpeningTime times = OpeningTime();
+
     List<Activity> activities = [];
     for(int i = 0; i < allActivities.length; i++) {
       if(allActivities[i].name.toLowerCase().contains(args.title.toLowerCase())) {
@@ -42,6 +45,7 @@ class ActivityPageScreen extends StatelessWidget {
         break;
       }
     }
+    log(a.hours.toString());
 
     return Scaffold(
         appBar: AppBar(
@@ -157,28 +161,28 @@ class ActivityPageScreen extends StatelessWidget {
                                   fontSize: 15,
                                 ),
                               ),
-                              for(int i = 0; i < a.times.hours.length; i++)
+                              for(int i = 0; i < a.hours.length; i++)
                                 Row(
                                   children: [
-                                    SizedBox(width: 100, child: Text(a.times.weekDay(i))),
+                                    SizedBox(width: 100, child: Text(times.weekDay(i))),
                                     SizedBox(width: 50, child: printTime(
-                                        getHour(a.times.hours[i][0]),
-                                        getMinute(a.times.hours[i][0])
+                                        getHour(a.hours[i][0]),
+                                        getMinute(a.hours[i][0])
                                       ),
                                     ),
                                     SizedBox(width: 50, child: printTime(
-                                        getHour(a.times.hours[i][1]),
-                                        getMinute(a.times.hours[i][1])
+                                        getHour(a.hours[i][1]),
+                                        getMinute(a.hours[i][1])
                                       ),
                                     ),
-                                    !a.times.continued[i] ? SizedBox(width: 50, child: printTime(
-                                        getHour(a.times.hours[i][2]),
-                                        getMinute(a.times.hours[i][2])
+                                    !a.continued[i] ? SizedBox(width: 50, child: printTime(
+                                        getHour(a.hours[i][2]),
+                                        getMinute(a.hours[i][2])
                                       ),
                                     ) : const SizedBox(),
-                                    !a.times.continued[i] ? SizedBox(width: 50, child: printTime(
-                                        getHour(a.times.hours[i][3]),
-                                        getMinute(a.times.hours[i][3])
+                                    !a.continued[i] ? SizedBox(width: 50, child: printTime(
+                                        getHour(a.hours[i][3]),
+                                        getMinute(a.hours[i][3])
                                       ),
                                     ): const SizedBox(),
 
