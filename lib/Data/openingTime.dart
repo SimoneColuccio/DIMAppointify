@@ -1,17 +1,8 @@
 
 
-class OpeningTime{
+import 'package:flutter/material.dart';
 
-  List<List<double>> hours = [
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-  ];
-  List<bool> continued = [true, true, true, true, true, true, true];
+class OpeningTime{
 
   List<int> allHours = [0] + List<int>.generate(24, (i) => i + 1);
   List<int> allMinutes = [0, 15, 30, 45];
@@ -28,7 +19,6 @@ class OpeningTime{
     }
     return ret;
   }
-
 
   String weekDay(int i) {
     switch(i) {
@@ -52,7 +42,6 @@ class OpeningTime{
   }
 }
 
-
 List<List<double>> initializeHours() {
   return [
     [-1, -1, -1, -1],
@@ -68,4 +57,28 @@ List<List<double>> initializeHours() {
 List<bool> initializeTurns() {
   return [true, true, true, true, true, true, true];
 }
+
+int getHour(double hour) {
+  return hour.floor();
+}
+
+int getMinute(double hour) {
+  return (100 * hour - 100 * hour.floor()).toInt();
+}
+
+double toDouble(int h, int m) {
+  return h + 0.01 * m;
+}
+
+int getWeekDay(DateTime date) {
+  return date.weekday - 1;
+}
+
+Widget printTime(int i, int j) {
+  if (i >= 10 && j >= 10) return Text("$i:$j");
+  if (i < 10 && j >= 10) return Text("0$i:$j");
+  if (i >= 10 && j < 10) return Text("$i:0$j");
+  return Text("0$i:0$j");
+}
+
 

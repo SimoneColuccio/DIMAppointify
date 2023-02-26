@@ -10,7 +10,6 @@ import 'package:my_app/Data/openingTime.dart';
 
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
-import 'bookAppointmentPage.dart';
 //import 'package:address_search_field/address_search_field.dart';
 
 class EditActivityPage{
@@ -751,12 +750,3 @@ class EditActivityPageScreen extends StatelessWidget {
     setState(() {});
   }
 }
-
-  int getHour(double hour) {
-    return hour.floor();
-  }
-
-  int getMinute(double hour) {
-    return (100 * hour - 100 * hour.floor()).toInt();
-
-  }

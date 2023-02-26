@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Data/appointment.dart';
-import 'package:my_app/Pages/activityManagerPage.dart';
 
+import '../Data/openingTime.dart';
 import '../Widgets/bottomMenu.dart';
 
 class BookAppointmentPage extends StatefulWidget {
@@ -41,7 +41,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
 
     if(!modified) {
       date = args.appointment.dateTime;
-      pressed = (args.appointment.dateTime.hour + 0.01 * args.appointment.dateTime.minute);
+      pressed = toDouble(args.appointment.dateTime.hour, args.appointment.dateTime.minute);
       appointType = args.appointment.appointType;
       if(args.appointment.appointType != "") {
         hour = [args.appointment.dateTime.hour, args.appointment.dateTime.minute];
@@ -256,15 +256,5 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
             i < DateTime.now().hour));
   }
 
-  int getWeekDay(DateTime date) {
-    return date.weekday - 1;
-  }
 
-}
-
-Widget printTime(int i, int j) {
-  if (i >= 10 && j >= 10) return Text("$i:$j");
-  if (i < 10 && j >= 10) return Text("0$i:$j");
-  if (i >= 10 && j < 10) return Text("$i:0$j");
-  return Text("0$i:0$j");
 }
