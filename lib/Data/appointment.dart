@@ -46,6 +46,7 @@ List<Appointment> allAppointments = [
       allActivities[0].concurrentAppointments,
       allActivities[0].hours,
       allActivities[0].continued,
+      allActivities[0].image,
     ),
     DateTime(DateTime.now().year, 02, 01, 11, 00),
     allActivities[0].appTypes.last
@@ -63,6 +64,7 @@ List<Appointment> allAppointments = [
       allActivities[0].concurrentAppointments,
       allActivities[0].hours,
       allActivities[0].continued,
+      allActivities[0].image,
     ),
   DateTime(DateTime.now().year, 03, 01, 11, 00),
     allActivities[0].appTypes.last,

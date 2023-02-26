@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'dart:io';
+
 
 import 'package:flutter/material.dart';
 import 'package:my_app/Data/activity.dart';
@@ -7,7 +9,6 @@ import 'package:my_app/Data/openingTime.dart';
 
 import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
-import 'activityManagerPage.dart';
 import 'bookAppointmentPage.dart';
 
 class ActivityPage {
@@ -68,6 +69,19 @@ class ActivityPageScreen extends StatelessWidget {
                             height: 70,
                             child: Row(
                               children: [
+                                a.image != null ? Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      //to show image, you type like this.
+                                      File(a.image!.path),
+                                      fit: BoxFit.cover,
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                  ),
+                                ) : const SizedBox(),
                                 Expanded(
                                   child: Text(a.category,
                                     textAlign: TextAlign.start,
@@ -76,7 +90,6 @@ class ActivityPageScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                //const SizedBox(width: 10,),
                                 Expanded(
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,

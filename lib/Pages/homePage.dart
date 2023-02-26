@@ -6,7 +6,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 //import 'package:geolocator/geolocator.dart';
 import 'package:my_app/Data/activity.dart';
-import 'package:my_app/Data/openingTime.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
 
@@ -875,7 +874,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(
                 context,
                 '/addActivity',
-                arguments: EditActivityPage(ind, "Add activity", createActivity('', '', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns())),
+                arguments: EditActivityPage(ind, "Add activity", createActivity()),
               ).then(onGoBack);
             },
             style: ElevatedButton.styleFrom(

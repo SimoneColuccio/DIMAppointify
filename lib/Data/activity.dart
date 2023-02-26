@@ -1,6 +1,8 @@
 
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:image_picker/image_picker.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Data/openingTime.dart';
 
@@ -14,6 +16,7 @@ class Activity {
   int concurrentAppointments;
   List<List<double>> hours;
   List<bool> continued;
+  File? image;
   //Coordinates? coordinates;
 
   List<String> appTypes;
@@ -30,7 +33,8 @@ class Activity {
     this.duration,
     this.concurrentAppointments,
     this.hours,
-    this.continued
+    this.continued,
+    this.image
   ) {/* coordinates = getCoordinates() as Coordinates;*/}
 
   /*Future<Coordinates> getCoordinates () async {
@@ -46,16 +50,17 @@ class Activity {
     rating = r / votes;
   }
 
-  void editActivity(name, category, description, appTypes, duration, concurrentAppointments, hours, continued) {
+  void editActivity(name, category, description, appTypes, position, duration, concurrentAppointments, hours, continued, XFile? image) {
     this.name = name;
     this.category = category;
     this.description = description;
     this.appTypes = appTypes;
+    this.position = position;
     this.duration = duration;
     this.concurrentAppointments = concurrentAppointments;
     this.hours = hours;
     this.continued = continued;
-    log(this.hours.toString());
+    this.image = File(image!.path);
   }
 
   void addAppointmentType(value) {
@@ -64,15 +69,15 @@ class Activity {
 }
 
   List<Activity> allActivities = [
-    Activity("first activity", "1st activity", "Beauty", "", DateTime(DateTime.now().day - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns()),
-    Activity("second activity", "2nd activity", "Food and drink", "", DateTime.now(), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns()),
-    Activity("third activity", "3rd activity", "Health", "", DateTime(DateTime.now().day - 10), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns()),
-    Activity("fourth activity", "4th activity", "Hotels and travels", "", DateTime(DateTime.now().month - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns()),
-    Activity("fifth activity", "5th activity", "Spa and Wellness", "", DateTime(DateTime.now().year - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns()),
+    Activity("first activity", "1st activity", "Beauty", "", DateTime(DateTime.now().day - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("second activity", "2nd activity", "Food and drink", "", DateTime.now(), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("third activity", "3rd activity", "Health", "", DateTime(DateTime.now().day - 10), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("fourth activity", "4th activity", "Hotels and travels", "", DateTime(DateTime.now().month - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("fifth activity", "5th activity", "Spa and Wellness", "", DateTime(DateTime.now().year - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
   ];
 
-  Activity createActivity(name, description, category, position, dateOfAdding, appTypes, duration, concurrentAppointments, hours, continued) {
-    Activity a = Activity(name, description, category, position, dateOfAdding, appTypes, duration, concurrentAppointments, hours, continued);
+  Activity createActivity() {
+    Activity a = Activity('', '', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns(), null);
     allActivities.add(a);
     log("Activity created");
     return a;

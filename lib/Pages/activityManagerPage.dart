@@ -1,9 +1,11 @@
 
 
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Data/openingTime.dart';
 //import 'package:string_validator/string_validator.dart';
@@ -22,7 +24,8 @@ class EditActivityPage{
 }
 
 class EditActivityPageScreen extends StatelessWidget {
-  const EditActivityPageScreen({super.key});
+  EditActivityPageScreen({super.key});
+  XFile? image;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,8 @@ class EditActivityPageScreen extends StatelessWidget {
     final descFocusNode = FocusNode();
     final servController = TextEditingController();
     final servFocusNode = FocusNode();
+    final posController = TextEditingController();
+    final posFocusNode = FocusNode();
     final appController = TextEditingController();
     final appFocusNode = FocusNode();
 
@@ -48,10 +53,12 @@ class EditActivityPageScreen extends StatelessWidget {
     String selectedCategory = "";
     String description = "";
     String services = "";
+    String position = "";
     int? duration = 30;
     int concurrentAppointments = 1;
     List<List<double>> hours = initializeHours();
     List<bool> continued = initializeTurns();
+    final ImagePicker picker = ImagePicker();
 
     //State variables
     OpeningTime times = OpeningTime();
@@ -74,6 +81,8 @@ class EditActivityPageScreen extends StatelessWidget {
     services = fromList(activity.appTypes);
     servController.text = fromList(activity.appTypes);
     selectedCategory = activity.category;
+    position = activity.position;
+    posController.text = activity.position;
     duration = activity.duration;
     concurrentAppointments = activity.concurrentAppointments;
     appController.text = activity.concurrentAppointments.toString();
@@ -124,7 +133,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 buildPopups(
-                                    0, context, setState, popups, completed),
+                                    0, context, setState, popups, completed, focusNode),
                                 popups[0] ? Padding(
                                   padding: const EdgeInsets.fromLTRB(
                                       0, 0, 0, 10),
@@ -150,7 +159,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 buildPopups(
-                                    1, context, setState, popups, completed),
+                                    1, context, setState, popups, completed, focusNode),
                                 popups[1] ? Padding(
                                   padding: const EdgeInsets.fromLTRB(
                                       0, 0, 0, 10),
@@ -174,7 +183,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 buildPopups(
-                                    2, context, setState, popups, completed),
+                                    2, context, setState, popups, completed, focusNode),
                                 popups[2] ? Padding(
                                   padding: const EdgeInsets.fromLTRB(
                                       0, 0, 0, 10),
@@ -196,21 +205,53 @@ class EditActivityPageScreen extends StatelessWidget {
                                 ) : const SizedBox(height: 0),
                                 const Text("Image"),
                                 buildPopups(
-                                    3, context, setState, popups, completed),
-                                popups[3] ? const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: null,
+                                    3, context, setState, popups, completed, focusNode),
+                                popups[3] ? Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          myAlert(context, picker, setState);
+                                        },
+                                        child: const Text('Upload Photo'),
+                                      ),
+                                      image != null ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(
+                                          //to show image, you type like this.
+                                          File(image!.path),
+                                          fit: BoxFit.cover,
+                                          width: 150,
+                                          height: 150,
+                                        ),
+                                      )
+                                      : const Text(
+                                        "No Image",
+                                      )
+                                    ],
+                                  ),
                                 ) : const SizedBox(),
                                 const Text("Location *"),
                                 buildPopups(
-                                    4, context, setState, popups, completed),
-                                popups[4] ? const Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: null,
+                                    4, context, setState, popups, completed, focusNode),
+                                popups[4] ? Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  child: TextField(
+                                    controller: posController,
+                                    focusNode: posFocusNode,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Insert the address of your activity',
+                                    ),
+                                    onChanged: (text) {
+                                      position = posController.text;
+                                    },
+                                  ),
                                 ) : const SizedBox(),
                                 const Text("Appointment settings *"),
                                 buildPopups(
-                                    5, context, setState, popups, completed),
+                                    5, context, setState, popups, completed, focusNode),
                                 popups[5] ? Padding(
                                   padding: const EdgeInsets.fromLTRB(
                                       0, 0, 0, 10),
@@ -270,7 +311,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                 ) : const SizedBox(),
                                 const Text("Opening time *"),
                                 buildPopups(
-                                    6, context, setState, popups, completed),
+                                    6, context, setState, popups, completed, focusNode),
                                 popups[6] ? Padding(
                                   padding: const EdgeInsets.fromLTRB(
                                       0, 0, 0, 10),
@@ -346,8 +387,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                               ),
                                               onPressed: () =>
                                               {
-                                                updateButtons(
-                                                    i, 0, setState, completed),
+                                                updateButtons(i, 0, setState, completed),
                                               },
                                               child: hours[i][0] == -1
                                                   ? const Text("")
@@ -427,8 +467,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                               ),
                                               onPressed: () =>
                                               {
-                                                updateButtons(
-                                                    i, 3, setState, completed),
+                                                updateButtons(i, 3, setState, completed),
                                               },
                                               child: hours[i][3] == -1
                                                   ? const Text("")
@@ -458,18 +497,9 @@ class EditActivityPageScreen extends StatelessWidget {
                                     Expanded(
                                       child: OutlinedButton(
                                         onPressed: () {
-                                          name = "";
-                                          description = "";
-                                          services = "";
-                                          selectedCategory = "";
-                                          duration = 30;
-                                          concurrentAppointments = 1;
-                                          hours = initializeHours();
-                                          continued = initializeTurns();
                                           if (!checkInputs(
-                                              name, selectedCategory,
-                                              toList(services), duration,
-                                              concurrentAppointments, hours, continued)) {
+                                              activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
+                                              activity.concurrentAppointments, activity.hours, activity.continued)) {
                                             deleteActivity(activity);
                                           }
                                           Navigator.pop(context);
@@ -483,18 +513,21 @@ class EditActivityPageScreen extends StatelessWidget {
                                         onPressed: () {
                                           if (checkInputs(
                                               name, selectedCategory,
-                                              toList(services), duration,
+                                              toList(services), position, duration,
                                               concurrentAppointments, hours, continued)) {
                                             activity.editActivity(
                                                 name,
                                                 selectedCategory,
                                                 description,
                                                 toList(services),
+                                                position,
                                                 duration,
                                                 concurrentAppointments,
                                                 hours,
-                                                continued
+                                                continued,
+                                                image,
                                             );
+                                            /*
                                             controller.text = "";
                                             descController.text = "";
                                             servController.text = "";
@@ -506,6 +539,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                             concurrentAppointments = 1;
                                             hours = initializeHours();
                                             continued = initializeTurns();
+                                             */
                                             Navigator.pop(context);
                                             setState(() {});
                                           }
@@ -532,7 +566,7 @@ class EditActivityPageScreen extends StatelessWidget {
                     switch (value) {
                       case 0:
                         if (!checkInputs(
-                            activity.name, activity.category, activity.appTypes, activity.duration,
+                            activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
                             activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
@@ -540,7 +574,7 @@ class EditActivityPageScreen extends StatelessWidget {
                         break;
                       case 1:
                         if (!checkInputs(
-                            activity.name, activity.category, activity.appTypes, activity.duration,
+                            activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
                             activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
@@ -548,7 +582,7 @@ class EditActivityPageScreen extends StatelessWidget {
                         break;
                       case 2:
                         if (!checkInputs(
-                            activity.name, activity.category, activity.appTypes, activity.duration,
+                            activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
                             activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
@@ -556,7 +590,7 @@ class EditActivityPageScreen extends StatelessWidget {
                         break;
                       case 3:
                         if (!checkInputs(
-                            activity.name, activity.category, activity.appTypes, activity.duration,
+                            activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
                             activity.concurrentAppointments, activity.hours, activity.continued)) {
                           deleteActivity(activity);
                         }
@@ -602,7 +636,7 @@ class EditActivityPageScreen extends StatelessWidget {
     return ret;
   }
 
-  bool checkInputs(String name, String selectedCategory, List<String> list,
+  bool checkInputs(String name, String selectedCategory, List<String> list, String position,
       int? duration, int concurrentAppointments, List<List<double>> hours, List<bool> continued) {
     if (name.trim().isEmpty) {
       log("a");
@@ -662,14 +696,67 @@ class EditActivityPageScreen extends StatelessWidget {
     return true;
   }
 
+  Future getImage(ImageSource media, ImagePicker picker, Function(void Function()) setState) async {
+    var img = await picker.pickImage(source: media);
+    setState(() {
+      image = img;
+    });
+  }
+
+  void myAlert(BuildContext context, ImagePicker picker, Function(void Function()) setState) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            title: const Text('Please choose media to select'),
+            content: SizedBox(
+              height: MediaQuery.of(context).size.height / 6,
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    //if user click this button, user can upload image from gallery
+                    onPressed: () {
+                      Navigator.pop(context);
+                      getImage(ImageSource.gallery, picker, setState);
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(Icons.image),
+                        Text('From Gallery'),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    //if user click this button. user can upload image from camera
+                    onPressed: () {
+                      Navigator.pop(context);
+                      getImage(ImageSource.camera, picker, setState);
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(Icons.camera),
+                        Text('From Camera'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   Widget buildPopups(int index, BuildContext context, StateSetter setState,
-      List<bool> popups, List<List<bool>> completed) {
+      List<bool> popups, List<List<bool>> completed, FocusNode focusNode) {
     return TextButton(
       style: TextButton.styleFrom(
           foregroundColor: Colors.black,
           alignment: Alignment.centerLeft
       ),
       onPressed: () {
+        focusNode.unfocus();
         int i = index;
         if (!popups[i]) {
           popups[i] = true;
@@ -736,8 +823,8 @@ class EditActivityPageScreen extends StatelessWidget {
     );
   }
 
-  void updateButtons(int i, int j, StateSetter setState,
-      List<List<bool>> completed) {
+  void updateButtons(int i, int j, StateSetter setState, List<List<bool>> completed) {
+
     for (int z = 0; z < 7; z ++) {
       for (int k = 0; k < 4; k++) {
         if (z == i && k == j) {

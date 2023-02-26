@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         '/past': (context) => const PastAppPage(index: 2),
         '/account': (context) => const AccountPage(index: 3),
         '/activity': (context) => const ActivityPageScreen(),
-        '/addActivity': (context) => const EditActivityPageScreen(),
+        '/addActivity': (context) => EditActivityPageScreen(),
         '/bookAppointment': (context) => const BookAppointmentPage(),
       },
     );
