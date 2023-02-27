@@ -22,6 +22,7 @@ class Activity {
   List<String> appTypes;
   double rating = 0.0;
   int votes = 0;
+  List<List<int>> appointments = [];
 
   Activity(
     this.name,
@@ -60,11 +61,43 @@ class Activity {
     this.concurrentAppointments = concurrentAppointments;
     this.hours = hours;
     this.continued = continued;
-    this.image = File(image!.path);
+    if(image != null) {
+      this.image = File(image.path);
+    }
+    appointments = populateList();
+    log(appointments.toString());
   }
 
   void addAppointmentType(value) {
     appTypes.add(value);
+  }
+
+  List<List<int>> populateList() {
+    List<List<int>> ret = [];
+
+    for(int i = 0; i < hours.length; i++){
+      List<int> daily = [0,0];
+      for (int j = 1; j < hours[i].length; j = j + 2) {
+        if(hours[i][j] == -1){
+          ret.add(daily);
+          continue;
+        }
+        double time = hours[i][j] - hours[i][j-1];
+        int hour = getHour(time);
+        int tot = 60 * hour + getMinute(time);
+        int d = (tot / duration).floor() * concurrentAppointments;
+        int index;
+        if(j == 1) {
+          index = 0;
+          daily[index] = d;
+        } else {
+          index = 1;
+          daily[index] = d;
+          ret.add(daily);
+        }
+      }
+    }
+    return ret;
   }
 }
 

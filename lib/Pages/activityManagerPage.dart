@@ -56,6 +56,7 @@ class EditActivityPageScreen extends StatelessWidget {
     String position = "";
     int? duration = 30;
     int concurrentAppointments = 1;
+    File? img;
     List<List<double>> hours = initializeHours();
     List<bool> continued = initializeTurns();
     final ImagePicker picker = ImagePicker();
@@ -88,6 +89,7 @@ class EditActivityPageScreen extends StatelessWidget {
     appController.text = activity.concurrentAppointments.toString();
     hours = activity.hours;
     continued = activity.continued;
+    img = activity.image;
 
     return StatefulBuilder(
         builder: (context, setState) {
@@ -208,15 +210,19 @@ class EditActivityPageScreen extends StatelessWidget {
                                     3, context, setState, popups, completed, focusNode),
                                 popups[3] ? Padding(
                                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          myAlert(context, picker, setState);
-                                        },
-                                        child: const Text('Upload Photo'),
-                                      ),
+                                      image == null && img != null ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.file(
+                                            //to show image, you type like this.
+                                            File(img.path),
+                                            fit: BoxFit.cover,
+                                            width: 150,
+                                            height: 150,
+                                          ),
+                                        ) : const SizedBox(),
                                       image != null ? ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
                                         child: Image.file(
@@ -227,9 +233,21 @@ class EditActivityPageScreen extends StatelessWidget {
                                           height: 150,
                                         ),
                                       )
-                                      : const Text(
-                                        "No Image",
-                                      )
+                                      : const SizedBox(),
+                                      (img == null && image == null) ? ElevatedButton(
+                                          onPressed: () {
+                                            myAlert(context, picker, setState);
+                                          },
+                                          child: const Text('Upload Photo'),
+                                        ) : Padding(
+                                        padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            myAlert(context, picker, setState);
+                                          },
+                                          child: const Text('Change Photo'),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ) : const SizedBox(),
