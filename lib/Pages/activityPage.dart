@@ -176,7 +176,7 @@ class ActivityPageScreen extends StatelessWidget {
                               for(int i = 0; i < a.hours.length; i++)
                                 Row(
                                   children: [
-                                    SizedBox(width: 100, child: Text(times.weekDay(i))),
+                                    SizedBox(width: 120, child: Text(times.weekDay(i))),
                                     SizedBox(width: 50, child: printTime(
                                         getHour(a.hours[i][0]),
                                         getMinute(a.hours[i][0])
@@ -187,6 +187,7 @@ class ActivityPageScreen extends StatelessWidget {
                                         getMinute(a.hours[i][1])
                                       ),
                                     ),
+                                    !a.continued[i] ? const SizedBox(width: 20) : const SizedBox(),
                                     !a.continued[i] ? SizedBox(width: 50, child: printTime(
                                         getHour(a.hours[i][2]),
                                         getMinute(a.hours[i][2])

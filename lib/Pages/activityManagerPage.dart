@@ -438,6 +438,11 @@ class EditActivityPageScreen extends StatelessWidget {
                                                 ? IconButton(
                                                 onPressed: () {
                                                   continued[i] = false;
+                                                  if(equals){
+                                                    for(int i = 1; i < 5; i ++) {
+                                                      continued[i] = false;
+                                                    }
+                                                  }
                                                   setState(() {});
                                                 },
                                                 icon: const Icon(Icons
@@ -445,8 +450,8 @@ class EditActivityPageScreen extends StatelessWidget {
                                                 : IconButton(
                                                 onPressed: () {
                                                   continued[i] = true;
+                                                  hours[i][2] = -1;
                                                   hours[i][3] = -1;
-                                                  hours[i][4] = -1;
                                                   setState(() {});
                                                 },
                                                 icon: const Icon(

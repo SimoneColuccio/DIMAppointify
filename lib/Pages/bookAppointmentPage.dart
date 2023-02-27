@@ -32,7 +32,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
   List<int> hour = [];
 
   bool modified = false;
-
   @override
   Widget build(BuildContext context) {
 
@@ -121,49 +120,56 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
             ),
             const SizedBox(height: 50),
             const Text("Hour"),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: StatefulBuilder(
-                builder: (context, setNewState) {
-                  if (pressed == -1) {
-                    int day = getWeekDay(date);
-                    return Row(
-                      children: [
-                        for(int i = getHour(activity.hours[day][0]); i <= getHour(activity.hours[day][1] - 0.01 * activity.duration); i++)
-                          for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration) && j < 60; j = j + 30)
-                            checkFuture(i,j) ?
-                            const SizedBox() :
-                            OutlinedButton(
-                              onPressed: () => {
-                                modified = true,
-                                pressed = toDouble(i, j),
-                                hour = [i, j],
-                                setNewState(() {}),
-                              },
-                              child: printTime(i, j),
-                            ),
-                      ],
-                    );
-                  } else {
-                    int ii = getHour(pressed);
-                    int jj = getMinute(pressed);
-                    int day = getWeekDay(date);
-                    return Row(
-                      children: [
-                        for(int i = getHour(activity.hours[day][0]); i <= getHour(activity.hours[day][1] - 0.01 * activity.duration); i++)
-                          for (int j = (getMinute(activity.hours[day][0]) > 30 && i != getHour(activity.hours[day][0])) ? getMinute(activity.hours[day][0]) - 30 : getMinute(activity.hours[day][0]); j < getMinute(activity.hours[day][1] - 0.01 * activity.duration) && j < 60; j = j + 30)
-                            !checkFuture(i,j) ?
-                              (ii != i || jj != j) ?
-                                OutlinedButton(
-                                  onPressed: () => {
-                                    modified = true,
-                                    pressed = toDouble(i, j),
-                                    hour = [i, j],
-                                    setNewState(() {}),
-                                  },
-                                  child: printTime(i, j),
-                                )
-                              : ElevatedButton(
+            StatefulBuilder(
+              builder: (context, setNewState) {
+                int day = getWeekDay(date);
+                int i = getHour(activity.hours[day][0]);
+                int j = getMinute(activity.hours[day][0]);
+                int x = getHour(activity.hours[day][2]);
+                int y = getMinute(activity.hours[day][2]);
+                int ii = getHour(pressed);
+                int jj = getMinute(pressed);
+                return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: (pressed == -1) ? Row(
+                          children: [
+                            for (int z = 0; z < (activity.appointments[day][0]/activity.concurrentAppointments) && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
+                              checkFuture(i,j) ?
+                              const SizedBox() :
+                              OutlinedButton(
+                                onPressed: () => {
+                                  log(z.toString()),
+                                  modified = true,
+                                  pressed = activity.toHour(day, 0, z),
+                                  log(pressed.toString()),
+                                  hour = [getHour(pressed), getMinute(pressed)],
+                                  log(hour.toString()),
+                                  setNewState(() {}),
+                                },
+                                child: printTime(i, j),
+                              ),
+                          ],
+                        ) : Row(
+                          children: [
+                            for (int z = 0; z < (activity.appointments[day][0]/activity.concurrentAppointments) && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
+                              !checkFuture(i,j) ?
+                                (ii != i || jj != j) ?
+                                  OutlinedButton(
+                                    onPressed: () => {
+                                      log(z.toString()),
+                                      modified = true,
+                                      pressed = activity.toHour(day, 0, z),
+                                      log(pressed.toString()),
+                                      hour = [getHour(pressed), getMinute(pressed)],
+                                      log(hour.toString()),
+                                      setNewState(() {}),
+                                    },
+                                    child: printTime(i, j),
+                                  )
+                                : ElevatedButton(
                                   onPressed: () {
                                     modified = true;
                                     pressed = -1;
@@ -172,12 +178,62 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                   },
                                   child: printTime(ii, jj),
                                 )
-                            : const SizedBox(),
-                      ],
-                    );
-                  }
-                },
-              ),
+                              : const SizedBox(),
+                          ],
+                        )
+                      ),
+                      activity.hours[getWeekDay(date)][2] != -1 ? SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: (pressed == -1) ? Row(
+                          children: [
+                            for (int z = 0; z < (activity.appointments[day][1]/activity.concurrentAppointments) && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
+                              checkFuture(x,y) ?
+                                const SizedBox() :
+                                OutlinedButton(
+                                  onPressed: () => {
+                                    log(z.toString()),
+                                    modified = true,
+                                    pressed = activity.toHour(getWeekDay(date), 2, z),
+                                    log(pressed.toString()),
+                                    hour = [getHour(pressed), getMinute(pressed)],
+                                    log(hour.toString()),
+                                    setNewState(() {}),
+                                  },
+                                  child: printTime(x, y),
+                                ),
+                          ],
+                        ) : Row(
+                          children: [
+                            for (int z = 0; z < (activity.appointments[getWeekDay(date)][1]/activity.concurrentAppointments) && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
+                              !checkFuture(x,y) ?
+                                (ii != x || jj != y) ?
+                                  OutlinedButton(
+                                    onPressed: () => {
+                                      log(z.toString()),
+                                      modified = true,
+                                      pressed = activity.toHour(getWeekDay(date), 2, z),
+                                      log(pressed.toString()),
+                                      hour = [getHour(pressed), getMinute(pressed)],
+                                      log(hour.toString()),
+                                      setNewState(() {}),
+                                    },
+                                    child: printTime(x, y),
+                                  ) : ElevatedButton(
+                                    onPressed: () {
+                                      modified = true;
+                                      pressed = -1;
+                                      hour = [];
+                                      setNewState(() {});
+                                    },
+                                    child: printTime(ii, jj),
+                                  )
+                                : const SizedBox(),
+                          ],
+                        ),
+                      ) : const SizedBox(),
+                    ],
+                );
+              }
             ),
             const SizedBox(height: 40),
             Row(

@@ -65,7 +65,8 @@ class Activity {
       this.image = File(image.path);
     }
     appointments = populateList();
-    log(appointments.toString());
+    log(this.hours.toString());
+    log(this.continued.toString());
   }
 
   void addAppointmentType(value) {
@@ -99,6 +100,22 @@ class Activity {
     }
     return ret;
   }
+
+  double toHour(int weekDay, int turn, int seq) {
+    int startingHour = getHour(hours[weekDay][turn]);
+    int startingMin = getMinute(hours[weekDay][turn]);
+    double minutes = seq * duration / 60;
+    int h = getHour(minutes);
+    int m = (getMinute(minutes) * 0.6).toInt();
+    int endingHour = startingHour + h;
+    int endingMin = startingMin + m;
+    if(endingMin >= 60) {
+      endingMin = endingMin - 60;
+      endingHour = endingHour + 1;
+    }
+    return toDouble(endingHour, endingMin);
+  }
+
 }
 
   List<Activity> allActivities = [
