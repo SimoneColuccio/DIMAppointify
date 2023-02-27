@@ -320,7 +320,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                                 context,
                                                 '/bookAppointment',
                                                 arguments: BookAppointmentArguments(
-                                                  createAppointment(appointment.user, appointment.activity, DateTime.now(), "")
+                                                  createAppointment(appointment.user, appointment.activity)
                                                 ),
                                               ).then(onGoBack);
                                             },

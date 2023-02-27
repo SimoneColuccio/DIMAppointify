@@ -236,7 +236,7 @@ class ActivityPageScreen extends StatelessWidget {
               context,
               '/bookAppointment',
               arguments: BookAppointmentArguments(
-                createAppointment(user, a, DateTime.now(), "")
+                createAppointment(user, a)
               ),
             );
           },

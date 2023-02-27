@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:my_app/Data/openingTime.dart';
+
 import '../Pages/accountPage.dart';
 import '../Pages/incomingAppointmentsPage.dart';
 import '../Pages/pastAppointmentsPage.dart';
@@ -8,13 +10,14 @@ import 'activity.dart';
 class Appointment {
   final String user;
   final Activity activity;
+  int sequentialNumber;
   DateTime dateTime;
   String appointType;
   int voted = -1;
   bool userGoogleCalendar = false;
   bool actGoogleCalendar = false;
 
-  Appointment(this.user, this.activity, this.dateTime, this.appointType);
+  Appointment(this.user, this.activity, this.dateTime, this.appointType, this.sequentialNumber);
 
   void addToCalendar(bool user) {
     if(user) {
@@ -24,10 +27,12 @@ class Appointment {
     }
   }
 
-  void editAppointment(dateTime, appointType) {
+  void editAppointment(dateTime, appointType, List<int> seq) {
     this.dateTime = dateTime;
     this.appointType = appointType;
+    activity.appointments[getWeekDay(dateTime)][seq.last][seq.first] = activity.appointments[getWeekDay(dateTime)][seq.last][seq.first] - 1;
     log("Appointment edited");
+    log(activity.appointments.toString());
     checkDates();
   }
 }
@@ -49,7 +54,8 @@ List<Appointment> allAppointments = [
       allActivities[0].image,
     ),
     DateTime(DateTime.now().year, 02, 01, 11, 00),
-    allActivities[0].appTypes.last
+    allActivities[0].appTypes.last,
+    0
   ),
   Appointment(
     "user2",
@@ -68,12 +74,13 @@ List<Appointment> allAppointments = [
     ),
   DateTime(DateTime.now().year, 03, 01, 11, 00),
     allActivities[0].appTypes.last,
+      0
   ),
 ];
 
 
-Appointment createAppointment(user, activity, dateTime, appointType) {
-  Appointment a = Appointment(user, activity, dateTime, appointType);
+Appointment createAppointment(user, activity) {
+  Appointment a = Appointment(user, activity, DateTime.now(), "", 0);
   allAppointments.add(a);
   checkDates();
   log("Appointment created");

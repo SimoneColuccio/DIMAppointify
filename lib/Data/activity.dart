@@ -22,7 +22,7 @@ class Activity {
   List<String> appTypes;
   double rating = 0.0;
   int votes = 0;
-  List<List<int>> appointments = [];
+  List<List<List<int>>> appointments = [];
 
   Activity(
     this.name,
@@ -65,36 +65,42 @@ class Activity {
       this.image = File(image.path);
     }
     appointments = populateList();
-    log(this.hours.toString());
-    log(this.continued.toString());
+    log(appointments.toString());
   }
 
-  void addAppointmentType(value) {
-    appTypes.add(value);
-  }
+  List<List<List<int>>> populateList() {
+    List<List<List<int>>> ret = [];
 
-  List<List<int>> populateList() {
-    List<List<int>> ret = [];
+    for(int i = 0; i < hours.length; i++) {
+      //7 days
+      List<List<int>> d = [];
+      int morningTime = 60 * (getHour(hours[i][1]) - getHour(hours[i][0])) + (getMinute(hours[i][1]) - getMinute(hours[i][0]));
+      int afternoonTime = 60 * (getHour(hours[i][3]) - getHour(hours[i][2])) + (getMinute(hours[i][3]) - getMinute(hours[i][2]));
+      int morningTurns = (morningTime / duration).floor();
+      int afternoonTurns = (afternoonTime / duration).floor();
+      int max;
+      if(morningTurns < afternoonTurns) {
+        max = afternoonTurns;
+      } else {
+        max = morningTurns;
+      }
 
-    for(int i = 0; i < hours.length; i++){
-      List<int> daily = [0,0];
-      for (int j = 1; j < hours[i].length; j = j + 2) {
-        if(hours[i][j] == -1){
-          ret.add(daily);
-          continue;
-        }
-        double time = hours[i][j] - hours[i][j-1];
-        int hour = getHour(time);
-        int tot = 60 * hour + getMinute(time);
-        int d = (tot / duration).floor() * concurrentAppointments;
-        int index;
-        if(j == 1) {
-          index = 0;
-          daily[index] = d;
+      for (int j = 0; j < max; j++) {
+        //Turn x before and after lunch
+        List<int> t = [0,0];
+        if (j < morningTurns) {
+          t[0] = concurrentAppointments;
         } else {
-          index = 1;
-          daily[index] = d;
-          ret.add(daily);
+          t[0] = 0;
+        }
+        if (j < afternoonTurns) {
+          t[1] = concurrentAppointments;
+        } else {
+          t[1] = 0;
+        }
+        d.add(t);
+        if(j >= morningTurns - 1 && j >= afternoonTurns - 1) {
+          ret.add(d);
         }
       }
     }

@@ -43,7 +43,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   var order = ["Ascending", "Descending"];
   String? ascending = "Ascending";
   var columns = ["Name", "Date"];
-  String? parameter = "Name";
+  String? parameter = "Date";
 
   DateTime date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
   String? filteredCategory = "";

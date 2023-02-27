@@ -27,6 +27,8 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
 
   late double pressed;
 
+  List<int> seq = [];
+
   String? appointType;
   late DateTime date;
   List<int> hour = [];
@@ -136,12 +138,13 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         scrollDirection: Axis.horizontal,
                         child: (pressed == -1) ? Row(
                           children: [
-                            for (int z = 0; z < (activity.appointments[day][0]/activity.concurrentAppointments) && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
-                              checkFuture(i,j) ?
+                            for (int z = 0; z < activity.appointments[day].length && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
+                              checkFuture(i,j) || !checkAvailability(activity, date, [i, j]) ?
                               const SizedBox() :
                               OutlinedButton(
                                 onPressed: () => {
-                                  log(z.toString()),
+                                  seq = [0, z],
+                                  log(seq.toString()),
                                   modified = true,
                                   pressed = activity.toHour(day, 0, z),
                                   log(pressed.toString()),
@@ -154,12 +157,12 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           ],
                         ) : Row(
                           children: [
-                            for (int z = 0; z < (activity.appointments[day][0]/activity.concurrentAppointments) && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
-                              !checkFuture(i,j) ?
+                            for (int z = 0; z < activity.appointments[day].length && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
+                              !checkFuture(i,j) && checkAvailability(activity, date, [i, j]) ?
                                 (ii != i || jj != j) ?
                                   OutlinedButton(
                                     onPressed: () => {
-                                      log(z.toString()),
+                                      seq = [0, z],
                                       modified = true,
                                       pressed = activity.toHour(day, 0, z),
                                       log(pressed.toString()),
@@ -171,6 +174,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                   )
                                 : ElevatedButton(
                                   onPressed: () {
+                                    seq = [];
                                     modified = true;
                                     pressed = -1;
                                     hour = [];
@@ -186,12 +190,13 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         scrollDirection: Axis.horizontal,
                         child: (pressed == -1) ? Row(
                           children: [
-                            for (int z = 0; z < (activity.appointments[day][1]/activity.concurrentAppointments) && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
-                              checkFuture(x,y) ?
+                            for (int z = 0; z < activity.appointments[day].length && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
+                              checkFuture(x,y) || !checkAvailability(activity, date, [i, j]) ?
                                 const SizedBox() :
                                 OutlinedButton(
                                   onPressed: () => {
-                                    log(z.toString()),
+                                    seq = [1, z],
+                                    log(seq.toString()),
                                     modified = true,
                                     pressed = activity.toHour(getWeekDay(date), 2, z),
                                     log(pressed.toString()),
@@ -204,12 +209,13 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           ],
                         ) : Row(
                           children: [
-                            for (int z = 0; z < (activity.appointments[getWeekDay(date)][1]/activity.concurrentAppointments) && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
-                              !checkFuture(x,y) ?
+                            for (int z = 0; z < activity.appointments[getWeekDay(date)].length && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
+                              !checkFuture(x,y) && checkAvailability(activity, date, [i, j]) ?
                                 (ii != x || jj != y) ?
                                   OutlinedButton(
                                     onPressed: () => {
-                                      log(z.toString()),
+                                      seq = [0, z],
+                                      log(seq.toString()),
                                       modified = true,
                                       pressed = activity.toHour(getWeekDay(date), 2, z),
                                       log(pressed.toString()),
@@ -220,6 +226,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                     child: printTime(x, y),
                                   ) : ElevatedButton(
                                     onPressed: () {
+                                      seq = [];
                                       modified = true;
                                       pressed = -1;
                                       hour = [];
@@ -265,7 +272,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         hour.first,
                         hour.last
                         );
-                        args.appointment.editAppointment(date, appointType);
+                        args.appointment.editAppointment(date, appointType, seq);
                         Navigator.pushNamed(context, '/incoming');
                       }
 
@@ -322,6 +329,21 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
         date.day == DateTime.now().day &&
         (i == DateTime.now().hour && j <= DateTime.now().minute ||
             i < DateTime.now().hour));
+  }
+
+  bool checkAvailability(Activity activity, DateTime date, List<int> hour) {
+    List<Appointment> appointments = [];
+    for(var a in allAppointments) {
+      if(a.activity.name == activity.name && a.activity.dateOfAdding == activity.dateOfAdding && a.activity.category == activity.category &&
+      a.dateTime.year == date.year && a.dateTime.month == date.month && a.dateTime.day == date.day &&
+      a.dateTime.hour == hour.first && a.dateTime.minute == hour.last) {
+        appointments.add(a);
+      }
+    }
+    if(appointments.length >= activity.concurrentAppointments) {
+      return false;
+    }
+    return true;
   }
 
 }
