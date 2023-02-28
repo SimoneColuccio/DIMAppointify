@@ -5,4 +5,5 @@ List<String> allCategories = [
   "Health",
   "Hotels and travels",
   "Spa and Wellness",
+  "Study and Work"
 ];

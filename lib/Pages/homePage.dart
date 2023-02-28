@@ -1,10 +1,10 @@
 
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-//import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:haversine_distance/haversine_distance.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
@@ -58,6 +58,9 @@ class _HomePageState extends State<HomePage> {
   int minRating = 0;
   String? filteredCategory = "";
 
+  double? lat;
+  double? lon;
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +91,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    getCurrentLocation().then((value) {
+      lat = value.latitude;
+      lon = value.longitude;
+      setState(() {});
+    });
+    liveLocation();
     setState(() {});
     return Scaffold(
       appBar: AppBar(
@@ -338,12 +347,12 @@ class _HomePageState extends State<HomePage> {
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(
+                  ((lat != null) && (lon != null) && (activity.lat != null) && (activity.lon != null)) ? SizedBox(
                     width: 59,
-                    child: Text(activity.position.toString(),
+                    child: Text("${calculateDistance(lat!, lon!, activity.lat!, activity.lon!)} km",
                       style: const TextStyle(color: Colors.black),
                     ),
-                  ),
+                  ) : const SizedBox(),
                 ],
               ),
               onTap: () => {
@@ -905,7 +914,7 @@ class _HomePageState extends State<HomePage> {
   /// Prints all the categories that can be clicked to easy obtain only the related activities
   Widget printCategoryNames() {
     return SizedBox(
-      height: 240,
+      height: 300,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -932,16 +941,47 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Returns the distance between two coordinates
-  double calculateDistance(lat1, lon1, lat2, lon2){
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p)/2 +
-        c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p))/2;
-    return 12742 * asin(sqrt(a));
+  int calculateDistance(double lat1, double lon1, double lat2, double lon2){
+    final start = Location(lat1, lon1);
+    final end = Location(lat2, lon2);
+    final haversineDistance = HaversineDistance();
+    return haversineDistance.haversine(start, end, Unit.KM).floor();
   }
 
   void update() {
     setState(() {});
   }
+
+  Future<Position> getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if(!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if(permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if(permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if(permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied');
+    }
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void liveLocation() {
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
+
+    Geolocator.getPositionStream(locationSettings: locationSettings)
+        .listen((Position position) {
+          lat = position.latitude;
+          lon = position.longitude;
+          setState(() {});
+    });
+  }
+
 }

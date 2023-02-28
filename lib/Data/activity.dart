@@ -2,13 +2,13 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter_geocoder/geocoder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Data/openingTime.dart';
 
 class Activity {
   String name;
-  String description;
   String category;
   String position;
   DateTime dateOfAdding;
@@ -17,8 +17,10 @@ class Activity {
   List<List<double>> hours;
   List<bool> continued;
   File? image;
-  //Coordinates? coordinates;
+  double? lat;
+  double? lon;
 
+  String description = "";
   List<String> appTypes;
   double rating = 0.0;
   int votes = 0;
@@ -26,7 +28,6 @@ class Activity {
 
   Activity(
     this.name,
-    this.description,
     this.category,
     this.position,
     this.dateOfAdding,
@@ -35,14 +36,11 @@ class Activity {
     this.concurrentAppointments,
     this.hours,
     this.continued,
-    this.image
-  ) {/* coordinates = getCoordinates() as Coordinates;*/}
+    this.image,
+  ){
+    getAddress(position);
+  }
 
-  /*Future<Coordinates> getCoordinates () async {
-    var addresses = await Geocoder.local.findAddressesFromQuery(position);
-    var first = addresses.first;
-    return first.coordinates;
-  }*/
 
   void voteActivity (int vote) {
     double r = rating * votes;
@@ -51,7 +49,7 @@ class Activity {
     rating = r / votes;
   }
 
-  void editActivity(name, category, description, appTypes, position, duration, concurrentAppointments, hours, continued, XFile? image) {
+  Future<void> editActivity(name, category, description, appTypes, position, duration, concurrentAppointments, hours, continued, XFile? image) async {
     this.name = name;
     this.category = category;
     this.description = description;
@@ -61,11 +59,22 @@ class Activity {
     this.concurrentAppointments = concurrentAppointments;
     this.hours = hours;
     this.continued = continued;
+    this.position = position;
+    var addresses = await Geocoder.local.findAddressesFromQuery(position);
+    var first = addresses.first;
+    lat = first.coordinates.latitude;
+    lon = first.coordinates.longitude;
     if(image != null) {
       this.image = File(image.path);
     }
     appointments = populateList();
     log(appointments.toString());
+  }
+
+  void getAddress(String pos) async {
+    var addresses = await Geocoder.local.findAddressesFromQuery(pos);
+    lat =  addresses.first.coordinates.latitude;
+    lon =  addresses.first.coordinates.longitude;
   }
 
   List<List<List<int>>> populateList() {
@@ -125,15 +134,15 @@ class Activity {
 }
 
   List<Activity> allActivities = [
-    Activity("first activity", "1st activity", "Beauty", "", DateTime(DateTime.now().day - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
-    Activity("second activity", "2nd activity", "Food and drink", "", DateTime.now(), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
-    Activity("third activity", "3rd activity", "Health", "", DateTime(DateTime.now().day - 10), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
-    Activity("fourth activity", "4th activity", "Hotels and travels", "", DateTime(DateTime.now().month - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
-    Activity("fifth activity", "5th activity", "Spa and Wellness", "", DateTime(DateTime.now().year - 1), ["", "a", "b"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("BCL", "Study and Work", "Milano, via Ampère 2", DateTime(DateTime.now().year - 2), ["", "Spaces for studying", "Book reservations"], 60, 50, initializeHours(), initializeTurns(), null),
+    Activity("BCC", "Study and Work", "Milano, via Candiani 72", DateTime(DateTime.now().year - 1), ["", "Spaces for studying", "Book reservations"], 60, 40, initializeHours(), initializeTurns(), null),
+    Activity("Cracco", "Food and Drink", "Milano, Corso Vittorio Emanuele II", DateTime(DateTime.now().day - 10), ["", "Breakfast", "Lunch", "Dinner"], 60, 20, initializeHours(), initializeTurns(), null),
+    Activity("Hotel Milano Scala", "Hotels and travels", "Milano, via dell'Orso 7", DateTime(DateTime.now().month - 1), ["", "Night"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("QC Termemilano", "Spa and Wellness", "Milano, Piazzale Medaglie d'Oro 2", DateTime(DateTime.now().month - 10), ["", "Daily spa", "Massages"], 30, 1, initializeHours(), initializeTurns(), null),
   ];
 
   Activity createActivity() {
-    Activity a = Activity('', '', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns(), null);
+    Activity a = Activity('', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns(), null);
     allActivities.add(a);
     log("Activity created");
     return a;

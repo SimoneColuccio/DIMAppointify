@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Data/openingTime.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
@@ -110,6 +111,28 @@ class ActivityPageScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    double lat = a.lat;
+                                    double lon = a.lon;
+                                    openMap(lat, lon);
+                                  },
+                                  icon: const Icon(Icons.map)
+                              ),
+                              Text(
+                                a.position,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+
+                            ],
+                          ),
+                        ),
                         Container(
                           width: double.infinity,
                           height: 200,
@@ -129,25 +152,7 @@ class ActivityPageScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Row(
-                            children: [
-                              const Text("Address",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-                              Text(
-                                a.position,
-                                style: const TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Column(
@@ -266,5 +271,14 @@ class ActivityPageScreen extends StatelessWidget {
         )
     );
 
+  }
+
+  Future <void> openMap(double latitude, double longitude) async {
+    String lat = latitude.toString();
+    String lon = longitude.toString();
+    String googleURL = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
+    await canLaunchUrlString(googleURL)
+      ? await launchUrlString(googleURL)
+      : throw 'Could not launch $googleURL';
   }
 }

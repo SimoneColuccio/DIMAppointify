@@ -259,6 +259,8 @@ class EditActivityPageScreen extends StatelessWidget {
                                   child: TextField(
                                     controller: posController,
                                     focusNode: posFocusNode,
+                                    keyboardType: TextInputType.streetAddress,
+                                    autofillHints: const [AutofillHints.postalAddress],
                                     decoration: const InputDecoration(
                                       hintText: 'Insert the address of your activity',
                                     ),
@@ -672,6 +674,11 @@ class EditActivityPageScreen extends StatelessWidget {
 
     if (list.length <= 1) {
       log("c");
+      return false;
+    }
+
+    if(position == "") {
+      log("h");
       return false;
     }
 

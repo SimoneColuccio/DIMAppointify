@@ -42,7 +42,6 @@ List<Appointment> allAppointments = [
     "user1",
     Activity(
       allActivities[0].name,
-      allActivities[0].description,
       allActivities[0].category,
       allActivities[0].position,
       allActivities[0].dateOfAdding,
@@ -61,7 +60,6 @@ List<Appointment> allAppointments = [
     "user2",
     Activity(
       allActivities[0].name,
-      allActivities[0].description,
       allActivities[0].category,
       allActivities[0].position,
       allActivities[0].dateOfAdding,

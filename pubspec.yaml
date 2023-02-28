@@ -43,6 +43,9 @@ dependencies:
   string_validator: ^0.3.0
   geolocator: ^9.0.2
   bottom_navigation_badge: ^1.0.3
+  url_launcher: ^6.1.10
+  flutter_geocoder: ^0.2.2-nullsafety
+  haversine_distance: ^1.2.1
 
 dev_dependencies:
   flutter_test:
