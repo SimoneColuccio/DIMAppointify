@@ -136,7 +136,7 @@ class Activity {
   List<Activity> allActivities = [
     Activity("BCL", "Study and Work", "Milano, via Ampère 2", DateTime(DateTime.now().year - 2), ["", "Spaces for studying", "Book reservations"], 60, 50, initializeHours(), initializeTurns(), null),
     Activity("BCC", "Study and Work", "Milano, via Candiani 72", DateTime(DateTime.now().year - 1), ["", "Spaces for studying", "Book reservations"], 60, 40, initializeHours(), initializeTurns(), null),
-    Activity("Cracco", "Food and Drink", "Milano, Corso Vittorio Emanuele II", DateTime(DateTime.now().day - 10), ["", "Breakfast", "Lunch", "Dinner"], 60, 20, initializeHours(), initializeTurns(), null),
+    Activity("Cracco", "Food and drink", "Milano, Corso Vittorio Emanuele II", DateTime(DateTime.now().day - 10), ["", "Breakfast", "Lunch", "Dinner"], 60, 20, initializeHours(), initializeTurns(), null),
     Activity("Hotel Milano Scala", "Hotels and travels", "Milano, via dell'Orso 7", DateTime(DateTime.now().month - 1), ["", "Night"], 30, 1, initializeHours(), initializeTurns(), null),
     Activity("QC Termemilano", "Spa and Wellness", "Milano, Piazzale Medaglie d'Oro 2", DateTime(DateTime.now().month - 10), ["", "Daily spa", "Massages"], 30, 1, initializeHours(), initializeTurns(), null),
   ];

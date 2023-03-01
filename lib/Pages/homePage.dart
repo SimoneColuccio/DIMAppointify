@@ -1,6 +1,7 @@
 
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -61,6 +62,8 @@ class _HomePageState extends State<HomePage> {
   double? lat;
   double? lon;
 
+  double scrollHeight = 0;
+
   @override
   void initState() {
     super.initState();
@@ -91,11 +94,19 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    scrollHeight = MediaQuery
+        .of(context)
+        .copyWith()
+        .size
+        .height;
+
     getCurrentLocation().then((value) {
       lat = value.latitude;
       lon = value.longitude;
       setState(() {});
     });
+
     liveLocation();
     setState(() {});
     return Scaffold(
@@ -115,8 +126,6 @@ class _HomePageState extends State<HomePage> {
                 if (filtering) filterUserActivities(),
                 if (!searchFocusNode.hasFocus & !filtering & !ordering) printCategoryNames(),
                 if (!searchFocusNode.hasFocus) const Divider(color: Colors.red),
-                if (!searchFocusNode.hasFocus & !filtering & !ordering) printActivityLabels(),
-                if (!searchFocusNode.hasFocus & !filtering & !ordering) const Divider(),
                 if (!searchFocusNode.hasFocus & !filtering & !ordering) printUserActivityElement(),
               ]
             ),
@@ -306,54 +315,70 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Prints Name, Category, Rating and Distance attributes for all printed user activities
-  /*Future<Widget>*/ Widget printUserActivityElement() /*async*/ {
-
-    //var currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  Widget printUserActivityElement() {
 
     return SizedBox(
-      height: 1000,
+      height: scrollHeight,
       child: ListView.builder(
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
 
-          double distance = 0/*calculateDistance(
-            activity.coordinates?.latitude,
-            activity.coordinates?.longitude,
-            currentPosition.latitude,
-            currentPosition.longitude
-          )*/;
+          int distance = -1;
+          if((lat != null) && (lon != null) && (activity.lat != null) && (activity.lon != null)) {
+            distance = calculateDistance(lat!, lon!, activity.lat!, activity.lon!);
+          }
 
           if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (distance >= distances[0]) && (distance <= distances[1])){
             return ListTile(
-              title: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 138,
-                    child: Text(activity.name,
-                      style: const TextStyle(color: Colors.black),
+              title: SizedBox(
+                height: 100,
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                         Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                          child: printActivityImage(activity, 70),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(activity.name,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              Text(activity.category,
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              (distance != -1) ? Text("\n$distance km",
+                                style: const TextStyle(color: Colors.black),
+                              ) : const SizedBox(),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            const Icon(Icons.star,
+                              color: Colors.amber,
+                              size: 35,
+                            ),
+                            Text("${activity.rating}/5",
+                              style: const TextStyle(
+                                fontSize: 17,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 132,
-                    child: Text(activity.category,
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 50,
-                    child: Text(activity.rating.toString(),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  ((lat != null) && (lon != null) && (activity.lat != null) && (activity.lon != null)) ? SizedBox(
-                    width: 59,
-                    child: Text("${calculateDistance(lat!, lon!, activity.lat!, activity.lon!)} km",
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ) : const SizedBox(),
-                ],
+                    const Divider(),
+                  ],
+                ),
               ),
               onTap: () => {
                 Navigator.pushNamed(
@@ -636,7 +661,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            Expanded(
+            /*Expanded(
               child: Row(
                 children: [
                   const SizedBox(
@@ -671,7 +696,7 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ),
-            ),
+            ),*/
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -774,18 +799,61 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget printActivityImage(Activity activity, double size) {
+    if(activity.image != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.file(
+          File(activity.image!.path),
+          fit: BoxFit.cover,
+          width: size,
+          height: size,
+        ),
+      );
+    } else {
+      return Container(
+        color: Colors.grey.shade100,
+        width: size,
+        height: size,
+      );
+    }
+  }
+
   /// Returns the real-time suggested activities based on current search
   Widget getSuggestions() {
     return SizedBox(
-      height: 2000,
+      height: scrollHeight,
       child: ListView.builder(
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
           return ListTile(
-              title: Text(
-                activity.name,
-                textAlign: TextAlign.start,
+              title: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                    child: printActivityImage(activity, 50),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        activity.name,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        activity.category,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               onTap: () => {
                 Navigator.pushNamed(
@@ -913,30 +981,23 @@ class _HomePageState extends State<HomePage> {
 
   /// Prints all the categories that can be clicked to easy obtain only the related activities
   Widget printCategoryNames() {
-    return SizedBox(
-      height: 300,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          for(int i = 1; i < categories.length ; i++)
-            TextButton(
-              onPressed: () => {
-                if (filteredCategory == categories[i]) {
-                  filteredCategory = ""
-                } else {
-                  filteredCategory = categories[i],
-                },
-                setState(() {})
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        for(int i = 1; i < categories.length ; i++)
+          IconButton(
+            onPressed: () => {
+              if (filteredCategory == categories[i]) {
+                filteredCategory = ""
+              } else {
+                filteredCategory = categories[i],
               },
-              child: Text(
-                categories[i],
-                style: (filteredCategory == categories[i]) ? const TextStyle(color: Colors.red) : const TextStyle(color: Colors.black),
-                textAlign: TextAlign.start,
-              ),
-            ),
-        ],
-      ),
+              setState(() {})
+            },
+            icon: getIcon(categories[i], filteredCategory),
+          ),
+      ],
     );
   }
 
