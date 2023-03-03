@@ -149,12 +149,13 @@ class EditActivityPageScreen extends StatelessWidget {
                                                   fontSize: 15),),
                                             onTap: () {
                                               selectedCategory = cat;
+                                              setState(() {});
                                             },
                                           )).toList(),
                                       onChanged: (cat) =>
                                           () {
                                         selectedCategory = cat!;
-                                        //setState(() {});
+                                        setState(() {});
                                       }),
                                 ) : const SizedBox(),
                                 const Text("Description",
@@ -279,14 +280,14 @@ class EditActivityPageScreen extends StatelessWidget {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text("Appointment duration"),
-                                          const SizedBox(width: 20),
-                                          SizedBox(
+                                          selectedCategory != "Hotels and travels" ? const Text("Appointment duration") : const SizedBox(),
+                                          selectedCategory != "Hotels and travels" ? const SizedBox(width: 20) : const SizedBox(),
+                                          selectedCategory != "Hotels and travels" ? SizedBox(
                                               width: 60,
                                               child: DropdownButtonFormField<
                                                   int>(
                                                 value: duration,
-                                                items: [15, 30, 45, 60].map((
+                                                items: [15, 30, 45, 60, 120, 180].map((
                                                     cat) =>
                                                     DropdownMenuItem<int>(
                                                       value: cat,
@@ -300,7 +301,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                                     setState(() =>
                                                     duration = cat),
                                               )
-                                          ),
+                                          ) : const SizedBox(),
                                         ],
                                       ),
                                       Row(
@@ -409,6 +410,17 @@ class EditActivityPageScreen extends StatelessWidget {
                                               {
                                                 updateButtons(i, 0, setState, completed),
                                               },
+                                              onLongPress: () {
+                                                if(equals && i < 5) {
+                                                  for(int k = 0; k < 5; k++) {
+                                                    hours[k][0] = -1;
+                                                  }
+                                                } else {
+                                                  hours[i][0] = -1;
+                                                }
+                                                updateButtons(
+                                                    i, 0, setState, completed);
+                                              },
                                               child: hours[i][0] == -1
                                                   ? const Text("")
                                                   : printTime(
@@ -428,6 +440,17 @@ class EditActivityPageScreen extends StatelessWidget {
                                               {
                                                 updateButtons(
                                                     i, 1, setState, completed),
+                                              },
+                                              onLongPress: () {
+                                                if(equals && i < 5) {
+                                                  for(int k = 0; k < 5; k++) {
+                                                    hours[k][1] = -1;
+                                                  }
+                                                } else {
+                                                  hours[i][1] = -1;
+                                                }
+                                                updateButtons(
+                                                    i, 1, setState, completed);
                                               },
                                               child: hours[i][1] == -1
                                                   ? const Text("")
@@ -471,6 +494,17 @@ class EditActivityPageScreen extends StatelessWidget {
                                                 updateButtons(
                                                     i, 2, setState, completed),
                                               },
+                                              onLongPress: () {
+                                                if(equals && i < 5) {
+                                                  for(int k = 0; k < 5; k++) {
+                                                    hours[k][2] = -1;
+                                                  }
+                                                } else {
+                                                  hours[i][2] = -1;
+                                                }
+                                                updateButtons(
+                                                    i, 2, setState, completed);
+                                              },
                                               child: hours[i][2] == -1
                                                   ? const Text("")
                                                   : printTime(
@@ -493,6 +527,18 @@ class EditActivityPageScreen extends StatelessWidget {
                                               onPressed: () =>
                                               {
                                                 updateButtons(i, 3, setState, completed),
+                                              },
+                                              onLongPress: () {
+                                                log(equals.toString());
+                                                if(equals && i < 5) {
+                                                  for(int k = 0; k < 5; k++) {
+                                                    hours[k][3] = -1;
+                                                  }
+                                                } else {
+                                                  hours[i][3] = -1;
+                                                }
+                                                updateButtons(
+                                                    i, 3, setState, completed);
                                               },
                                               child: hours[i][3] == -1
                                                   ? const Text("")
@@ -694,7 +740,7 @@ class EditActivityPageScreen extends StatelessWidget {
     double min = 60;
     for (int i = 0; i < 7; i++) {
       for (int j = 1; j < 4; j++) {
-        if (j > 1 && continued[i]) {
+        if (j > 1 && continued[i] || hours[i][j] == -1) {
           continue;
         }
         double m = 100 * hours[i][j] - 100 * hours[i][j - 1];
@@ -709,16 +755,14 @@ class EditActivityPageScreen extends StatelessWidget {
     }
 
     for (int i = 0; i < 7; i++) {
-      for (int j = 0; j < 4; j++) {
-        if (j > 1 && continued[i]) {
-          continue;
-        }
-        if (hours[i][j] == -1) {
+      if(hours[i][2] == -1) {
+        continued[i] = true;
+      }
+
+      for (int k = 0; k < 4; k = k + 2) {
+        if (hours[i][k] == -1 && hours[i][k+1] != -1 ||
+            hours[i][k] != -1 && hours[i][k+1] == -1) {
           log("g");
-          return false;
-        }
-        if (j > 0 && hours[i][j] == hours[i][j - 1]) {
-          log("h");
           return false;
         }
       }

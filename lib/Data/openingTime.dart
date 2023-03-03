@@ -77,6 +77,7 @@ int getWeekDay(DateTime date) {
 }
 
 Widget printTime(int i, int j) {
+  if(i == -1) return const Text("Closed");
   if (i >= 10 && j >= 10) return Text("$i:$j");
   if (i < 10 && j >= 10) return Text("0$i:$j");
   if (i >= 10 && j < 10) return Text("$i:0$j");

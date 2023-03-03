@@ -1,14 +1,12 @@
 import 'dart:developer';
 
-import 'package:my_app/Data/openingTime.dart';
-
 import '../Pages/accountPage.dart';
 import '../Pages/incomingAppointmentsPage.dart';
 import '../Pages/pastAppointmentsPage.dart';
 import 'activity.dart';
 
 class Appointment {
-  final String user;
+  String user;
   final Activity activity;
   int sequentialNumber;
   DateTime dateTime;
@@ -16,8 +14,10 @@ class Appointment {
   int voted = -1;
   bool userGoogleCalendar = false;
   bool actGoogleCalendar = false;
+  int duration;
+  bool toShow = true;
 
-  Appointment(this.user, this.activity, this.dateTime, this.appointType, this.sequentialNumber);
+  Appointment(this.user, this.activity, this.dateTime, this.appointType, this.sequentialNumber, this.duration);
 
   void addToCalendar(bool user) {
     if(user) {
@@ -27,12 +27,21 @@ class Appointment {
     }
   }
 
-  void editAppointment(dateTime, appointType, List<int> seq) {
+  void editAppointment(user, dateTime, appointType, List<int> seq, int duration, bool toShow) {
+    log(seq.first.toString());
+    if(user != "") {
+      this.user = user;
+    }
     this.dateTime = dateTime;
     this.appointType = appointType;
-    activity.appointments[getWeekDay(dateTime)][seq.last][seq.first] = activity.appointments[getWeekDay(dateTime)][seq.last][seq.first] - 1;
+    this.duration = duration;
+    this.toShow = toShow;
+    if(activity.category == "Hotels and travels" && seq.first > 1) {
+      Appointment a = createAppointment(user, activity);
+      a.editAppointment(user, DateTime(dateTime.year, dateTime.month, dateTime.day + 1, 15, 0), appointType, [seq.first - 1], duration, false);
+    }
     log("Appointment edited");
-    log(activity.appointments.toString());
+    //log(activity.appointments.toString());
     checkDates();
   }
 }
@@ -54,6 +63,7 @@ List<Appointment> allAppointments = [
     ),
     DateTime(DateTime.now().year, 02, 01, 11, 00),
     allActivities[0].appTypes.last,
+    0,
     0
   ),
   Appointment(
@@ -72,13 +82,14 @@ List<Appointment> allAppointments = [
     ),
   DateTime(DateTime.now().year, 03, 01, 11, 00),
     allActivities[0].appTypes.last,
-      0
+    0,
+    0
   ),
 ];
 
 
 Appointment createAppointment(user, activity) {
-  Appointment a = Appointment(user, activity, DateTime.now(), "", 0);
+  Appointment a = Appointment(user, activity, DateTime.now(), "", 0, 0);
   allAppointments.add(a);
   checkDates();
   log("Appointment created");

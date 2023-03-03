@@ -1,6 +1,7 @@
 
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,8 +10,6 @@ import 'package:haversine_distance/haversine_distance.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
-
-import 'package:intl/intl.dart';
 
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
@@ -101,16 +100,17 @@ class _HomePageState extends State<HomePage> {
         .size
         .height;
 
-    getCurrentLocation().then((value) {
-      lat = value.latitude;
-      lon = value.longitude;
-      setState(() {});
-    });
+      getCurrentLocation().then((value) {
+        lat = value.latitude;
+        lon = value.longitude;
+        setState(() {});
+      });
 
-    liveLocation();
-    setState(() {});
+      liveLocation();
+      setState(() {});
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 60,
         title: Text(tit),
         automaticallyImplyLeading: false,
         centerTitle: true,
@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                 if (sug & !filtering & !ordering) getSuggestions(),
                 if (ordering) orderActivities(userParameters),
                 if (filtering) filterUserActivities(),
-                if (!searchFocusNode.hasFocus & !filtering & !ordering) printCategoryNames(),
+                if (!searchFocusNode.hasFocus & !filtering & !ordering) printCategoryLabels(),
                 if (!searchFocusNode.hasFocus) const Divider(color: Colors.red),
                 if (!searchFocusNode.hasFocus & !filtering & !ordering) printUserActivityElement(),
               ]
@@ -146,30 +146,33 @@ class _HomePageState extends State<HomePage> {
           )
         ]
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: ind,
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.red.withOpacity(.60),
-        onTap: (value) {
-          switch (value) {
-            case 0:
-              filtering = false;
-              ordering = false;
-              setState(() {
-              });
-              break;
-            case 1:
-              Navigator.pushNamed(context, '/incoming');
-              break;
-            case 2:
-              Navigator.pushNamed(context, '/past');
-              break;
-            case 3:
-              Navigator.pushNamed(context, '/account');
-              break;
-          }
-        },
-        items: getBottomMenu(incomingAppointments.length)
+      bottomNavigationBar: SizedBox(
+        height: 55,
+        child: BottomNavigationBar(
+          currentIndex: ind,
+          selectedItemColor: Colors.red,
+          unselectedItemColor: Colors.red.withOpacity(.60),
+          onTap: (value) {
+            switch (value) {
+              case 0:
+                filtering = false;
+                ordering = false;
+                setState(() {
+                });
+                break;
+              case 1:
+                Navigator.pushNamed(context, '/incoming');
+                break;
+              case 2:
+                Navigator.pushNamed(context, '/past');
+                break;
+              case 3:
+                Navigator.pushNamed(context, '/account');
+                break;
+            }
+          },
+          items: getBottomMenu(incomingAppointments.length)
+        ),
       )
     );
   }
@@ -316,67 +319,60 @@ class _HomePageState extends State<HomePage> {
 
   /// Prints Name, Category, Rating and Distance attributes for all printed user activities
   Widget printUserActivityElement() {
-
     return SizedBox(
-      height: scrollHeight,
+      height: scrollHeight - 280,
       child: ListView.builder(
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
-
           int distance = -1;
           if((lat != null) && (lon != null) && (activity.lat != null) && (activity.lon != null)) {
             distance = calculateDistance(lat!, lon!, activity.lat!, activity.lon!);
           }
 
-          if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (distance >= distances[0]) && (distance <= distances[1])){
+          if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (distance >= distances[0] && distance <= distances[1] || distance == -1)){
             return ListTile(
               title: SizedBox(
-                height: 100,
-                child: Column(
+                height: 105,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-                          child: printActivityImage(activity, 70),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(activity.name,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Text(activity.category,
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              (distance != -1) ? Text("\n$distance km",
-                                style: const TextStyle(color: Colors.black),
-                              ) : const SizedBox(),
-                            ],
+                     Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                      child: printActivityImage(activity, 70),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(activity.name,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
                           ),
+                          Text(activity.category,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          Text(distance != -1 ? "\n$distance km" : "\n___ km",
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        const Icon(Icons.star,
+                          color: Colors.amber,
+                          size: 35,
                         ),
-                        Column(
-                          children: [
-                            const Icon(Icons.star,
-                              color: Colors.amber,
-                              size: 35,
-                            ),
-                            Text("${activity.rating}/5",
-                              style: const TextStyle(
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
+                        Text("${activity.rating}/5",
+                          style: const TextStyle(
+                            fontSize: 17,
+                          ),
                         ),
                       ],
                     ),
-                    const Divider(),
                   ],
                 ),
               ),
@@ -389,7 +385,7 @@ class _HomePageState extends State<HomePage> {
               },
             );
           } else {
-            return const SizedBox(width: 0, height: 0,);
+            return const SizedBox();
           }
         },
       ),
@@ -406,6 +402,12 @@ class _HomePageState extends State<HomePage> {
           final activity = activities[index];
           if(filteredCategory == "" || activity.category == filteredCategory) {
             return ListTile(
+              onTap: () {
+                Navigator.pushNamed(context,
+                  '/activity',
+                  arguments: ActivityPage(ind, activity.name),
+                );
+              },
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -871,6 +873,7 @@ class _HomePageState extends State<HomePage> {
   /// Returns the main user app bar (when he doesn't filter/order)
   Widget getUserMainAppBar () {
     return SliverAppBar(
+      toolbarHeight: 55,
       backgroundColor: Colors.redAccent,
       automaticallyImplyLeading: false,
       floating: true,
@@ -980,24 +983,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Prints all the categories that can be clicked to easy obtain only the related activities
-  Widget printCategoryNames() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        for(int i = 1; i < categories.length ; i++)
-          IconButton(
-            onPressed: () => {
-              if (filteredCategory == categories[i]) {
-                filteredCategory = ""
-              } else {
-                filteredCategory = categories[i],
+  Widget printCategoryLabels() {
+    return SizedBox(
+      height: 40,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          for(int i = 1; i < categories.length ; i++)
+            IconButton(
+              onPressed: () => {
+                if (filteredCategory == categories[i]) {
+                  filteredCategory = ""
+                } else {
+                  filteredCategory = categories[i],
+                },
+                setState(() {})
               },
-              setState(() {})
-            },
-            icon: getIcon(categories[i], filteredCategory),
-          ),
-      ],
+              icon: getIcon(categories[i], filteredCategory),
+            ),
+        ],
+      ),
     );
   }
 

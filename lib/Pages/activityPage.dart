@@ -70,19 +70,22 @@ class ActivityPageScreen extends StatelessWidget {
                             height: 70,
                             child: Row(
                               children: [
-                                a.image != null ? Padding(
+                                Padding(
                                   padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                  child: ClipRRect(
+                                  child: a.image != null ? ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: Image.file(
-                                      //to show image, you type like this.
                                       File(a.image!.path),
                                       fit: BoxFit.cover,
                                       width: 70,
                                       height: 70,
                                     ),
-                                  ),
-                                ) : const SizedBox(),
+                                  ) : Container(
+                                    color: Colors.grey.shade100,
+                                    width: 70,
+                                    height: 70,
+                                  )
+                                ),
                                 Expanded(
                                   child: Text(a.category,
                                     textAlign: TextAlign.start,
@@ -113,24 +116,30 @@ class ActivityPageScreen extends StatelessWidget {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Row(
+                          child: Stack(
                             children: [
-                              IconButton(
-                                  onPressed: () {
-                                    double lat = a.lat;
-                                    double lon = a.lon;
-                                    openMap(lat, lon);
-                                  },
-                                  icon: const Icon(Icons.map)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    a.position,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: IconButton(
+                                      onPressed: () {
+                                        double lat = a.lat;
+                                        double lon = a.lon;
+                                        openMap(lat, lon);
+                                      },
+                                      icon: const Icon(Icons.map)
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                a.position,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-
-                            ],
+                            ]
                           ),
                         ),
                         Container(
@@ -158,13 +167,16 @@ class ActivityPageScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text("Services Provided",
-                                style: TextStyle(
-                                  fontSize: 15,
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Text("Services",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
                               for(var s in a.appTypes)
-                                s != "" ? Text("- "+s) : const SizedBox(height: 0,),
+                                s != "" ? Text("-  "+s) : const SizedBox(),
                             ],
                           ),
                         ),
@@ -173,9 +185,12 @@ class ActivityPageScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text("Weekly hours",
-                                style: TextStyle(
-                                  fontSize: 15,
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Text("Weekly hours",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
                               for(int i = 0; i < a.hours.length; i++)
@@ -187,18 +202,18 @@ class ActivityPageScreen extends StatelessWidget {
                                         getMinute(a.hours[i][0])
                                       ),
                                     ),
-                                    SizedBox(width: 50, child: printTime(
+                                    (a.hours[i][0] != -1) ? SizedBox(width: 50, child: printTime(
                                         getHour(a.hours[i][1]),
                                         getMinute(a.hours[i][1])
                                       ),
-                                    ),
+                                    ) : const SizedBox(),
                                     !a.continued[i] ? const SizedBox(width: 20) : const SizedBox(),
                                     !a.continued[i] ? SizedBox(width: 50, child: printTime(
                                         getHour(a.hours[i][2]),
                                         getMinute(a.hours[i][2])
                                       ),
                                     ) : const SizedBox(),
-                                    !a.continued[i] ? SizedBox(width: 50, child: printTime(
+                                    !a.continued[i] && (a.hours[i][2] != -1) ? SizedBox(width: 50, child: printTime(
                                         getHour(a.hours[i][3]),
                                         getMinute(a.hours[i][3])
                                       ),

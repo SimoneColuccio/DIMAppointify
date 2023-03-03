@@ -259,13 +259,16 @@ class _PastAppPageState extends State<PastAppPage>{
                       ),
                     ),
                     if ((filtering || ordering) && (isLoggedAsUser | isLoggedAsActivity)) const Divider(color: Colors.red),
-                    if((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
+                    if((!filtering && !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
                       height: 1000,
                       color: Colors.white,
                       child: ListView.builder(
                         itemCount: pastAppointments.length,
                         itemBuilder: (context, index) {
                           final appointment = pastAppointments[index];
+                          if(!appointment.toShow) {
+                            return const SizedBox();
+                          }
                           if(filteredCategory == "" || appointment.activity.category == filteredCategory) {
                             return ListTile(
                                 title: Row(

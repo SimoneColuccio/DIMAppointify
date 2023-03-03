@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/appointment.dart';
+import 'package:my_app/Data/category.dart';
 
 import '../Pages/accountPage.dart';
 
@@ -12,26 +13,37 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context, Strin
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            DateFormat('yy/MM/dd kk:mm').format(appointment.dateTime),
-            style: const TextStyle(fontSize: 19),
+          Row(
+            children: [
+              Text(
+                DateFormat('yy/MM/dd kk:mm').format(appointment.dateTime),
+                style: const TextStyle(fontSize: 19),
+              ),
+              appointment.activity.category != "Hotels and travels"
+                ? Text("  - ${appointment.duration} mins",
+                  style: const TextStyle(fontSize: 19),)
+                : Text("  - ${appointment.duration} nights",
+                  style: const TextStyle(fontSize: 19),),
+            ],
           ),
+          Text(appointment.toShow.toString()),
           const SizedBox(height: 10),
           Text(
             appointment.appointType,
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 40),
-          Text(appointment.activity.name),
-          const SizedBox(height: 10),
-          Text(appointment.activity.category),
-          const SizedBox(height: 10),
           Row(
             children: [
-              const Text("pos"),
-              Text(appointment.activity.position),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: getIcon(appointment.activity.category, "")
+              ),
+              Text(appointment.activity.name),
             ],
           ),
+          const SizedBox(height: 10),
+          Text(appointment.activity.position),
         ],
       ),
     ),

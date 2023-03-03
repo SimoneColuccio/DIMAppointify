@@ -38,7 +38,9 @@ class Activity {
     this.continued,
     this.image,
   ){
-    getAddress(position);
+    if(position != "") {
+      getAddress();
+    }
   }
 
 
@@ -68,13 +70,13 @@ class Activity {
       this.image = File(image.path);
     }
     appointments = populateList();
-    log(appointments.toString());
+    getAddress();
   }
 
-  void getAddress(String pos) async {
-    var addresses = await Geocoder.local.findAddressesFromQuery(pos);
-    lat =  addresses.first.coordinates.latitude;
-    lon =  addresses.first.coordinates.longitude;
+  void getAddress() async {
+      var addresses = await Geocoder.local.findAddressesFromQuery(position);
+      lat =  addresses.first.coordinates.latitude;
+      lon =  addresses.first.coordinates.longitude;
   }
 
   List<List<List<int>>> populateList() {
@@ -139,6 +141,7 @@ class Activity {
     Activity("Cracco", "Food and drink", "Milano, Corso Vittorio Emanuele II", DateTime(DateTime.now().day - 10), ["", "Breakfast", "Lunch", "Dinner"], 60, 20, initializeHours(), initializeTurns(), null),
     Activity("Hotel Milano Scala", "Hotels and travels", "Milano, via dell'Orso 7", DateTime(DateTime.now().month - 1), ["", "Night"], 30, 1, initializeHours(), initializeTurns(), null),
     Activity("QC Termemilano", "Spa and Wellness", "Milano, Piazzale Medaglie d'Oro 2", DateTime(DateTime.now().month - 10), ["", "Daily spa", "Massages"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity("New Brand Cafè", "Food and drink", "Milano, via Giovanni Pascoli 55", DateTime(DateTime.now().month - 10), ["", "Breakfast", "Lunch", "Spritz"], 30, 1, initializeHours(), initializeTurns(), null),
   ];
 
   Activity createActivity() {

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Pages/accountPage.dart';
-import '../Data/activity.dart';
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
 import '../Widgets/infoPopup.dart';
@@ -291,10 +290,13 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                     if(!filtering & !ordering) SizedBox(
                       height: 200,
                       child: Center(
-                        child: (isLoggedAsUser | isLoggedAsActivity) ? ListView.builder(
+                        child: (isLoggedAsUser || isLoggedAsActivity) ? ListView.builder(
                           itemCount: incomingAppointments.length,
                           itemBuilder: (context, index) {
-                            final appointment = incomingAppointments[index];
+                              final appointment = incomingAppointments[index];
+                              if(!appointment.toShow && isLoggedAsUser) {
+                                return const SizedBox();
+                              }
                               return ListTile(
                                 title: Row(
                                   children: [
@@ -339,6 +341,9 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                         itemCount: appointments.length,
                         itemBuilder: (context, index) {
                           final appointment = appointments[index];
+                          if(!appointment.toShow && isLoggedAsUser) {
+                            return const SizedBox();
+                          }
                           if((filteredCategory == "" || appointment.activity.category == filteredCategory) &&
                             (filteredClient == "" || appointment.user == filteredClient)) {
                             return ListTile(
