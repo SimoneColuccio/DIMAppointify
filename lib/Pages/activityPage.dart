@@ -52,6 +52,7 @@ class ActivityPageScreen extends StatelessWidget {
         appBar: AppBar(
           title: a != null ? Text(a.name) : Text("Results for $tit"),
           centerTitle: true,
+          automaticallyImplyLeading: false,
         ),
         body: a != null ?
         CustomScrollView(
@@ -130,9 +131,7 @@ class ActivityPageScreen extends StatelessWidget {
                                   Expanded(
                                     child: IconButton(
                                       onPressed: () {
-                                        double lat = a.lat;
-                                        double lon = a.lon;
-                                        openMap(lat, lon);
+                                        openMap(a.position);
                                       },
                                       icon: const Icon(Icons.map)
                                     ),
@@ -176,7 +175,7 @@ class ActivityPageScreen extends StatelessWidget {
                                 ),
                               ),
                               for(var s in a.appTypes)
-                                s != "" ? Text("-  "+s) : const SizedBox(),
+                                s != "" ? Text("-  $s") : const SizedBox(),
                             ],
                           ),
                         ),
@@ -252,11 +251,13 @@ class ActivityPageScreen extends StatelessWidget {
         ),
         floatingActionButton: a != null ? FloatingActionButton(
           onPressed: () {
+            appointmentIndex = appointmentIndex + 1;
             Navigator.pushNamed(
               context,
               '/bookAppointment',
               arguments: BookAppointmentArguments(
-                createAppointment(user, a)
+                createAppointment(appointmentIndex - 1, user, a),
+                "CREATE"
               ),
             );
           },
@@ -288,10 +289,8 @@ class ActivityPageScreen extends StatelessWidget {
 
   }
 
-  Future <void> openMap(double latitude, double longitude) async {
-    String lat = latitude.toString();
-    String lon = longitude.toString();
-    String googleURL = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
+  Future <void> openMap(String address) async {
+    String googleURL = 'https://www.google.com/maps/search/?api=1&query=$address';
     await canLaunchUrlString(googleURL)
       ? await launchUrlString(googleURL)
       : throw 'Could not launch $googleURL';

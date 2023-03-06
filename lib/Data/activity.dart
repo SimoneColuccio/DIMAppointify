@@ -6,8 +6,11 @@ import 'package:flutter_geocoder/geocoder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Data/openingTime.dart';
+import 'package:my_app/Pages/incomingAppointmentsPage.dart';
+import 'package:my_app/Pages/pastAppointmentsPage.dart';
 
 class Activity {
+  int index;
   String name;
   String category;
   String position;
@@ -27,6 +30,7 @@ class Activity {
   List<List<List<int>>> appointments = [];
 
   Activity(
+    this.index,
     this.name,
     this.category,
     this.position,
@@ -37,10 +41,8 @@ class Activity {
     this.hours,
     this.continued,
     this.image,
-  ){
-    if(position != "") {
-      getAddress();
-    }
+  ) {
+    getAddress();
   }
 
 
@@ -62,25 +64,34 @@ class Activity {
     this.hours = hours;
     this.continued = continued;
     this.position = position;
-    var addresses = await Geocoder.local.findAddressesFromQuery(position);
-    var first = addresses.first;
-    lat = first.coordinates.latitude;
-    lon = first.coordinates.longitude;
     if(image != null) {
       this.image = File(image.path);
     }
-    appointments = populateList();
+    populateList();
     getAddress();
   }
 
   void getAddress() async {
-      var addresses = await Geocoder.local.findAddressesFromQuery(position);
-      lat =  addresses.first.coordinates.latitude;
-      lon =  addresses.first.coordinates.longitude;
+    var addresses = await Geocoder.local.findAddressesFromQuery(position);
+    var first = addresses.first;
+    lat = first.coordinates.latitude;
+    lon = first.coordinates.longitude;
   }
 
-  List<List<List<int>>> populateList() {
+  void populateList() {
     List<List<List<int>>> ret = [];
+
+    if(category == "Hotels and travels") {
+      for(int i = 0; i < hours.length; i++) {
+        if(hours[i][0] != -1) {
+          ret.add([[concurrentAppointments, 0]]);
+        } else {
+          ret.add([[0, 0]]);
+        }
+      }
+      appointments = ret;
+      return;
+    }
 
     for(int i = 0; i < hours.length; i++) {
       //7 days
@@ -94,6 +105,9 @@ class Activity {
         max = afternoonTurns;
       } else {
         max = morningTurns;
+      }
+      if(max == 0) {
+        ret.add([[0,0]]);
       }
 
       for (int j = 0; j < max; j++) {
@@ -115,7 +129,8 @@ class Activity {
         }
       }
     }
-    return ret;
+    appointments = ret;
+    return;
   }
 
   double toHour(int weekDay, int turn, int seq) {
@@ -132,20 +147,20 @@ class Activity {
     }
     return toDouble(endingHour, endingMin);
   }
-
 }
-
+  int activityIndex = 6;
   List<Activity> allActivities = [
-    Activity("BCL", "Study and Work", "Milano, via Ampère 2", DateTime(DateTime.now().year - 2), ["", "Spaces for studying", "Book reservations"], 60, 50, initializeHours(), initializeTurns(), null),
-    Activity("BCC", "Study and Work", "Milano, via Candiani 72", DateTime(DateTime.now().year - 1), ["", "Spaces for studying", "Book reservations"], 60, 40, initializeHours(), initializeTurns(), null),
-    Activity("Cracco", "Food and drink", "Milano, Corso Vittorio Emanuele II", DateTime(DateTime.now().day - 10), ["", "Breakfast", "Lunch", "Dinner"], 60, 20, initializeHours(), initializeTurns(), null),
-    Activity("Hotel Milano Scala", "Hotels and travels", "Milano, via dell'Orso 7", DateTime(DateTime.now().month - 1), ["", "Night"], 30, 1, initializeHours(), initializeTurns(), null),
-    Activity("QC Termemilano", "Spa and Wellness", "Milano, Piazzale Medaglie d'Oro 2", DateTime(DateTime.now().month - 10), ["", "Daily spa", "Massages"], 30, 1, initializeHours(), initializeTurns(), null),
-    Activity("New Brand Cafè", "Food and drink", "Milano, via Giovanni Pascoli 55", DateTime(DateTime.now().month - 10), ["", "Breakfast", "Lunch", "Spritz"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity(0, "BCL", "Study and Work", "Milano, via Ampère 2", DateTime(DateTime.now().year - 2), ["", "Spaces for studying", "Book reservations"], 60, 50, initializeHours(), initializeTurns(), null),
+    Activity(1, "BCC", "Study and Work", "Milano, via Candiani 72", DateTime(DateTime.now().year - 1), ["", "Spaces for studying", "Book reservations"], 60, 40, initializeHours(), initializeTurns(), null),
+    Activity(2, "Cracco", "Food and drink", "Milano, Corso Vittorio Emanuele II", DateTime(DateTime.now().day - 10), ["", "Breakfast", "Lunch", "Dinner"], 60, 20, initializeHours(), initializeTurns(), null),
+    Activity(3, "Hotel Milano Scala", "Hotels and travels", "Milano, via dell'Orso 7", DateTime(DateTime.now().month - 1), ["", "Night"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity(4, "QC Termemilano", "Spa and Wellness", "Milano, Piazzale Medaglie d'Oro 2", DateTime(DateTime.now().month - 10), ["", "Daily spa", "Massages"], 30, 1, initializeHours(), initializeTurns(), null),
+    Activity(5, "New Brand Cafè", "Food and drink", "Milano, via Giovanni Pascoli 55", DateTime(DateTime.now().month - 10), ["", "Breakfast", "Lunch", "Spritz"], 30, 1, initializeHours(), initializeTurns(), null),
   ];
 
   Activity createActivity() {
-    Activity a = Activity('', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns(), null);
+    activityIndex = activityIndex + 1;
+    Activity a = Activity(activityIndex - 1, '', '', '', DateTime.now(), [''], 30, 1, initializeHours(), initializeTurns(), null);
     allActivities.add(a);
     log("Activity created");
     return a;
@@ -159,7 +174,25 @@ class Activity {
     for(int i = 0; i < allAppointments.length; i++) {
       if(allAppointments[i].activity.name == activity.name && allAppointments[i].activity.category == activity.category && allAppointments[i].activity.dateOfAdding == activity.dateOfAdding) {
         allAppointments.remove(allAppointments[i]);
-        log("Appointment removed");
+        log("Appointment removed from all");
+      }
+    }
+    for(int i = 0; i < appointments.length; i++) {
+      if(appointments[i].activity.name == activity.name && appointments[i].activity.category == activity.category && appointments[i].activity.dateOfAdding == activity.dateOfAdding) {
+        appointments.remove(appointments[i]);
+        log("Appointment removed from next");
+      }
+    }
+    for(int i = 0; i < incomingAppointments.length; i++) {
+      if(incomingAppointments[i].activity.name == activity.name && incomingAppointments[i].activity.category == activity.category && incomingAppointments[i].activity.dateOfAdding == activity.dateOfAdding) {
+        incomingAppointments.remove(incomingAppointments[i]);
+        log("Appointment  from incoming");
+      }
+    }
+    for(int i = 0; i < pastAppointments.length; i++) {
+      if(pastAppointments[i].activity.name == activity.name && pastAppointments[i].activity.category == activity.category && pastAppointments[i].activity.dateOfAdding == activity.dateOfAdding) {
+        pastAppointments.remove(pastAppointments[i]);
+        log("Appointment removed from past");
       }
     }
     allActivities.remove(activity);

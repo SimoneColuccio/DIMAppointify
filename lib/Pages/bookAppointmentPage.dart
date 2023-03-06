@@ -8,6 +8,7 @@ import 'package:my_app/Data/appointment.dart';
 import '../Data/openingTime.dart';
 import '../Widgets/bottomMenu.dart';
 import 'accountPage.dart';
+import 'confirmAppointment.dart';
 
 class BookAppointmentPage extends StatefulWidget {
   const BookAppointmentPage({super.key});
@@ -17,8 +18,9 @@ class BookAppointmentPage extends StatefulWidget {
 }
 
 class BookAppointmentArguments{
-  BookAppointmentArguments(this.appointment);
+  BookAppointmentArguments(this.appointment, this.operation);
   Appointment appointment;
+  String operation;
 }
 
 class _BookAppointmentPageState extends State<BookAppointmentPage>{
@@ -28,9 +30,16 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
   final userController = TextEditingController();
   final userFocusNode = FocusNode();
 
+  late String type;
+
+  late Activity activity;
+  late Appointment appointment;
+
   late double pressed;
 
   List<int> seq = [];
+
+  String feedback = "";
 
   String? appointType;
   late DateTime date;
@@ -42,11 +51,29 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
   Widget build(BuildContext context) {
 
     var args = ModalRoute.of(context)!.settings.arguments as BookAppointmentArguments;
+    final Appointment app = args.appointment;
     final Activity a = args.appointment.activity;
+    final String t = args.operation;
+    appointment = app;
+    activity = a;
+    type = t;
+    for(var aa in allActivities) {
+      if(aa.name == a.name && aa.description == a.description && aa.category == a.category && aa.dateOfAdding == a.dateOfAdding) {
+        activity = aa;
+      }
+    }
 
     if(!modified) {
+      if(args.appointment.user != "activity") {
+        user = args.appointment.user;
+        userController.text = args.appointment.user;
+      }
       date = args.appointment.dateTime;
-      pressed = toDouble(args.appointment.dateTime.hour, args.appointment.dateTime.minute);
+      if(activity.category != "Hotels and travels") {
+        pressed = toDouble(args.appointment.dateTime.hour, args.appointment.dateTime.minute);
+      } else {
+        pressed = args.appointment.duration * 1.0;
+      }
       appointType = args.appointment.appointType;
       if(args.appointment.appointType != "") {
         hour = [args.appointment.dateTime.hour, args.appointment.dateTime.minute];
@@ -61,12 +88,11 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
       }
       appointType = args.appointment.appointType;
       date = args.appointment.dateTime;
-    }
-
-    Activity activity = a;
-    for(var aa in allActivities) {
-      if(aa.name == a.name && aa.description == a.description && aa.category == a.category && aa.dateOfAdding == a.dateOfAdding) {
-        activity = aa;
+      if(activity.category == "Hotels and travels"){
+        while (!checkAvailabilities(date)) {
+          date = DateTime(date.year, date.month, date.day + 1);
+          args.appointment.updateDate(date);
+        }
       }
     }
 
@@ -76,6 +102,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
       appBar: AppBar(
         title: Text(activity.name),
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -127,6 +154,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                 onTap: () async {
                   modified = true;
                   DateTime? pickedDate = await showDatePicker(
+                      selectableDayPredicate: activity.category == "Hotels and travels" ? checkAvailabilities : null,
                       context: context,
                       initialDate: date,
                       firstDate: DateTime.now(),
@@ -155,11 +183,15 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                   int day = getWeekDay(date);
                   int i = getHour(activity.hours[day][0]);
                   int j = getMinute(activity.hours[day][0]);
-                  int x = getHour(activity.hours[day][1]);
-                  int y = getMinute(activity.hours[day][1]);
+                  int? x;
+                  int? y;
+                  if(activity.hours[getWeekDay(date)][2] != -1) {
+                    x = getHour(activity.hours[day][2]);
+                    y = getMinute(activity.hours[day][2]);
+                  }
+
                   int ii = getHour(pressed);
                   int jj = getMinute(pressed);
-                  log(activity.appointments.toString());
                   if(activity.appointments.isNotEmpty) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +201,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           child: (pressed == -1) ? Row(
                             children: [
                               for (int z = 0; z < activity.appointments[day].length && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
-                                checkFuture(i,j) || !checkAvailability(activity, date, [i, j]) ?
+                                checkFuture(i,j) || !checkAvailabilities(DateTime(date.year, date.month, date.day, i, j)) ?
                                 const SizedBox() :
                                 OutlinedButton(
                                   onPressed: () => {
@@ -177,7 +209,15 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                     modified = true,
                                     pressed = activity.toHour(day, 0, z),
                                     hour = [getHour(pressed), getMinute(pressed)],
+                                    date = DateTime(
+                                      date.year,
+                                      date.month,
+                                      date.day,
+                                      hour.first,
+                                      hour.last,
+                                    ),
                                     setNewState(() {}),
+                                    setState(() {}),
                                   },
                                   child: printTime(i, j),
                                 ),
@@ -185,17 +225,23 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           ) : Row(
                             children: [
                               for (int z = 0; z < activity.appointments[day].length && i <= getHour(activity.hours[day][1]); z++, j = j + activity.duration, j>=60 ? (j = j-60) & (i++) : 0)
-                                !checkFuture(i,j) && checkAvailability(activity, date, [i, j]) ?
+                                !checkFuture(i,j) && checkAvailabilities(DateTime(date.year, date.month, date.day, i, j)) ?
                                   (ii != i || jj != j) ?
                                     OutlinedButton(
                                       onPressed: () => {
                                         seq = [0, z],
                                         modified = true,
                                         pressed = activity.toHour(day, 0, z),
-                                        log(pressed.toString()),
                                         hour = [getHour(pressed), getMinute(pressed)],
-                                        log(hour.toString()),
+                                        date = DateTime(
+                                          date.year,
+                                          date.month,
+                                          date.day,
+                                          hour.first,
+                                          hour.last,
+                                        ),
                                         setNewState(() {}),
+                                        setState(() {}),
                                       },
                                       child: printTime(i, j),
                                     )
@@ -206,6 +252,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                       pressed = -1;
                                       hour = [];
                                       setNewState(() {});
+                                      setState(() {});
                                     },
                                     child: printTime(ii, jj),
                                   )
@@ -217,27 +264,32 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                           scrollDirection: Axis.horizontal,
                           child: (pressed == -1) ? Row(
                             children: [
-                              for (int z = 0; z < activity.appointments[day].length && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
-                                checkFuture(x,y) || !checkAvailability(activity, date, [i, j]) ?
+                              for (int z = 0; z < activity.appointments[day].length && x! <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
+                                checkFuture(x,y!) || !checkAvailabilities(DateTime(date.year, date.month, date.day, x, y)) ?
                                   const SizedBox() :
                                   OutlinedButton(
                                     onPressed: () => {
                                       seq = [1, z],
-                                      log(seq.toString()),
                                       modified = true,
                                       pressed = activity.toHour(getWeekDay(date), 2, z),
-                                      log(pressed.toString()),
                                       hour = [getHour(pressed), getMinute(pressed)],
-                                      log(hour.toString()),
+                                      date = DateTime(
+                                        date.year,
+                                        date.month,
+                                        date.day,
+                                        hour.first,
+                                        hour.last,
+                                      ),
                                       setNewState(() {}),
+                                      setState(() {}),
                                     },
                                     child: printTime(x, y),
                                   ),
                             ],
                           ) : Row(
                             children: [
-                              for (int z = 0; z < activity.appointments[getWeekDay(date)].length && x <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
-                                !checkFuture(x,y) && checkAvailability(activity, date, [i, j]) ?
+                              for (int z = 0; z < activity.appointments[getWeekDay(date)].length && x! <= getHour(activity.hours[day][3]); z++, y = y + activity.duration, y>=60 ? (y = y-60) & (x++) : 0)
+                                !checkFuture(x,y!) && checkAvailabilities(DateTime(date.year, date.month, date.day, x, y)) ?
                                   (ii != x || jj != y) ?
                                     OutlinedButton(
                                       onPressed: () => {
@@ -245,7 +297,15 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                         modified = true,
                                         pressed = activity.toHour(getWeekDay(date), 2, z),
                                         hour = [getHour(pressed), getMinute(pressed)],
+                                        date = DateTime(
+                                          date.year,
+                                          date.month,
+                                          date.day,
+                                          hour.first,
+                                          hour.last,
+                                        ),
                                         setNewState(() {}),
+                                        setState(() {}),
                                       },
                                       child: printTime(x, y),
                                     ) : ElevatedButton(
@@ -255,6 +315,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                                         pressed = -1;
                                         hour = [];
                                         setNewState(() {});
+                                        setState(() {});
                                       },
                                       child: printTime(ii, jj),
                                     )
@@ -271,7 +332,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
               ),
             ) : Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: checkAvailability(activity, date, hour) ? Row(
+              child: checkAvailabilities(date) ? Row(
                 children: [
                   IconButton(
                     onPressed: () {
@@ -301,17 +362,24 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         pressed = pressed + 1;
                         modified = true;
                         seq = [pressed.toInt()];
-                        log(pressed.toString());
+                        while (!checkAvailabilities(date)) {
+                          date = DateTime(date.year, date.month, date.day + 1);
+                          args.appointment.updateDate(date);
+                        }
                       }
                       setState(() {});
                     },
                     icon: const Icon(Icons.add_circle_outline)
                   ),
                 ],
-              ) : const Text("No available appointments for the selected date",
-                style: TextStyle(
-                  color: Colors.red
-                ),
+              ) : const SizedBox(),
+            ),
+            Text(
+              correctInput(),
+              style: TextStyle(
+                color: feedback == "CORRECT"
+                  ? Colors.green
+                  : Colors.red,
               ),
             ),
             Row(
@@ -335,11 +403,10 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      log(user.toString());
-                      log(date.toString());
-                      log(hour.toString());
-                      log(seq.toString());
-                      if(appointType != "" && (isLoggedAsActivity || hour != []) && (!isLoggedAsActivity || user != "") && checkAvailability(activity, date, hour)) {
+                      if(seq.isEmpty && activity.category == "Hotels and travels") {
+                        seq = [pressed.toInt()];
+                      }
+                      if(appointType != "" && (isLoggedAsActivity || hour != []) && (!isLoggedAsActivity || user != "") && checkAvailabilities(date)) {
                         date = DateTime(
                         date.year,
                         date.month,
@@ -348,16 +415,21 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         hour.isNotEmpty ? hour.last : 0
                         );
                         args.appointment.editAppointment(
+                          args.appointment.index,
                           user,
                           date,
                           appointType,
                           seq,
                           activity.category == "Hotels and travels" ? pressed.toInt() : activity.duration,
-                          true
+                          true,
+                          type
                         );
-                        Navigator.pushNamed(context, '/incoming');
+                        Navigator.pushNamed(
+                          context,
+                          '/confirmation',
+                          arguments: AppointmentArguments(Appointment(args.appointment.index, user, activity, date, appointType!, 0, activity.category == "Hotels and travels" ? pressed.toInt() : activity.duration,))
+                        );
                       }
-
                       //setState(() {});
                     },
                     child: const Text("Confirm Appointment"),
@@ -405,6 +477,26 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
     );
   }
 
+  String correctInput() {
+    if(user.trim().isEmpty && !isLoggedAsUser) {
+      feedback = "Insert a valid user";
+      return feedback;
+    }
+    if(appointType == "") {
+      feedback = "Select a service for your appointment";
+      return feedback;
+    }
+    if(checkAvailabilities(date) || feedback == "AVAILABLE") {
+      feedback = "CORRECT";
+    }
+    if(hour.isEmpty && activity.category != "Hotels and travels") {
+      feedback = "Select an hour";
+    } else {
+      feedback = "CORRECT";
+    }
+    return feedback;
+  }
+
   bool checkFuture(int i, int j) {
     return (date.year == DateTime.now().year &&
         date.month == DateTime.now().month &&
@@ -413,26 +505,64 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
             i < DateTime.now().hour));
   }
 
-  bool checkAvailability(Activity activity, DateTime date, List<int> hour) {
+  bool checkAvailability(DateTime date) {
+
     List<Appointment> appointments = [];
+
+    List<int> s = getSequentialCode(activity, date);
+    if(s.isEmpty || s.first < 0 && activity.category != "Hotels and travels") {
+      return false;
+    }
+
+    if(activity.appointments[getWeekDay(date)][0][0] == 0) {
+      feedback = "Empty appointments for this day";
+      return false;
+    }
 
     for(var a in allAppointments) {
       if(a.activity.name == activity.name && a.activity.dateOfAdding == activity.dateOfAdding && a.activity.category == activity.category &&
           a.dateTime.year == date.year && a.dateTime.month == date.month && a.dateTime.day == date.day) {
-        if(hour.isNotEmpty) {
-          if(a.dateTime.hour == hour.first && a.dateTime.minute == hour.last) {
+        if(activity.category != "Hotels and travels") {
+          if(a.dateTime.hour == date.hour && a.dateTime.minute == date.minute && a.index != appointment.index) {
             appointments.add(a);
           }
         } else {
-          appointments.add(a);
+          if(a.dateTime.hour == 15 && a.index != appointment.index) {
+            appointments.add(a);
+          }
         }
       }
     }
-
-    if(appointments.length >= activity.concurrentAppointments) {
-      return false;
+    if(activity.category != "Hotels and travels") {
+      if(appointments.length >= activity.appointments[getWeekDay(date)][s.first][s.last]) {
+        return false;
+      }
+    } else {
+      //log("appointments already booked in this day ${appointments.length - increment}");
+      if(appointments.length >= activity.appointments[getWeekDay(date)][0][0]) {
+        feedback = "Full appointments for this day";
+        return false;
+      }
     }
+    feedback = "AVAILABLE";
     return true;
+  }
+
+  bool checkAvailabilities(DateTime date) {
+    bool r = true;
+    if(activity.category == "Hotels and travels") {
+      for(int i = 0; i < pressed; i++) {
+        DateTime d = DateTime(date.year, date.month, date.day + i);
+        r = r && checkAvailability(d);
+        if(!r) {
+          return false;
+        }
+      }
+    } else {
+      return checkAvailability(date);
+    }
+
+    return r;
   }
 
 }

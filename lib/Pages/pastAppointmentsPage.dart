@@ -319,11 +319,13 @@ class _PastAppPageState extends State<PastAppPage>{
                                           ) : const SizedBox(width: 0, height: 0),
                                           IconButton(
                                             onPressed: () {
+                                              appointmentIndex = appointmentIndex + 1;
                                               Navigator.pushNamed(
                                                 context,
                                                 '/bookAppointment',
                                                 arguments: BookAppointmentArguments(
-                                                  createAppointment(appointment.user, appointment.activity)
+                                                  createAppointment(appointmentIndex - 1, appointment.user, appointment.activity),
+                                                  "CREATE"
                                                 ),
                                               ).then(onGoBack);
                                             },

@@ -1,11 +1,14 @@
 import 'dart:developer';
 
+import 'package:my_app/Data/openingTime.dart';
+
 import '../Pages/accountPage.dart';
 import '../Pages/incomingAppointmentsPage.dart';
 import '../Pages/pastAppointmentsPage.dart';
 import 'activity.dart';
 
 class Appointment {
+  int index;
   String user;
   final Activity activity;
   int sequentialNumber;
@@ -17,7 +20,7 @@ class Appointment {
   int duration;
   bool toShow = true;
 
-  Appointment(this.user, this.activity, this.dateTime, this.appointType, this.sequentialNumber, this.duration);
+  Appointment(this.index, this.user, this.activity, this.dateTime, this.appointType, this.sequentialNumber, this.duration);
 
   void addToCalendar(bool user) {
     if(user) {
@@ -27,8 +30,13 @@ class Appointment {
     }
   }
 
-  void editAppointment(user, dateTime, appointType, List<int> seq, int duration, bool toShow) {
-    log(seq.first.toString());
+  void updateDate(DateTime date) {
+    dateTime = date;
+  }
+
+  void editAppointment(appIndex, user, dateTime, appointType, List<int> seq, int duration, bool toShow, String type) {
+    log("$type appointment $appIndex");
+    log(toShow.toString());
     if(user != "") {
       this.user = user;
     }
@@ -36,60 +44,40 @@ class Appointment {
     this.appointType = appointType;
     this.duration = duration;
     this.toShow = toShow;
-    if(activity.category == "Hotels and travels" && seq.first > 1) {
-      Appointment a = createAppointment(user, activity);
-      a.editAppointment(user, DateTime(dateTime.year, dateTime.month, dateTime.day + 1, 15, 0), appointType, [seq.first - 1], duration, false);
+
+    List<int> del = [];
+    if(activity.category == "Hotels and travels") {
+      log("DELETE APPOINTMENTS TO EDIT");
+      if(type == "EDIT") {
+        for(int k = 0; k < allAppointments.length; k++) {
+          if(allAppointments[k].index == appIndex && !allAppointments[k].toShow) {
+            del.add(k);
+          }
+        }
+        log(allAppointments.toString());
+        log(del.toString());
+        while(del.isNotEmpty) {
+          allAppointments.remove(allAppointments[del.last]);
+          log("Appointment deleted");
+          del.remove(del.last);
+        }
+      }
+      if(seq.first > 1) {
+        Appointment a = createAppointment(appIndex, user, activity);
+        a.editAppointment(appIndex, user, DateTime(dateTime.year, dateTime.month, dateTime.day + 1, 15, 0), appointType, [seq.first - 1], duration, false, "CREATE");
+      }
     }
+
     log("Appointment edited");
-    //log(activity.appointments.toString());
     checkDates();
   }
 }
 
-List<Appointment> allAppointments = [
-  Appointment(
-    "user1",
-    Activity(
-      allActivities[0].name,
-      allActivities[0].category,
-      allActivities[0].position,
-      allActivities[0].dateOfAdding,
-      allActivities[0].appTypes,
-      allActivities[0].duration,
-      allActivities[0].concurrentAppointments,
-      allActivities[0].hours,
-      allActivities[0].continued,
-      allActivities[0].image,
-    ),
-    DateTime(DateTime.now().year, 02, 01, 11, 00),
-    allActivities[0].appTypes.last,
-    0,
-    0
-  ),
-  Appointment(
-    "user2",
-    Activity(
-      allActivities[0].name,
-      allActivities[0].category,
-      allActivities[0].position,
-      allActivities[0].dateOfAdding,
-      allActivities[0].appTypes,
-      allActivities[0].duration,
-      allActivities[0].concurrentAppointments,
-      allActivities[0].hours,
-      allActivities[0].continued,
-      allActivities[0].image,
-    ),
-  DateTime(DateTime.now().year, 03, 01, 11, 00),
-    allActivities[0].appTypes.last,
-    0,
-    0
-  ),
-];
+int appointmentIndex = 0;
+List<Appointment> allAppointments = [];
 
-
-Appointment createAppointment(user, activity) {
-  Appointment a = Appointment(user, activity, DateTime.now(), "", 0, 0);
+Appointment createAppointment(appIndex, user, activity) {
+  Appointment a = Appointment(appIndex, user, activity, DateTime.now(), "", 0, 0);
   allAppointments.add(a);
   checkDates();
   log("Appointment created");
@@ -97,6 +85,33 @@ Appointment createAppointment(user, activity) {
 }
 
 void deleteAppointment (Appointment appointment) {
+  if(!appointment.toShow && appointment.activity.category == "Hotels and travels") {
+    int d = appointment.duration;
+    DateTime dateTime = DateTime(
+      appointment.dateTime.year,
+      appointment.dateTime.month,
+      appointment.dateTime.day - d + 1,
+    );
+
+    for(int i = 0; i < d - 1; i ++) {
+      for(var a in allAppointments) {
+        if(a.activity.name == appointment.activity.name && a.user == appointment.user && a.appointType == appointment.appointType &&
+          a.dateTime.day == dateTime.day + i) {
+          a.duration = a.duration - 1;
+        }
+      }
+    }
+  } else if(appointment.activity.category == "Hotels and travels") {
+    int d = appointment.duration;
+    for(int i = 1; i <= d - 1; i ++) {
+      for(int x = 0; x < allAppointments.length; x++) {
+        if(allAppointments[x].activity.name == appointment.activity.name && allAppointments[x].user == appointment.user && allAppointments[x].appointType == appointment.appointType &&
+            allAppointments[x].dateTime.day == appointment.dateTime.day + i) {
+          allAppointments.remove(allAppointments[x]);
+        }
+      }
+    }
+  }
   allAppointments.remove(appointment);
   log("Appointment discarded");
 }
@@ -208,4 +223,45 @@ bool isFuture(int i) {
   }
 
   return false;
+}
+
+List<int> getSequentialCode(Activity activity, DateTime date) {
+
+  int weekDay = getWeekDay(date);
+
+  int mOpHour = getHour(activity.hours[weekDay][0]);
+  int mOpMins = getMinute(activity.hours[weekDay][0]);
+
+  if(activity.continued[weekDay]) {
+    int timeTot = (date.hour - mOpHour) * 60 + (date.minute - mOpMins);
+    int s = timeTot ~/ activity.duration;
+
+    return [s, 0];
+  } else {
+    int aOpHour = getHour(activity.hours[weekDay][2]);
+    int aOpMins = getMinute(activity.hours[weekDay][2]);
+
+    int mTimeTot = (date.hour - mOpHour) * 60 + (date.minute - mOpMins);
+    int aTimeTot = (date.hour - aOpHour) * 60 + (date.minute - aOpMins);
+
+    int sm = mTimeTot ~/ activity.duration;
+    int sa = aTimeTot ~/ activity.duration;
+
+    int mOp = mOpHour * 60 + mOpMins;
+
+    int mSeq = mOp + sm * activity.duration;
+
+    int mSeqHour = (mSeq / 60).floor();
+    int mSeqMins = mSeq - mSeqHour * 60;
+
+    if(mSeqHour == date.hour && mSeqMins == date.minute && sm < activity.appointments[weekDay].length && sm >= 0) {
+      return [sm, 0];
+    } else if(sa >= 0) {
+      return [sa, 1];
+    } else {
+      return [];
+    }
+
+  }
+
 }

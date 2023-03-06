@@ -63,6 +63,8 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   Widget build(BuildContext context) {
 
     checkDates();
+    allAppointments = sortAppointments(parameter, ascending, allAppointments);
+    setState(() {});
 
     return Scaffold(
         body: CustomScrollView(
@@ -75,7 +77,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
               snap: false,
               title: Text(title),
               centerTitle: true,
-              leading: ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) ? TextButton(
+              leading: ((!filtering && !ordering) & (isLoggedAsUser || isLoggedAsActivity)) ? TextButton(
                   onPressed: () {
                     ordering = true;
                     setState(() {});
@@ -83,7 +85,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                   child: const Icon(Icons.list, color: Colors.white,)
               ) : null,
               actions: [
-                if ((!filtering & !ordering) & (isLoggedAsUser | isLoggedAsActivity)) TextButton(
+                if ((!filtering && !ordering) & (isLoggedAsUser || isLoggedAsActivity)) TextButton(
                     onPressed: () {
                       filtering = true;
                       ordering = false;
@@ -361,17 +363,20 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                       textAlign: TextAlign.end,
                                     ),
                                   ),
-                                  IconButton(
+                                  appointment.toShow ? IconButton(
                                       onPressed: () {
                                         Navigator.pushNamed(
                                           context,
                                           '/bookAppointment',
-                                          arguments: BookAppointmentArguments(appointment),
+                                          arguments: BookAppointmentArguments(appointment, "EDIT"),
                                         ).then(onGoBack);
                                       },
                                       icon: const Icon(Icons.edit)
+                                  ) : const Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Icon(Icons.edit_off),
                                   ),
-                                  IconButton(
+                                  appointment.toShow ? IconButton(
                                       onPressed: () {
                                         showDialog(
                                           context: context,
@@ -381,6 +386,9 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                         );
                                       },
                                       icon: const Icon(Icons.delete)
+                                  ): const Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Icon(Icons.delete_forever),
                                   ),
                                 ],
                               ),

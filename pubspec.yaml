@@ -40,12 +40,15 @@ dependencies:
   image_picker: ^0.8.6+1
 
   address_search_field: ^5.0.3
-  string_validator: ^0.3.0
+  string_validator: ^1.0.0
   geolocator: ^9.0.2
   bottom_navigation_badge: ^1.0.3
   url_launcher: ^6.1.10
-  flutter_geocoder: ^0.2.2-nullsafety
+
   haversine_distance: ^1.2.1
+  geocode: ^1.0.2
+  google_maps_flutter: ^2.2.5
+  flutter_geocoder: ^0.2.2-nullsafety
 
 dev_dependencies:
   flutter_test:

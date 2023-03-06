@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> {
         .size
         .height;
 
-      getCurrentLocation().then((value) {
+      getCurrentLocation().then((value) async {
         lat = value.latitude;
         lon = value.longitude;
         setState(() {});

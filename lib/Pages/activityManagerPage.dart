@@ -12,6 +12,7 @@ import 'package:my_app/Data/openingTime.dart';
 
 import '../Data/category.dart';
 import '../Widgets/bottomMenu.dart';
+import 'activityPage.dart';
 //import 'package:address_search_field/address_search_field.dart';
 
 class EditActivityPage{
@@ -558,6 +559,14 @@ class EditActivityPageScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ) : const SizedBox(),
+                                Text(
+                                  checkInputs(name, selectedCategory, toList(services), position, duration, concurrentAppointments, hours, continued),
+                                  style: TextStyle(
+                                    color: checkInputs(name, selectedCategory, toList(services), position, duration, concurrentAppointments, hours, continued) != "CORRECT"
+                                        ? Colors.red
+                                        : Colors.green
+                                  ),
+                                ),
                                 const Divider(
                                   color: Colors.red,
                                 ),
@@ -568,9 +577,9 @@ class EditActivityPageScreen extends StatelessWidget {
                                     Expanded(
                                       child: OutlinedButton(
                                         onPressed: () {
-                                          if (!checkInputs(
+                                          if (checkInputs(
                                               activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
-                                              activity.concurrentAppointments, activity.hours, activity.continued)) {
+                                              activity.concurrentAppointments, activity.hours, activity.continued) != "CORRECT") {
                                             deleteActivity(activity);
                                           }
                                           Navigator.pop(context);
@@ -585,7 +594,7 @@ class EditActivityPageScreen extends StatelessWidget {
                                           if (checkInputs(
                                               name, selectedCategory,
                                               toList(services), position, duration,
-                                              concurrentAppointments, hours, continued)) {
+                                              concurrentAppointments, hours, continued) == "CORRECT") {
                                             activity.editActivity(
                                                 name,
                                                 selectedCategory,
@@ -598,20 +607,10 @@ class EditActivityPageScreen extends StatelessWidget {
                                                 continued,
                                                 image,
                                             );
-                                            /*
-                                            controller.text = "";
-                                            descController.text = "";
-                                            servController.text = "";
-                                            name = "";
-                                            description = "";
-                                            services = "";
-                                            selectedCategory = "";
-                                            duration = 30;
-                                            concurrentAppointments = 1;
-                                            hours = initializeHours();
-                                            continued = initializeTurns();
-                                             */
-                                            Navigator.pop(context);
+                                            Navigator.pushNamed(context,
+                                              '/activity',
+                                              arguments: ActivityPage(index, activity.name),
+                                            );
                                             setState(() {});
                                           }
                                         },
@@ -636,33 +635,33 @@ class EditActivityPageScreen extends StatelessWidget {
                   onTap: (value) {
                     switch (value) {
                       case 0:
-                        if (!checkInputs(
+                        if (checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
-                            activity.concurrentAppointments, activity.hours, activity.continued)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued) != "CORRECT") {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/');
                         break;
                       case 1:
-                        if (!checkInputs(
+                        if (checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
-                            activity.concurrentAppointments, activity.hours, activity.continued)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued) != "CORRECT") {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/incoming');
                         break;
                       case 2:
-                        if (!checkInputs(
+                        if (checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
-                            activity.concurrentAppointments, activity.hours, activity.continued)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued) != "CORRECT") {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/past');
                         break;
                       case 3:
-                        if (!checkInputs(
+                        if (checkInputs(
                             activity.name, activity.category, activity.appTypes, activity.position, activity.duration,
-                            activity.concurrentAppointments, activity.hours, activity.continued)) {
+                            activity.concurrentAppointments, activity.hours, activity.continued) != "CORRECT") {
                           deleteActivity(activity);
                         }
                         Navigator.pushNamed(context, '/account');
@@ -707,36 +706,38 @@ class EditActivityPageScreen extends StatelessWidget {
     return ret;
   }
 
-  bool checkInputs(String name, String selectedCategory, List<String> list, String position,
+  String checkInputs(String name, String selectedCategory, List<String> list, String position,
       int? duration, int concurrentAppointments, List<List<double>> hours, List<bool> continued) {
     if (name.trim().isEmpty) {
-      log("a");
-      return false;
+      return "Insert the name of your activity";
     }
     if (selectedCategory == "") {
-      log("b");
-      return false;
+      return "Select the category of your activity";
     }
 
     if (list.length <= 1) {
-      log("c");
-      return false;
+      return "Insert the services of your activity";
     }
 
     if(position == "") {
-      log("h");
-      return false;
+      return "Insert the address of your activity";
     }
 
-    if (concurrentAppointments == 0) {
-      log("d");
-      return false;
+    if (concurrentAppointments <= 0) {
+      return "Insert a valid number for concurrent appointments";
     }
 
     if (duration == null) {
-      log("e");
-      return false;
+      return "Insert the duration of your appointments";
     }
+    double a = 0;
+    for(int i = 0; i < hours.length; i++) {
+      a = a + hours[i][0];
+    }
+    if(a == -7.0) {
+      return "Your activity cannot be always closed";
+    }
+
     double min = 60;
     for (int i = 0; i < 7; i++) {
       for (int j = 1; j < 4; j++) {
@@ -750,8 +751,7 @@ class EditActivityPageScreen extends StatelessWidget {
       }
     }
     if (min < duration) {
-      log("f");
-      return false;
+      return "Opening time has to be greater than the duration of an appointment";
     }
 
     for (int i = 0; i < 7; i++) {
@@ -762,12 +762,11 @@ class EditActivityPageScreen extends StatelessWidget {
       for (int k = 0; k < 4; k = k + 2) {
         if (hours[i][k] == -1 && hours[i][k+1] != -1 ||
             hours[i][k] != -1 && hours[i][k+1] == -1) {
-          log("g");
-          return false;
+          return "Insert correct opening times";
         }
       }
     }
-    return true;
+    return "CORRECT";
   }
 
   Future getImage(ImageSource media, ImagePicker picker, Function(void Function()) setState) async {
