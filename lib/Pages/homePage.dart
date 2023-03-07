@@ -1,20 +1,20 @@
 
 
 import 'dart:async';
-import 'dart:math';
-//import 'dart:developer';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-//import 'package:geolocator/geolocator.dart';
-import 'package:my_app/Buttons/bottomMenu.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:haversine_distance/haversine_distance.dart';
 import 'package:my_app/Data/activity.dart';
 import 'package:my_app/Pages/accountPage.dart';
 import 'package:my_app/Pages/activityPage.dart';
 
-import 'package:intl/intl.dart';
-
 import '../Data/category.dart';
+import '../Widgets/bottomMenu.dart';
 import 'activityManagerPage.dart';
+import 'incomingAppointmentsPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.index, required this.title});
@@ -50,13 +50,18 @@ class _HomePageState extends State<HomePage> {
   var order = ["Ascending", "Descending"];
   String? ascending = "Ascending";
   var userParameters = ["Name", "Distance", "Rating"];
-  var managerParameters = ["Name", "Category", "Date"];
+  var managerParameters = ["Name", "Category", "Date of adding"];
   String? parameter = "Name";
 
   var distances = [0.0, double.infinity];
   DateTime date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
   int minRating = 0;
   String? filteredCategory = "";
+
+  double? lat;
+  double? lon;
+
+  double scrollHeight = 0;
 
   @override
   void initState() {
@@ -88,498 +93,86 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {});
+
+    scrollHeight = MediaQuery
+        .of(context)
+        .copyWith()
+        .size
+        .height;
+
+      getCurrentLocation().then((value) async {
+        lat = value.latitude;
+        lon = value.longitude;
+        setState(() {});
+      });
+
+      liveLocation();
+      setState(() {});
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 60,
         title: Text(tit),
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
       body: (!isLoggedAsActivity) ? CustomScrollView(
         slivers: [
-          if (!filtering & !ordering) SliverAppBar(
-            backgroundColor: Colors.redAccent,
-            automaticallyImplyLeading: false,
-            floating: true,
-            pinned: true,
-            snap: false,
-            leading: TextButton(
-                onPressed: () {
-                  searchFocusNode.unfocus();
-                  sug = false;
-                  ordering = true;
-                  setState(() {});
-                },//Open filtering options
-                child: const Icon(Icons.list, color: Colors.white,)
-            ),
-            title: Container(
-              width: double.infinity,
-              height: 40,
-              color: Colors.white,
-              child: TextField(
-                controller: controller,
-                focusNode: searchFocusNode,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search for something...',
-                  suffixIcon: createSuffix(),
-                ),
-                onSubmitted: (text) {
-                  Navigator.pushNamed(
-                      context,
-                      '/activity',
-                      arguments: ActivityPage(ind, text),
-                  );
-                  controller.text = "";
-                  sug = false;
-                  setState(() {});
-                },
-                onChanged: searchActivity,
-                onTap: () => setState(() {
-                  sug = true;
-                }),
-              ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    filtering = true;
-                    ordering = false;
-                    searchFocusNode.unfocus();
-                    sug = false;
-                    setState(() {});
-                    },//Open filtering options
-                  child: const Icon(Icons.filter_alt, color: Colors.white,)
-              )
-            ],
-          ),
+          if (!filtering & !ordering) getUserMainAppBar(),
           SliverList(
             delegate: SliverChildListDelegate(
               [
-                if(sug & !filtering & !ordering)
-                  SizedBox(
-                    height: 2000,
-                    child: ListView.builder(
-                      itemCount: activities.length,
-                      itemBuilder: (context, index) {
-                        final activity = activities[index];
-                        return ListTile(
-                          title: Text(
-                            activity.name,
-                            textAlign: TextAlign.start,
-                          ),
-                          onTap: () => {
-                            Navigator.pushNamed(
-                            context,
-                            '/activity',
-                            arguments: ActivityPage(ind, activity.name),
-                          ),
-                          }
-                        );
-                      },
-                    ),
-                  ),
+                if (sug & !filtering & !ordering) getSuggestions(),
                 if (ordering) orderActivities(userParameters),
-                if (filtering) SizedBox(
-                  height: 280,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Category")
-                            ),
-                            //const SizedBox(width: 60,),
-                            SizedBox(
-                              width: 260,
-                              height: 50,
-                              child: DropdownButtonFormField<String>(
-                                value: filteredCategory,
-                                items: categories.map((cat) => DropdownMenuItem<String>(
-                                  value: cat,
-                                  child: Text(cat, style: const TextStyle(fontSize: 15),
-                                  ),
-                                )).toList(),
-                                onChanged: (cat) => setState(() => filteredCategory = cat),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Distance")
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: minController,
-                                      focusNode: minFocusNode,
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Min km',
-                                      ),
-                                      onChanged: (text) {
-                                        distances[0] = double.parse(minController.text);
-                                        setState(() {});
-                                      },
-                                      onSubmitted: (text) {
-                                        distances[0] = double.parse(minController.text);
-                                        if(distances[0] > distances[1]) {
-                                          maxController.text = minController.text;
-                                          distances[1] = double.parse(minController.text);
-                                        }
-                                        setState(() {});
-                                      },
-                                    )
-                                  ),
-                                  const SizedBox(width: 100,),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: maxController,
-                                      focusNode: maxFocusNode,
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Max km',
-                                      ),
-                                      onChanged: (text) {
-                                        distances[1] = double.parse(maxController.text);
-                                        setState(() {});
-                                      },
-                                      onSubmitted: (text) {
-                                        distances[1] = double.parse(maxController.text);
-                                        if(distances[1] < distances[0]) {
-                                          minController.text = maxController.text;
-                                          distances[0] = distances[1];
-                                        }
-                                        setState(() {});
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Rating")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              child: Row(
-                                children: [
-                                  IconButton(onPressed: () {
-                                    if (minRating == 1) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 1;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 1) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 2) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 2;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 2) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 3) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 3;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 3) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 4) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 4;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 4) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                  IconButton(onPressed: () {
-                                    if (minRating == 5) {
-                                      minRating = 0;
-                                    } else {
-                                      minRating = 5;
-                                    }
-                                    setState(() {});
-                                  }, icon: (minRating < 5) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 150,
-                              child: Text("Available date")
-                            ),
-                            SizedBox(
-                              width: 260,
-                              child: TextField(
-                                controller: dataController,
-                                focusNode: dataFocusNode,
-                                decoration: const InputDecoration(
-                                    icon: Icon(Icons.calendar_today), //icon of text field
-                                    labelText: "Enter Date" //label text of field
-                                ),
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.datetime,
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime.now(),
-                                        lastDate: DateTime(2100));
-                                    if (pickedDate != null) {
-                                      String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                      date = pickedDate;
-                                      setState(() {
-                                        dataController.text = formattedDate; //set output date to TextField value.
-                                      });
-                                    }
-                                  },
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => setState(() {
-                                filteredCategory = "";
-                                distances = [0.0, double.infinity];
-                                date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
-                                minRating = 0;
-                                filtering = false;
-                                minController.text = "";
-                                maxController.text = "";
-                                dataController.text = "";
-                              }), child: const Text("Reset"),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => setState(() {
-                                filtering = false;
-                                minController.text = "";
-                                maxController.text = "";
-                                dataController.text = "";
-                              }), child: const Text("Apply"),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) SizedBox(
-                  height: (categories.length) * 50,
-                  child: ListView.builder(
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final category = categories[index];
-                      if (category != "") {
-                        return ListTile(
-                          title: Text(
-                            category,
-                            style: (filteredCategory == category) ? const TextStyle(color: Colors.red) : const TextStyle(color: Colors.black),
-                            textAlign: TextAlign.start,
-                          ),
-                          onTap: () => {
-                            if (filteredCategory == category) {
-                              filteredCategory = ""
-                            } else {
-                              filteredCategory = category,
-                            },
-                            setState(() {})
-                          }
-                      );
-                      } else {
-                        return const Divider();
-                      }
-                    },
-                  ),
-                ),
-                if (!searchFocusNode.hasFocus) const Divider(),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) printActivityColumns(),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) const Divider(),
-                if(!searchFocusNode.hasFocus & !filtering & !ordering) printUserActivityElement(),
+                if (filtering) filterUserActivities(),
+                if (!searchFocusNode.hasFocus & !filtering & !ordering) printCategoryLabels(),
+                if (!searchFocusNode.hasFocus) const Divider(color: Colors.red),
+                if (!searchFocusNode.hasFocus & !filtering & !ordering) printUserActivityElement(),
               ]
             ),
           ),
         ],
       ) : CustomScrollView(
         slivers: [
-          SliverAppBar(
-            backgroundColor: Colors.redAccent,
-            automaticallyImplyLeading: false,
-            floating: true,
-            pinned: true,
-            snap: false,
-            leading: (!filtering & !ordering) ? TextButton(
-                onPressed: () {
-                  ordering = true;
-                  filtering = false;
-                  setState(() {});
-                },//Open filtering options
-                child: const Icon(Icons.list, color: Colors.white,)
-            ) : null,
-            title: (!filtering && !ordering) ? SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/addActivity',
-                    arguments: EditActivityPage(ind, "Add activity", Activity('', '', '', '', 0, DateTime.now())),
-                  ).then(onGoBack);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white
-                ),
-                child: const Text("Add a new activity",
-                    style: TextStyle(
-                        color: Colors.red
-                    )
-                )
-              ),
-            ) :  Text(filtering ? "Filter your activities" : "Order your activities",
-              textAlign: TextAlign.center,
-            ),
-            actions: [
-              if (!filtering & !ordering) TextButton(
-                  onPressed: () {
-                    filtering = true;
-                    ordering = false;
-                    setState(() {});
-                  },//Open filtering options
-                  child: const Icon(Icons.filter_alt, color: Colors.white,)
-              )
-            ],
-          ),
+          getManagerMainAppBar(),
             SliverList(
               delegate: SliverChildListDelegate(
-                  [
-                    if(!filtering & !ordering) printActivityManagerElement(),
-                    if (ordering) orderActivities(managerParameters),
-                    if (filtering) SizedBox(
-                      height: 150,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                    width: 150,
-                                    child: Text("Category")
-                                ),
-                                //const SizedBox(width: 60,),
-                                SizedBox(
-                                  width: 240,
-                                  height: 50,
-                                  child: DropdownButtonFormField<String>(
-                                    value: filteredCategory,
-                                    items: categories.map((cat) =>
-                                        DropdownMenuItem<String>(
-                                          value: cat,
-                                          child: Text(cat,
-                                            style: const TextStyle(
-                                                fontSize: 15),
-                                          ),
-                                        )).toList(),
-                                    onChanged: (cat) =>
-                                        setState(() => filteredCategory = cat),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () =>
-                                      setState(() {
-                                        filteredCategory = "";
-                                        filtering = false;
-                                      }), child: const Text("Reset"),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () =>
-                                      setState(() {
-                                        filtering = false;
-                                      }), child: const Text("Apply"),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ]
+                [
+                  if(!filtering & !ordering) printActivityManagerElement(),
+                  if (ordering) orderActivities(managerParameters),
+                  if (filtering) filterManagerActivities(),
+                  const Divider(color: Colors.red),
+                ]
               )
           )
         ]
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: ind,
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.red.withOpacity(.60),
-        onTap: (value) {
-          switch (value) {
-            case 0:
-              filtering = false;
-              ordering = false;
-              setState(() {
-              });
-              break;
-            case 1:
-              Navigator.pushNamed(context, '/incoming');
-              break;
-            case 2:
-              Navigator.pushNamed(context, '/past');
-              break;
-            case 3:
-              Navigator.pushNamed(context, '/account');
-              break;
-          }
-        },
-        items: getBottomMenu(0)
+      bottomNavigationBar: SizedBox(
+        height: 55,
+        child: BottomNavigationBar(
+          currentIndex: ind,
+          selectedItemColor: Colors.red,
+          unselectedItemColor: Colors.red.withOpacity(.60),
+          onTap: (value) {
+            switch (value) {
+              case 0:
+                filtering = false;
+                ordering = false;
+                setState(() {
+                });
+                break;
+              case 1:
+                Navigator.pushNamed(context, '/incoming');
+                break;
+              case 2:
+                Navigator.pushNamed(context, '/past');
+                break;
+              case 3:
+                Navigator.pushNamed(context, '/account');
+                break;
+            }
+          },
+          items: getBottomMenu(incomingAppointments.length)
+        ),
       )
     );
   }
@@ -645,50 +238,54 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  void sortActivities(String? parameter, String? ascending) {
+  /// Sorts the activities in homepage basing on parameter and ascending passed as method parameters
+  List<Activity> sortActivities(String? parameter, String? ascending, List<Activity> acts) {
     switch (parameter) {
       case "Name":
         if(ascending == "Ascending") {
-          allActivities.sort((a, b) => a.name.compareTo(b.name));
+          acts.sort((a, b) => a.name.compareTo(b.name));
         } else {
-          allActivities.sort((a, b) => - a.name.compareTo(b.name));
+          acts.sort((a, b) => - a.name.compareTo(b.name));
         }
         break;
       case "Distance":
         if(ascending == "Ascending") {
-          allActivities.sort((a, b) => a.position.compareTo(b.position));
+          acts.sort((a, b) => a.position.compareTo(b.position));
         } else {
-          allActivities.sort((a, b) => - a.position.compareTo(b.position));
+          acts.sort((a, b) => - a.position.compareTo(b.position));
         }
         break;
       case "Category":
         if(ascending == "Ascending") {
-          allActivities.sort((a, b) => a.category.compareTo(b.category));
+          acts.sort((a, b) => a.category.compareTo(b.category));
         } else {
-          allActivities.sort((a, b) => - a.category.compareTo(b.category));
+          acts.sort((a, b) => - a.category.compareTo(b.category));
         }
         break;
       case "Rating":
         if(ascending == "Ascending") {
-          allActivities.sort((a, b) => a.rating.compareTo(b.rating));
+          acts.sort((a, b) => a.rating.compareTo(b.rating));
         } else {
-          allActivities.sort((a, b) => - a.rating.compareTo(b.rating));
+          acts.sort((a, b) => - a.rating.compareTo(b.rating));
         }
         break;
       case "Date":
         if(ascending == "Ascending") {
-          allActivities.sort((a, b) => a.dateOfAdding.compareTo(b.dateOfAdding));
+          acts.sort((a, b) => a.dateOfAdding.compareTo(b.dateOfAdding));
         } else {
-          allActivities.sort((a, b) => - a.dateOfAdding.compareTo(b.dateOfAdding));
+          acts.sort((a, b) => - a.dateOfAdding.compareTo(b.dateOfAdding));
         }
         break;
       default :
-        allActivities.sort((a, b) => a.name.compareTo(b.name));
+        acts.sort((a, b) => a.name.compareTo(b.name));
         break;
     }
+
+    return acts;
   }
 
-  Widget printActivityColumns() {
+  /// Prints Name, Category, Rating and Distance labels for activities
+  Widget printActivityLabels() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: const [
@@ -720,54 +317,64 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /*Future<Widget>*/ Widget printUserActivityElement() /*async*/ {
-
-    //var currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
+  /// Prints Name, Category, Rating and Distance attributes for all printed user activities
+  Widget printUserActivityElement() {
     return SizedBox(
-      height: 1000,
+      height: scrollHeight - 280,
       child: ListView.builder(
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
+          int distance = -1;
+          if((lat != null) && (lon != null) && (activity.lat != null) && (activity.lon != null)) {
+            distance = calculateDistance(lat!, lon!, activity.lat!, activity.lon!);
+          }
 
-          double distance = 0/*calculateDistance(
-            activity.coordinates?.latitude,
-            activity.coordinates?.longitude,
-            currentPosition.latitude,
-            currentPosition.longitude
-          )*/;
-
-          if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (distance >= distances[0]) && (distance <= distances[1])){
+          if((filteredCategory == "" || activity.category == filteredCategory) && (activity.rating >= minRating) && (distance >= distances[0] && distance <= distances[1] || distance == -1)){
             return ListTile(
-              title: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 138,
-                    child: Text(activity.name,
-                      style: const TextStyle(color: Colors.black),
+              title: SizedBox(
+                height: 105,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                     Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                      child: printActivityImage(activity, 70),
                     ),
-                  ),
-                  SizedBox(
-                    width: 132,
-                    child: Text(activity.category,
-                      style: const TextStyle(color: Colors.black),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(activity.name,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
+                          ),
+                          Text(activity.category,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          Text(distance != -1 ? "\n$distance km" : "\n___ km",
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 50,
-                    child: Text(activity.rating.toString(),
-                      style: const TextStyle(color: Colors.black),
+                    Column(
+                      children: [
+                        const Icon(Icons.star,
+                          color: Colors.amber,
+                          size: 35,
+                        ),
+                        Text("${activity.rating}/5",
+                          style: const TextStyle(
+                            fontSize: 17,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 59,
-                    child: Text(activity.position.toString(),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               onTap: () => {
                 Navigator.pushNamed(
@@ -778,13 +385,14 @@ class _HomePageState extends State<HomePage> {
               },
             );
           } else {
-            return const SizedBox(width: 0, height: 0,);
+            return const SizedBox();
           }
         },
       ),
     );
   }
 
+  /// Prints Name and Category attributes plus edit and delete buttons for all printed manager activities
   Widget printActivityManagerElement () {
     return SizedBox(
       height: 1000,
@@ -794,17 +402,21 @@ class _HomePageState extends State<HomePage> {
           final activity = activities[index];
           if(filteredCategory == "" || activity.category == filteredCategory) {
             return ListTile(
+              onTap: () {
+                Navigator.pushNamed(context,
+                  '/activity',
+                  arguments: ActivityPage(ind, activity.name),
+                );
+              },
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: 145,
+                  Expanded(
                     child: Text(activity.name,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(
-                    width: 130,
+                  Expanded(
                     child: Text(activity.category,
                       style: const TextStyle(color: Colors.black),
                     ),
@@ -850,92 +462,593 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Order activities basing on list parameters passed as method parameter
   Widget orderActivities (List<String> parameters) {
-    return SizedBox(
-      height: 140,
-      child: Column(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                const SizedBox(
-                    width: 150,
-                    child: Text("Sort by")
-                ),
-                SizedBox(
-                  width: 260,
-                  height: 50,
-                  child: DropdownButtonFormField<String>(
-                    value: parameter,
-                    items: parameters.map((cat) => DropdownMenuItem<String>(
-                      value: cat,
-                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                      ),
-                    )).toList(),
-                    onChanged: (cat) => setState(() =>  parameter = cat),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: 140,
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 130,
+                      child: Text("Sort by")
                   ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                const SizedBox(
-                    width: 150,
-                    child: Text("Order")
-                ),
-                SizedBox(
-                  width: 260,
-                  height: 50,
-                  child: DropdownButtonFormField<String>(
-                    value: ascending,
-                    items: order.map((cat) => DropdownMenuItem<String>(
-                      value: cat,
-                      child: Text(cat, style: const TextStyle(fontSize: 15),
-                      ),
-                    )).toList(),
-                    onChanged: (cat) => setState(() =>  ascending = cat),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: parameter,
+                      items: parameters.map((cat) => DropdownMenuItem<String>(
+                        value: cat,
+                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                        ),
+                      )).toList(),
+                      onChanged: (cat) => setState(() =>  parameter = cat),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => setState(() {
-                    ordering = false;
-                    ascending = "Ascending";
-                    parameter = "Name";
-                  }), child: const Text("Reset"),
-                ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => setState(() {
-                    ordering = false;
-                    sortActivities(parameter, ascending);
-                  }), child: const Text("Apply"),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 130,
+                      child: Text("Order")
+                  ),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: ascending,
+                      items: order.map((cat) => DropdownMenuItem<String>(
+                        value: cat,
+                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                        ),
+                      )).toList(),
+                      onChanged: (cat) => setState(() =>  ascending = cat),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => setState(() {
+                      ordering = false;
+                      ascending = "Ascending";
+                      parameter = "Name";
+                    }), child: const Text("Reset"),
+                  ),
                 ),
-              )
-            ],
-          )
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => setState(() {
+                      ordering = false;
+                      allActivities = sortActivities(parameter, ascending, allActivities);
+                    }), child: const Text("Apply"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Makes the user filter its activities in homepage
+  Widget filterUserActivities() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: 300,
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 150,
+                      child: Text("Category")
+                  ),
+                  //const SizedBox(width: 60,),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: filteredCategory,
+                      items: categories.map((cat) => DropdownMenuItem<String>(
+                        value: cat,
+                        child: Text(cat, style: const TextStyle(fontSize: 15),
+                        ),
+                      )).toList(),
+                      onChanged: (cat) => setState(() => filteredCategory = cat),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 150,
+                      child: Text("Distance")
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                            child: TextField(
+                              controller: minController,
+                              focusNode: minFocusNode,
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: 'Min km',
+                              ),
+                              onChanged: (text) {
+                                distances[0] = double.parse(minController.text);
+                                setState(() {});
+                              },
+                              onSubmitted: (text) {
+                                distances[0] = double.parse(minController.text);
+                                if(distances[0] > distances[1]) {
+                                  maxController.text = minController.text;
+                                  distances[1] = double.parse(minController.text);
+                                }
+                                setState(() {});
+                              },
+                            )
+                        ),
+                        const SizedBox(width: 75,),
+                        Expanded(
+                          child: TextField(
+                            controller: maxController,
+                            focusNode: maxFocusNode,
+                            textAlign: TextAlign.center,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              hintText: 'Max km',
+                            ),
+                            onChanged: (text) {
+                              distances[1] = double.parse(maxController.text);
+                              setState(() {});
+                            },
+                            onSubmitted: (text) {
+                              distances[1] = double.parse(maxController.text);
+                              if(distances[1] < distances[0]) {
+                                minController.text = maxController.text;
+                                distances[0] = distances[1];
+                              }
+                              setState(() {});
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 150,
+                      child: Text("Rating")
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        for(int i = 1; i <= 5; i++)
+                          IconButton(onPressed: () {
+                            if (minRating == i) {
+                              minRating = 0;
+                            } else {
+                              minRating = i;
+                            }
+                            setState(() {});
+                          }, icon: (minRating < i) ? const Icon(Icons.star_border) : const Icon(Icons.star)),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            /*Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 150,
+                      child: Text("Available date")
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: dataController,
+                      focusNode: dataFocusNode,
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.calendar_today), //icon of text field
+                          labelText: "Enter Date" //label text of field
+                      ),
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.datetime,
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100));
+                        if (pickedDate != null) {
+                          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                          date = pickedDate;
+                          setState(() {
+                            dataController.text = formattedDate; //set output date to TextField value.
+                          });
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),*/
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => setState(() {
+                      filteredCategory = "";
+                      distances = [0.0, double.infinity];
+                      date = DateTime(DateTime.now().year, DateTime.now().month + 1, DateTime.now().day);
+                      minRating = 0;
+                      filtering = false;
+                      minController.text = "";
+                      maxController.text = "";
+                      dataController.text = "";
+                    }), child: const Text("Reset"),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => setState(() {
+                      filtering = false;
+                      minController.text = "";
+                      maxController.text = "";
+                      dataController.text = "";
+                    }), child: const Text("Apply"),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Makes the manager filter its activities in homepage
+  Widget filterManagerActivities() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: 150,
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(
+                      width: 150,
+                      child: Text("Category")
+                  ),
+                  //const SizedBox(width: 60,),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: filteredCategory,
+                      items: categories.map((cat) =>
+                          DropdownMenuItem<String>(
+                            value: cat,
+                            child: Text(cat,
+                              style: const TextStyle(
+                                  fontSize: 15),
+                            ),
+                          )).toList(),
+                      onChanged: (cat) =>
+                          setState(() => filteredCategory = cat),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () =>
+                        setState(() {
+                          filteredCategory = "";
+                          filtering = false;
+                        }), child: const Text("Reset"),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        setState(() {
+                          filtering = false;
+                        }), child: const Text("Apply"),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget printActivityImage(Activity activity, double size) {
+    if(activity.image != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.file(
+          File(activity.image!.path),
+          fit: BoxFit.cover,
+          width: size,
+          height: size,
+        ),
+      );
+    } else {
+      return Container(
+        color: Colors.grey.shade100,
+        width: size,
+        height: size,
+      );
+    }
+  }
+
+  /// Returns the real-time suggested activities based on current search
+  Widget getSuggestions() {
+    return SizedBox(
+      height: scrollHeight,
+      child: ListView.builder(
+        itemCount: activities.length,
+        itemBuilder: (context, index) {
+          final activity = activities[index];
+          return ListTile(
+              title: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                    child: printActivityImage(activity, 50),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        activity.name,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        activity.category,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              onTap: () => {
+                Navigator.pushNamed(
+                  context,
+                  '/activity',
+                  arguments: ActivityPage(ind, activity.name),
+                ),
+              }
+          );
+        },
+      ),
+    );
+  }
+
+  /// Returns the main user app bar (when he doesn't filter/order)
+  Widget getUserMainAppBar () {
+    return SliverAppBar(
+      toolbarHeight: 55,
+      backgroundColor: Colors.redAccent,
+      automaticallyImplyLeading: false,
+      floating: true,
+      pinned: true,
+      snap: false,
+      leading: TextButton(
+          onPressed: () {
+            searchFocusNode.unfocus();
+            sug = false;
+            ordering = true;
+            setState(() {});
+          },//Open filtering options
+          child: const Icon(Icons.list, color: Colors.white,)
+      ),
+      title: Container(
+        width: double.infinity,
+        height: 40,
+        color: Colors.white,
+        child: TextField(
+          controller: controller,
+          focusNode: searchFocusNode,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search),
+            hintText: 'Search for something...',
+            suffixIcon: createSuffix(),
+          ),
+          onSubmitted: (text) {
+            Navigator.pushNamed(
+              context,
+              '/activity',
+              arguments: ActivityPage(ind, text),
+            );
+            controller.text = "";
+            sug = false;
+            setState(() {});
+          },
+          onChanged: searchActivity,
+          onTap: () => setState(() {
+            sug = true;
+          }),
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () {
+              filtering = true;
+              ordering = false;
+              searchFocusNode.unfocus();
+              sug = false;
+              setState(() {});
+            },//Open filtering options
+            child: const Icon(Icons.filter_alt, color: Colors.white,)
+        )
+      ],
+    );
+  }
+
+  /// Returns the main manager app bar (when he doesn't filter/order)
+  Widget getManagerMainAppBar () {
+    return SliverAppBar(
+      backgroundColor: Colors.redAccent,
+      automaticallyImplyLeading: false,
+      floating: true,
+      pinned: true,
+      snap: false,
+      leading: (!filtering & !ordering) ? TextButton(
+          onPressed: () {
+            ordering = true;
+            filtering = false;
+            setState(() {});
+          },//Open filtering options
+          child: const Icon(Icons.list, color: Colors.white,)
+      ) : null,
+      title: (!filtering && !ordering) ? SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/addActivity',
+                arguments: EditActivityPage(ind, "Add activity", createActivity()),
+              ).then(onGoBack);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white
+            ),
+            child: const Text("Add a new activity",
+                style: TextStyle(
+                    color: Colors.red
+                )
+            )
+        ),
+      ) :  Text(filtering ? "Filter your activities" : "Order your activities",
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        if (!filtering & !ordering) TextButton(
+            onPressed: () {
+              filtering = true;
+              ordering = false;
+              setState(() {});
+            },//Open filtering options
+            child: const Icon(Icons.filter_alt, color: Colors.white,)
+        )
+      ],
+    );
+  }
+
+  /// Prints all the categories that can be clicked to easy obtain only the related activities
+  Widget printCategoryLabels() {
+    return SizedBox(
+      height: 40,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          for(int i = 1; i < categories.length ; i++)
+            IconButton(
+              onPressed: () => {
+                if (filteredCategory == categories[i]) {
+                  filteredCategory = ""
+                } else {
+                  filteredCategory = categories[i],
+                },
+                setState(() {})
+              },
+              icon: getIcon(categories[i], filteredCategory),
+            ),
         ],
       ),
     );
   }
 
-  double calculateDistance(lat1, lon1, lat2, lon2){
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p)/2 +
-        c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p))/2;
-    return 12742 * asin(sqrt(a));
+  /// Returns the distance between two coordinates
+  int calculateDistance(double lat1, double lon1, double lat2, double lon2){
+    final start = Location(lat1, lon1);
+    final end = Location(lat2, lon2);
+    final haversineDistance = HaversineDistance();
+    return haversineDistance.haversine(start, end, Unit.KM).floor();
   }
+
+  void update() {
+    setState(() {});
+  }
+
+  Future<Position> getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if(!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if(permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if(permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if(permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied');
+    }
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void liveLocation() {
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
+
+    Geolocator.getPositionStream(locationSettings: locationSettings)
+        .listen((Position position) {
+          lat = position.latitude;
+          lon = position.longitude;
+          setState(() {});
+    });
+  }
+
 }

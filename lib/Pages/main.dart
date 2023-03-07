@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/Pages/confirmAppointment.dart';
 import 'accountPage.dart';
 import 'activityManagerPage.dart';
 import 'activityPage.dart';
+import 'bookAppointmentPage.dart';
 import 'homePage.dart';
 import 'incomingAppointmentsPage.dart';
 import 'pastAppointmentsPage.dart';
@@ -28,7 +30,9 @@ class MyApp extends StatelessWidget {
         '/past': (context) => const PastAppPage(index: 2),
         '/account': (context) => const AccountPage(index: 3),
         '/activity': (context) => const ActivityPageScreen(),
-        '/addActivity': (context) => const EditActivityPageScreen(),
+        '/addActivity': (context) => EditActivityPageScreen(),
+        '/bookAppointment': (context) => const BookAppointmentPage(),
+        '/confirmation' : (context) => const ConfirmAppointment(),
       },
     );
   }
