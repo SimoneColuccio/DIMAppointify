@@ -414,7 +414,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         hour.isNotEmpty ? hour.first : 15,
                         hour.isNotEmpty ? hour.last : 0
                         );
-                        args.appointment.editAppointment(
+                        Appointment a = args.appointment.editAppointment(
                           args.appointment.index,
                           user,
                           date,
@@ -427,7 +427,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
                         Navigator.pushNamed(
                           context,
                           '/confirmation',
-                          arguments: AppointmentArguments(Appointment(args.appointment.index, user, activity, date, appointType!, 0, activity.category == "Hotels and travels" ? pressed.toInt() : activity.duration,))
+                          arguments: AppointmentArguments(a)
                         );
                       }
                       //setState(() {});

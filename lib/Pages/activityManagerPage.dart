@@ -126,7 +126,6 @@ class EditActivityPageScreen extends StatelessWidget {
                                     onChanged: (text) {
                                       if (isCorrect(controller.text)) {
                                         name = controller.text;
-                                        log(name);
                                       }
                                       //setState(() {});
                                     },
@@ -530,7 +529,6 @@ class EditActivityPageScreen extends StatelessWidget {
                                                 updateButtons(i, 3, setState, completed),
                                               },
                                               onLongPress: () {
-                                                log(equals.toString());
                                                 if(equals && i < 5) {
                                                   for(int k = 0; k < 5; k++) {
                                                     hours[k][3] = -1;

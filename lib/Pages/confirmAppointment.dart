@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../Data/appointment.dart';
 import '../Widgets/bottomMenu.dart';
+import 'accountPage.dart';
 
 class ConfirmAppointment extends StatefulWidget {
   const ConfirmAppointment({super.key});
@@ -78,7 +79,9 @@ class _ConfirmAppointmentState extends State<ConfirmAppointment> {
                 children: [
                   const Expanded(child: SizedBox()),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // TODO: implement share via WhatsApp
+                    },
                     icon: const Icon(Icons.whatsapp,
                       size: 40,
                       color: Colors.green,
@@ -86,7 +89,9 @@ class _ConfirmAppointmentState extends State<ConfirmAppointment> {
                   ),
                   const Expanded(child: SizedBox()),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // TODO: implement share via email
+                      },
                       icon: const Icon(Icons.mail,
                         size: 40,
                         color: Colors.blue,
@@ -95,6 +100,9 @@ class _ConfirmAppointmentState extends State<ConfirmAppointment> {
                   const Expanded(child: SizedBox()),
                   IconButton(
                       onPressed: () {
+                        appointment.addToCalendar(isLoggedAsUser);
+                        setState(() {});
+                        // TODO: implement Google Calendar
                       },
                       icon: const Icon(Icons.edit_calendar,
                         size: 40,

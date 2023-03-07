@@ -75,6 +75,7 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context, Strin
                         onPressed: () {
                           appointment.addToCalendar(isLoggedAsUser);
                           setState(() {});
+                          // TODO: implement Google Calendar
                         },
                         child: const Icon(Icons.edit_calendar),
                       )

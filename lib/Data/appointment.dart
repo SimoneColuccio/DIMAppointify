@@ -34,9 +34,7 @@ class Appointment {
     dateTime = date;
   }
 
-  void editAppointment(appIndex, user, dateTime, appointType, List<int> seq, int duration, bool toShow, String type) {
-    log("$type appointment $appIndex");
-    log(toShow.toString());
+  Appointment editAppointment(appIndex, user, dateTime, appointType, List<int> seq, int duration, bool toShow, String type) {
     if(user != "") {
       this.user = user;
     }
@@ -45,17 +43,16 @@ class Appointment {
     this.duration = duration;
     this.toShow = toShow;
 
+    Appointment ret = this;
+
     List<int> del = [];
     if(activity.category == "Hotels and travels") {
-      log("DELETE APPOINTMENTS TO EDIT");
       if(type == "EDIT") {
         for(int k = 0; k < allAppointments.length; k++) {
           if(allAppointments[k].index == appIndex && !allAppointments[k].toShow) {
             del.add(k);
           }
         }
-        log(allAppointments.toString());
-        log(del.toString());
         while(del.isNotEmpty) {
           allAppointments.remove(allAppointments[del.last]);
           log("Appointment deleted");
@@ -70,6 +67,8 @@ class Appointment {
 
     log("Appointment edited");
     checkDates();
+
+    return ret;
   }
 }
 

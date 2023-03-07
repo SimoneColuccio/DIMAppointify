@@ -121,7 +121,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                       )).toList(),
                                       onChanged: (cat) => setState(() {
                                         parameter = cat;
-                                        log(parameter.toString());
                                       }),
                                     ),
                                   ),
@@ -276,7 +275,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                   child: ElevatedButton(
                                     onPressed: () => setState(() {
                                       filteredClient = controller.text;
-                                      log(filteredClient);
                                       filtering = false;
                                       controller.text = "";
                                       dataController.text = "";
@@ -487,8 +485,6 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
 }
 
 List<Appointment> sortAppointments(String? parameter, String? ascending, List<Appointment> app) {
-  log(parameter!);
-  log(ascending!);
   switch (parameter) {
     case "Name":
       if(ascending == "Ascending") {
