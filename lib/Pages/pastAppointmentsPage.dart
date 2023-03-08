@@ -260,7 +260,7 @@ class _PastAppPageState extends State<PastAppPage>{
                     ),
                     if ((filtering || ordering) && (isLoggedAsUser | isLoggedAsActivity)) const Divider(color: Colors.red),
                     if((!filtering && !ordering) & (isLoggedAsUser | isLoggedAsActivity)) Container(
-                      height: 1000,
+                      height: 750,
                       color: Colors.white,
                       child: ListView.builder(
                         itemCount: pastAppointments.length,

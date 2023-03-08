@@ -26,7 +26,6 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context, Strin
                   style: const TextStyle(fontSize: 19),),
             ],
           ),
-          Text(appointment.toShow.toString()),
           const SizedBox(height: 10),
           Text(
             appointment.appointType,

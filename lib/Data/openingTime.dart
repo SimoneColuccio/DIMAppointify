@@ -60,6 +60,16 @@ List<bool> initializeTurns() {
   return [true, true, true, true, true, true, true];
 }
 
+List<List<bool>> initializePickers() {
+  return [[false, false, false, false],
+          [false, false, false, false],
+          [false, false, false, false],
+          [false, false, false, false],
+          [false, false, false, false],
+          [false, false, false, false],
+          [false, false, false, false]];
+}
+
 int getHour(double hour) {
   return hour.floor();
 }
