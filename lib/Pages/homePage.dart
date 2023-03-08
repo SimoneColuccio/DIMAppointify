@@ -250,9 +250,9 @@ class _HomePageState extends State<HomePage> {
         break;
       case "Distance":
         if(ascending == "Ascending") {
-          acts.sort((a, b) => a.position.compareTo(b.position));
+          acts.sort((a, b) => calculateDistance(lat!, lon!, a.lat!, a.lon!).compareTo(calculateDistance(lat!, lon!, b.lat!, b.lon!)));
         } else {
-          acts.sort((a, b) => - a.position.compareTo(b.position));
+          acts.sort((a, b) => - calculateDistance(lat!, lon!, a.lat!, a.lon!).compareTo(calculateDistance(lat!, lon!, b.lat!, b.lon!)));
         }
         break;
       case "Category":
@@ -380,7 +380,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pushNamed(
                   context,
                   '/activity',
-                  arguments: ActivityPage(ind, activity.name),
+                  arguments: ActivityPage(activity.name),
                 ),
               },
             );
@@ -405,7 +405,7 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.pushNamed(context,
                   '/activity',
-                  arguments: ActivityPage(ind, activity.name),
+                  arguments: ActivityPage(activity.name),
                 );
               },
               title: Row(
@@ -430,8 +430,8 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(
                                 context,
                                 '/addActivity',
-                                arguments: EditActivityPage(
-                                    ind, "Edit category",
+                                arguments: EditActivityArguments(
+                                    "Edit category",
                                     activity),
                               ).then(onGoBack);
                             },
@@ -861,7 +861,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pushNamed(
                   context,
                   '/activity',
-                  arguments: ActivityPage(ind, activity.name),
+                  arguments: ActivityPage(activity.name),
                 ),
               }
           );
@@ -904,7 +904,7 @@ class _HomePageState extends State<HomePage> {
             Navigator.pushNamed(
               context,
               '/activity',
-              arguments: ActivityPage(ind, text),
+              arguments: ActivityPage(text),
             );
             controller.text = "";
             sug = false;
@@ -954,7 +954,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushNamed(
                 context,
                 '/addActivity',
-                arguments: EditActivityPage(ind, "Add activity", createActivity()),
+                arguments: EditActivityArguments("Add activity", createActivity()),
               ).then(onGoBack);
             },
             style: ElevatedButton.styleFrom(
