@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         '/past': (context) => const PastAppPage(index: 2),
         '/account': (context) => const AccountPage(index: 3),
         '/activity': (context) => const ActivityPageScreen(),
-        '/addActivity': (context) => EditActivityPageScreen(),
+        '/addActivity': (context) => const EditActivityPage(),
         '/bookAppointment': (context) => const BookAppointmentPage(),
         '/confirmation' : (context) => const ConfirmAppointment(),
       },

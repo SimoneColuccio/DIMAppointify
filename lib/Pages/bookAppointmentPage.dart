@@ -510,7 +510,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage>{
     List<Appointment> appointments = [];
 
     List<int> s = getSequentialCode(activity, date);
-    if(s.isEmpty || s.first < 0 && activity.category != "Hotels and travels") {
+    if((s.isEmpty || s.first < 0) && activity.category != "Hotels and travels") {
       return false;
     }
 

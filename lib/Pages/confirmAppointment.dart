@@ -43,7 +43,7 @@ class _ConfirmAppointmentState extends State<ConfirmAppointment> {
               ),
             ),
 
-            Text("\n${DateFormat('yyyy-MM-dd kk-hh').format(appointment.dateTime)}",
+            Text("\n${DateFormat('yyyy-MM-dd, kk:hh').format(appointment.dateTime)}",
               style: const TextStyle(
                   fontSize: 20
               ),
@@ -63,7 +63,7 @@ class _ConfirmAppointmentState extends State<ConfirmAppointment> {
                   fontSize: 17
               ),
             ),
-            Text("\nAppointment number: ${appointment.sequentialNumber}",
+            Text("\nAppointment number: ${appointment.index}",
               style: const TextStyle(
                   fontSize: 17
               ),

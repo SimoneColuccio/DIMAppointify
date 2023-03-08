@@ -13,12 +13,10 @@ import 'accountPage.dart';
 import 'bookAppointmentPage.dart';
 
 class ActivityPage {
-  final int index;
   final String title;
 
-  ActivityPage(this.index, this.title);
+  ActivityPage(this.title);
 }
-
 
 class ActivityPageScreen extends StatelessWidget {
   const ActivityPageScreen({super.key});
@@ -243,13 +241,13 @@ class ActivityPageScreen extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     '/activity',
-                    arguments: ActivityPage(0, activity.name),
+                    arguments: ActivityPage(activity.name),
                   ),
                 }
             );
           },
         ),
-        floatingActionButton: a != null ? FloatingActionButton(
+        floatingActionButton: a != null && (isLoggedAsUser || isLoggedAsActivity) ? FloatingActionButton(
           onPressed: () {
             appointmentIndex = appointmentIndex + 1;
             Navigator.pushNamed(
@@ -264,7 +262,6 @@ class ActivityPageScreen extends StatelessWidget {
           child: const Icon(Icons.bookmark_add)
         ) : null,
         bottomNavigationBar: BottomNavigationBar(
-            currentIndex: args.index,
             selectedItemColor: Colors.red,
             unselectedItemColor: Colors.red.withOpacity(.60),
             onTap: (value) {

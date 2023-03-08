@@ -335,7 +335,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                     ),
                     if (filtering || ordering &&(isLoggedAsUser || isLoggedAsActivity)) const Divider(color: Colors.red),
                     if((!filtering && !ordering) && (isLoggedAsUser || isLoggedAsActivity)) Container(
-                      height: 1000,
+                      height: 550,
                       color: Colors.white,
                       child: ListView.builder(
                         itemCount: appointments.length,
@@ -399,7 +399,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                               },
                           );
                           } else {
-                            return const SizedBox(width: 0, height: 0,);
+                            return const SizedBox();
                           }
                         },
                       ),
