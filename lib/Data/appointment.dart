@@ -19,6 +19,8 @@ class Appointment {
   bool actGoogleCalendar = false;
   int duration;
   bool toShow = true;
+  int people = 1;
+  String message = "";
 
   Appointment(this.index, this.user, this.activity, this.dateTime, this.appointType, this.sequentialNumber, this.duration);
 
@@ -34,7 +36,7 @@ class Appointment {
     dateTime = date;
   }
 
-  Appointment editAppointment(appIndex, user, dateTime, appointType, List<int> seq, int duration, bool toShow, String type) {
+  Appointment editAppointment(appIndex, user, dateTime, appointType, int seq, int duration, bool toShow, String type, int people, String message) {
     if(user != "") {
       this.user = user;
     }
@@ -42,6 +44,8 @@ class Appointment {
     this.appointType = appointType;
     this.duration = duration;
     this.toShow = toShow;
+    this.people = people;
+    this.message = message;
 
     Appointment ret = this;
 
@@ -59,9 +63,9 @@ class Appointment {
           del.remove(del.last);
         }
       }
-      if(seq.first > 1) {
+      if(seq > 1) {
         Appointment a = createAppointment(appIndex, user, activity);
-        a.editAppointment(appIndex, user, DateTime(dateTime.year, dateTime.month, dateTime.day + 1, 15, 0), appointType, [seq.first - 1], duration, false, "CREATE");
+        a.editAppointment(appIndex, user, DateTime(dateTime.year, dateTime.month, dateTime.day + 1, 15, 0), appointType, seq - 1, duration, false, "CREATE", people, message);
       }
     }
 
@@ -76,7 +80,8 @@ int appointmentIndex = 0;
 List<Appointment> allAppointments = [];
 
 Appointment createAppointment(appIndex, user, activity) {
-  Appointment a = Appointment(appIndex, user, activity, DateTime.now(), "", 0, 0);
+  Appointment a = Appointment(appIndex, user, activity, DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, getHour(activity.hours[getWeekDay(DateTime.now())][0]), getMinute(activity.hours[getWeekDay(DateTime.now())][0])), "", 0, 0);
+  log(a.dateTime.toString());
   allAppointments.add(a);
   checkDates();
   log("Appointment created");

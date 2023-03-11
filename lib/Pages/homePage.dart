@@ -107,15 +107,16 @@ class _HomePageState extends State<HomePage> {
       });
 
       liveLocation();
+      sortActivities(parameter, ascending, allActivities);
       setState(() {});
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 60,
         title: Text(tit),
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
       body: (!isLoggedAsActivity) ? CustomScrollView(
+        physics: const ClampingScrollPhysics(),
         slivers: [
           if (!filtering & !ordering) getUserMainAppBar(),
           SliverList(
@@ -132,6 +133,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ) : CustomScrollView(
+        physics: const ClampingScrollPhysics(),
         slivers: [
           getManagerMainAppBar(),
             SliverList(
@@ -147,7 +149,6 @@ class _HomePageState extends State<HomePage> {
         ]
       ),
       bottomNavigationBar: SizedBox(
-        height: 55,
         child: BottomNavigationBar(
           currentIndex: ind,
           selectedItemColor: Colors.red,
@@ -320,8 +321,9 @@ class _HomePageState extends State<HomePage> {
   /// Prints Name, Category, Rating and Distance attributes for all printed user activities
   Widget printUserActivityElement() {
     return SizedBox(
-      height: scrollHeight - 280,
+      height: scrollHeight,
       child: ListView.builder(
+        physics: const ClampingScrollPhysics(),
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
@@ -395,8 +397,9 @@ class _HomePageState extends State<HomePage> {
   /// Prints Name and Category attributes plus edit and delete buttons for all printed manager activities
   Widget printActivityManagerElement () {
     return SizedBox(
-      height: 1000,
+      height: scrollHeight, // TODO: fix this height
       child: ListView.builder(
+        physics: const ClampingScrollPhysics(),
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
@@ -455,7 +458,7 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           } else {
-            return const SizedBox(width: 0, height: 0,);
+            return const SizedBox();
           }
         },
       ),
@@ -663,42 +666,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            /*Expanded(
-              child: Row(
-                children: [
-                  const SizedBox(
-                      width: 150,
-                      child: Text("Available date")
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: dataController,
-                      focusNode: dataFocusNode,
-                      decoration: const InputDecoration(
-                          icon: Icon(Icons.calendar_today), //icon of text field
-                          labelText: "Enter Date" //label text of field
-                      ),
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.datetime,
-                      onTap: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2100));
-                        if (pickedDate != null) {
-                          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                          date = pickedDate;
-                          setState(() {
-                            dataController.text = formattedDate; //set output date to TextField value.
-                          });
-                        }
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),*/
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -826,6 +793,7 @@ class _HomePageState extends State<HomePage> {
     return SizedBox(
       height: scrollHeight,
       child: ListView.builder(
+        physics: const ClampingScrollPhysics(),
         itemCount: activities.length,
         itemBuilder: (context, index) {
           final activity = activities[index];
@@ -873,7 +841,6 @@ class _HomePageState extends State<HomePage> {
   /// Returns the main user app bar (when he doesn't filter/order)
   Widget getUserMainAppBar () {
     return SliverAppBar(
-      toolbarHeight: 55,
       backgroundColor: Colors.redAccent,
       automaticallyImplyLeading: false,
       floating: true,
@@ -984,26 +951,23 @@ class _HomePageState extends State<HomePage> {
 
   /// Prints all the categories that can be clicked to easy obtain only the related activities
   Widget printCategoryLabels() {
-    return SizedBox(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for(int i = 1; i < categories.length ; i++)
-            IconButton(
-              onPressed: () => {
-                if (filteredCategory == categories[i]) {
-                  filteredCategory = ""
-                } else {
-                  filteredCategory = categories[i],
-                },
-                setState(() {})
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        for(int i = 1; i < categories.length ; i++)
+          IconButton(
+            onPressed: () => {
+              if (filteredCategory == categories[i]) {
+                filteredCategory = ""
+              } else {
+                filteredCategory = categories[i],
               },
-              icon: getIcon(categories[i], filteredCategory),
-            ),
-        ],
-      ),
+              setState(() {})
+            },
+            icon: getIcon(categories[i], filteredCategory),
+          ),
+      ],
     );
   }
 

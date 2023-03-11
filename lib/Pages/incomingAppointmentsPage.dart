@@ -63,7 +63,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
   Widget build(BuildContext context) {
 
     checkDates();
-    allAppointments = sortAppointments(parameter, ascending, allAppointments);
+    sortAppointments(parameter, ascending, allAppointments);
     setState(() {});
 
     return Scaffold(
@@ -193,7 +193,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                 hintText: 'Search for a specific client...',
                                 suffixIcon: createSuffix(),
                               ),
-                            ) : const SizedBox(height: 0),
+                            ) : const SizedBox(),
                             Expanded(
                               child: Row(
                                 children: [
@@ -291,6 +291,7 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                       height: 200,
                       child: Center(
                         child: (isLoggedAsUser || isLoggedAsActivity) ? ListView.builder(
+                          physics: const ClampingScrollPhysics(),
                           itemCount: incomingAppointments.length,
                           itemBuilder: (context, index) {
                               final appointment = incomingAppointments[index];
@@ -335,9 +336,14 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                     ),
                     if (filtering || ordering &&(isLoggedAsUser || isLoggedAsActivity)) const Divider(color: Colors.red),
                     if((!filtering && !ordering) && (isLoggedAsUser || isLoggedAsActivity)) Container(
-                      height: 550,
+                      height: MediaQuery
+                          .of(context)
+                          .copyWith()
+                          .size
+                          .height,
                       color: Colors.white,
                       child: ListView.builder(
+                        physics: const ClampingScrollPhysics(),
                         itemCount: appointments.length,
                         itemBuilder: (context, index) {
                           final appointment = appointments[index];
@@ -353,6 +359,10 @@ class _IncomingAppPageState extends State<IncomingAppPage>{
                                     child: Text(
                                       isLoggedAsUser ? appointment.activity.name : appointment.user,
                                       textAlign: TextAlign.start,
+                                      style: isLoggedAsActivity && appointment.message.isNotEmpty ? const TextStyle(
+                                        color: Colors.red,
+                                        decoration: TextDecoration.underline
+                                      ) : null,
                                     ),
                                   ),
                                   Expanded(

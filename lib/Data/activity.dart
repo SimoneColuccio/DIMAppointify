@@ -72,7 +72,12 @@ class Activity {
   }
 
   void getAddress() async {
-    var addresses = await Geocoder.local.findAddressesFromQuery(position);
+    List<Address> addresses = [];
+    try{
+      addresses = await Geocoder.local.findAddressesFromQuery(position);
+    } catch (exception) {
+      log("Exception $name");
+    }
     var first = addresses.first;
     lat = first.coordinates.latitude;
     lon = first.coordinates.longitude;

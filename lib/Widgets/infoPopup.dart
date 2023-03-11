@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/Data/appointment.dart';
 import 'package:my_app/Data/category.dart';
@@ -9,41 +10,49 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context, Strin
   return AlertDialog(
     title: const Text('Appointment info'),
     content: SizedBox(
-      height: 170,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                DateFormat('yy/MM/dd kk:mm').format(appointment.dateTime),
-                style: const TextStyle(fontSize: 19),
-              ),
-              appointment.activity.category != "Hotels and travels"
-                ? Text("  - ${appointment.duration} mins",
-                  style: const TextStyle(fontSize: 19),)
-                : Text("  - ${appointment.duration} nights",
-                  style: const TextStyle(fontSize: 19),),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            appointment.appointType,
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 40),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                child: getIcon(appointment.activity.category, "")
-              ),
-              Text(appointment.activity.name),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(appointment.activity.position),
-        ],
+      height: MediaQuery
+          .of(context)
+          .copyWith()
+          .size
+          .height / 4,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  DateFormat('yy/MM/dd kk:mm').format(appointment.dateTime),
+                  style: const TextStyle(fontSize: 19),
+                ),
+                appointment.activity.category != "Hotels and travels"
+                  ? Text("  - ${appointment.duration} mins",
+                    style: const TextStyle(fontSize: 19),)
+                  : Text("  - ${appointment.duration} nights",
+                    style: const TextStyle(fontSize: 19),),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              appointment.appointType,
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            Text(appointment.message),
+            const SizedBox(height: 40),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                  child: getIcon(appointment.activity.category, "")
+                ),
+                Text(appointment.activity.name),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(appointment.activity.position),
+          ],
+        ),
       ),
     ),
     actions: [
@@ -76,7 +85,7 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context, Strin
                           setState(() {});
                           // TODO: implement Google Calendar
                         },
-                        child: const Icon(Icons.edit_calendar),
+                        child: const FaIcon(FontAwesomeIcons.google)
                       )
                     ],
                   );
@@ -90,7 +99,7 @@ Widget appointmentInfoPopup(Appointment appointment, BuildContext context, Strin
                   );
                 }
               }
-            ) : const SizedBox(height: 0),
+            ) : const SizedBox(),
           ]
         ),
       ),

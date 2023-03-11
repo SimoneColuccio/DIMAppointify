@@ -53,6 +53,8 @@ class _PastAppPageState extends State<PastAppPage>{
   Widget build(BuildContext context) {
 
     checkDates();
+    sortAppointments(parameter, ascending, allAppointments);
+    setState(() {});
 
     return Scaffold(
         body: CustomScrollView(
@@ -316,7 +318,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                                 setState(() {});
                                               },
                                             icon: const Icon(Icons.thumb_up)
-                                          ) : const SizedBox(width: 0, height: 0),
+                                          ) : const SizedBox(),
                                           IconButton(
                                             onPressed: () {
                                               appointmentIndex = appointmentIndex + 1;
@@ -358,7 +360,7 @@ class _PastAppPageState extends State<PastAppPage>{
                                 }
                             );
                           } else {
-                            return const SizedBox(width: 0, height: 0,);
+                            return const SizedBox();
                           }
                         },
                       ),

@@ -190,7 +190,7 @@ class EditActivityPageState extends State<EditActivityPage> {
                                       //setState(() {});
                                     },
                                   ),
-                                ) : const SizedBox(height: 0),
+                                ) : const SizedBox(),
                                 const Text("Image"),
                                 buildPopups(
                                     3, context, setState, focusNode),
@@ -293,9 +293,8 @@ class EditActivityPageState extends State<EditActivityPage> {
                                         children: [
                                           const Text("Concurrent appointments"),
                                           const SizedBox(width: 20),
-                                          Container(
+                                          SizedBox(
                                             width: 50,
-                                            color: Colors.white,
                                             child: TextField(
                                               textAlignVertical: TextAlignVertical
                                                   .center,
@@ -323,148 +322,89 @@ class EditActivityPageState extends State<EditActivityPage> {
                                       0, 0, 0, 10),
                                   child: Column(
                                     children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .end,
-                                        crossAxisAlignment: CrossAxisAlignment
-                                            .center,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment
-                                                .end,
-                                            children: [
-                                              const Text("Same Times"),
-                                              TextButton(
-                                                  style: TextButton.styleFrom(
-                                                    minimumSize: const Size(
-                                                        20, 20),
-                                                    foregroundColor: Colors
-                                                        .black,
-                                                  ),
-                                                  onPressed: () {
-                                                    equals = !equals;
-                                                    if (!equals &&
-                                                        !continued[0]) {
-                                                      for (int z = 1; z <
-                                                          5; z++) {
-                                                        continued[z] = false;
-                                                      }
-                                                    }
-                                                    setState(() {});
-                                                  },
-                                                  child: equals
-                                                      ? const Icon(
-                                                      Icons
-                                                          .check_box_outlined)
-                                                      : const Icon(
-                                                      Icons
-                                                          .check_box_outline_blank_outlined)
-                                              ),
-                                            ],
-                                          ),
-                                          Expanded(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment
-                                                    .end,
-                                                children: const [
-                                                  Text("Break"),
-                                                ],
-                                              )
-                                          ),
-                                          SizedBox(
-                                            width: 145,
-                                            child: Row(
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Stack(
+                                          children: [
+                                            Row(
                                               children: [
-                                                const Expanded(child: SizedBox()),
+                                                const Text("Same Times"),
+                                                TextButton(
+                                                    style: TextButton.styleFrom(
+                                                      minimumSize: const Size(
+                                                          20, 20),
+                                                      foregroundColor: Colors
+                                                          .black,
+                                                    ),
+                                                    onPressed: () {
+                                                      equals = !equals;
+                                                      if (!equals &&
+                                                          !continued[0]) {
+                                                        for (int z = 1; z <
+                                                            5; z++) {
+                                                          continued[z] = false;
+                                                        }
+                                                      }
+                                                      setState(() {});
+                                                    },
+                                                    child: equals
+                                                        ? const Icon(
+                                                        Icons
+                                                            .check_box_outlined)
+                                                        : const Icon(
+                                                        Icons
+                                                            .check_box_outline_blank_outlined)
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: const [
+                                                SizedBox(width: 80),
+                                                Expanded(child: SizedBox()),
+                                                Text(" "),
+                                                Expanded(child: SizedBox()),
+                                                Text("\nBreak"),
+                                                Expanded(child: SizedBox()),
+                                                Text(" "),
+                                                Expanded(child: SizedBox()),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
                                                 OutlinedButton(
                                                     onPressed: () {
                                                       hours = initializeHours();
                                                       continued = initializeTurns();
                                                       completed = initializePickers();
                                                       setState(() {});
+                                                      log(hours.toString());
                                                     },
                                                     child: const Text("Clear all",
                                                       style: TextStyle(color: Colors.black),
                                                     )
                                                 ),
                                               ],
-                                            ),
-                                          )
-                                        ],
+                                            )
+                                          ],
+                                        ),
                                       ),
                                       for(int i = 0; i < hours.length; i++)
                                         (!equals || i == 0 || i > 4) ? Row(
                                           children: [
-                                            SizedBox(width: 75,
+                                            SizedBox(width: 80,
                                                 child: Text(times.weekDay(
                                                     (equals && i == 0)
                                                         ? 7
                                                         : i))),
-                                            OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.all(
-                                                    1),
-                                                fixedSize: const Size(60, 20),
-                                                foregroundColor: Colors.black,
-                                              ),
-                                              onPressed: () =>
-                                              {
-                                                updateButtons(i, 0, setState),
-                                              },
-                                              onLongPress: () {
-                                                if(equals && i < 5) {
-                                                  for(int k = 0; k < 5; k++) {
-                                                    hours[k][0] = -1;
-                                                  }
-                                                } else {
-                                                  hours[i][0] = -1;
-                                                }
-                                                updateButtons(
-                                                    i, 0, setState);
-                                              },
-                                              child: hours[i][0] == -1
-                                                  ? const Text("")
-                                                  : printTime(
-                                                  getHour(hours[i][0]),
-                                                  getMinute(hours[i][0])
-                                              ),
-                                            ),
+                                            Expanded(child: getTimeOutlinedButton(hours, i, 0, setState)),
                                             const Text(" "),
-                                            OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.all(
-                                                    1),
-                                                fixedSize: const Size(60, 20),
-                                                foregroundColor: Colors.black,
-                                              ),
-                                              onPressed: () =>
-                                              {
-                                                updateButtons(
-                                                    i, 1, setState),
-                                              },
-                                              onLongPress: () {
-                                                if(equals && i < 5) {
-                                                  for(int k = 0; k < 5; k++) {
-                                                    hours[k][1] = -1;
-                                                  }
-                                                } else {
-                                                  hours[i][1] = -1;
-                                                }
-                                                updateButtons(
-                                                    i, 1, setState);
-                                              },
-                                              child: hours[i][1] == -1
-                                                  ? const Text("")
-                                                  : printTime(
-                                                  getHour(hours[i][1]),
-                                                  getMinute(hours[i][1])
-                                              ),
-                                            ),
+                                            Expanded(child: getTimeOutlinedButton(hours, i, 1, setState)),
                                             continued[i]
                                                 ? IconButton(
                                                 onPressed: () {
                                                   continued[i] = false;
-                                                  if(equals){
+                                                  if(equals && i == 0){
                                                     for(int k = 0; k < 5; k ++) {
                                                       continued[k] = false;
                                                       hours[k][2] = hours[i][2];
@@ -473,12 +413,12 @@ class EditActivityPageState extends State<EditActivityPage> {
                                                   }
                                                   setState(() {});
                                                 },
-                                                icon: const Icon(Icons
-                                                    .check_box_outline_blank_outlined))
+                                                icon: const Icon(Icons.check_box_outline_blank_outlined)
+                                            )
                                                 : IconButton(
                                                 onPressed: () {
                                                   continued[i] = true;
-                                                  if(equals){
+                                                  if(equals && i == 0){
                                                     for(int k = 0; k < 5; k ++) {
                                                       continued[k] = true;
                                                       hours[k][2] = -1;
@@ -487,80 +427,23 @@ class EditActivityPageState extends State<EditActivityPage> {
                                                   }
                                                   setState(() {});
                                                 },
-                                                icon: const Icon(
-                                                    Icons.check_box_outlined)),
-                                            !continued[i]
-                                                ? OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.all(
-                                                    1),
-                                                fixedSize: const Size(60, 20),
-                                                foregroundColor: Colors.black,
-                                              ),
-                                              onPressed: () =>
-                                              {
-                                                updateButtons(
-                                                    i, 2, setState),
-                                              },
-                                              onLongPress: () {
-                                                if(equals && i < 5) {
-                                                  for(int k = 0; k < 5; k++) {
-                                                    hours[k][2] = -1;
-                                                  }
-                                                } else {
-                                                  hours[i][2] = -1;
-                                                }
-                                                updateButtons(
-                                                    i, 2, setState);
-                                              },
-                                              child: hours[i][2] == -1
-                                                  ? const Text("")
-                                                  : printTime(
-                                                  getHour(hours[i][2]),
-                                                  getMinute(hours[i][2])
-                                              ),
-                                            )
-                                                : const SizedBox(height: 0),
-                                            !continued[i]
-                                                ? const Text(" ")
-                                                : const SizedBox(height: 0),
-                                            !continued[i]
-                                                ? OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.all(
-                                                    1),
-                                                fixedSize: const Size(60, 20),
-                                                foregroundColor: Colors.black,
-                                              ),
-                                              onPressed: () =>
-                                              {
-                                                updateButtons(i, 3, setState),
-                                              },
-                                              onLongPress: () {
-                                                if(equals && i < 5) {
-                                                  for(int k = 0; k < 5; k++) {
-                                                    hours[k][3] = -1;
-                                                  }
-                                                } else {
-                                                  hours[i][3] = -1;
-                                                }
-                                                updateButtons(
-                                                    i, 3, setState);
-                                              },
-                                              child: hours[i][3] == -1
-                                                  ? const Text("")
-                                                  : printTime(
-                                                  getHour(hours[i][3]),
-                                                  getMinute(hours[i][3])
-                                              ),
-                                            )
-                                                : const SizedBox(height: 0),
+                                                icon: const Icon(Icons.check_box_outlined)
+                                            ),
+                                            Expanded(child: !continued[i]
+                                                ? getTimeOutlinedButton(hours, i, 2, setState)
+                                                : const SizedBox(),
+                                            ),
+                                            const Text(" "),
+                                            Expanded(child: !continued[i]
+                                                ? getTimeOutlinedButton(hours, i, 3, setState)
+                                                : const SizedBox(),
+                                            ),
                                           ],
                                         ) : const SizedBox(),
-                                      for(int z = 0; z < 7; z ++)
-                                        for(int k = 0; k < 4; k ++)
+                                      for(int z = 0; z < completed.length; z ++)
+                                        for(int k = 0; k < completed[z].length; k ++)
                                           completed[z][k] ? getDatePicker(
-                                              z, k, hours, context, setState,
+                                            z, k, hours, context, setState,
                                           ) : const SizedBox(),
                                     ],
                                   ),
@@ -678,16 +561,6 @@ class EditActivityPageState extends State<EditActivityPage> {
           );
         }
     );
-  }
-
-  bool isCorrect(String string) {
-    bool c;
-    c = string != "";
-    c = c && !string.contains("<");
-    c = c && !string.contains(">");
-    c = c && !string.contains("&");
-
-    return c;
   }
 
   String fromList(List<String> list) {
@@ -914,4 +787,44 @@ class EditActivityPageState extends State<EditActivityPage> {
     }
     setState(() {});
   }
+
+  Widget getTimeOutlinedButton(List<List<double>> hours, int i, int j, StateSetter setState) {
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.all(1),
+        foregroundColor: Colors.black,
+      ),
+      onPressed: () =>
+      {
+        updateButtons(i, j, setState),
+      },
+      onLongPress: () {
+        if(equals && i < 5) {
+          for(int k = 0; k < 5; k++) {
+            hours[k][j] = -1;
+          }
+        } else {
+          hours[i][j] = -1;
+        }
+        updateButtons(
+            i, j, setState);
+      },
+      child: hours[i][j] == -1
+          ? const Text("")
+          : printTime(
+          getHour(hours[i][j]),
+          getMinute(hours[i][j])
+      ),
+    );
+  }
+}
+
+bool isCorrect(String string) {
+  bool c;
+  c = string.trim().isNotEmpty;
+  c = c && !string.contains("<");
+  c = c && !string.contains(">");
+  c = c && !string.contains("&");
+
+  return c;
 }

@@ -229,6 +229,7 @@ class ActivityPageScreen extends StatelessWidget {
             ),
           ],
         ): ListView.builder(
+          physics: const ClampingScrollPhysics(),
           itemCount: activities.length,
           itemBuilder: (context, index) {
             final activity = activities[index];
@@ -247,7 +248,7 @@ class ActivityPageScreen extends StatelessWidget {
             );
           },
         ),
-        floatingActionButton: a != null && (isLoggedAsUser || isLoggedAsActivity) ? FloatingActionButton(
+        floatingActionButton: showButton(a) ? FloatingActionButton(
           onPressed: () {
             appointmentIndex = appointmentIndex + 1;
             Navigator.pushNamed(
@@ -291,5 +292,19 @@ class ActivityPageScreen extends StatelessWidget {
     await canLaunchUrlString(googleURL)
       ? await launchUrlString(googleURL)
       : throw 'Could not launch $googleURL';
+  }
+
+  bool showButton(a) {
+    bool ret = true;
+    ret = ret && (a != null);
+    ret = ret && (isLoggedAsUser || isLoggedAsActivity);
+
+    double h = 0;
+    for(int i = 0; i < a.hours.length; i++) {
+      h = h + a.hours[i][0];
+    }
+    ret = ret && (h > -7.0);
+
+    return ret;
   }
 }

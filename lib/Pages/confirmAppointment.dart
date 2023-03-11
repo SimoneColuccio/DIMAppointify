@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../Data/appointment.dart';
@@ -32,118 +33,131 @@ class _ConfirmAppointmentState extends State<ConfirmAppointment> {
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Your appointment at ${appointment.activity.name} has been confirmed!",
-              style: const TextStyle(
-                fontSize: 25
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Your appointment at ${appointment.activity.name} has been confirmed!",
+                style: const TextStyle(
+                  fontSize: 25
+                ),
               ),
-            ),
 
-            Text("\n${DateFormat('yyyy-MM-dd, kk:hh').format(appointment.dateTime)}",
-              style: const TextStyle(
-                  fontSize: 20
+              Text("\n${DateFormat('yyyy-MM-dd, kk:mm').format(appointment.dateTime)}",
+                style: const TextStyle(
+                    fontSize: 20
+                ),
               ),
-            ),
-            Text(appointment.activity.position,
-              style: const TextStyle(
-                  fontSize: 20
+              Text(appointment.activity.position,
+                style: const TextStyle(
+                    fontSize: 20
+                ),
               ),
-            ),
-            Text("\nService booked: ${appointment.appointType}",
-              style: const TextStyle(
-                  fontSize: 17
+              Text("\nService booked: ${appointment.appointType}",
+                style: const TextStyle(
+                    fontSize: 17
+                ),
               ),
-            ),
-            Text("Duration of your appointment: ${appointment.duration} ${appointment.activity.category == "Hotels and travels" ? "nights" : "mins"}",
-              style: const TextStyle(
-                  fontSize: 17
+              appointment.activity.category == "Hotels and travels" || appointment.activity.category == "Food and drink" ? Text(
+                "People: ${appointment.people}",
+                style: const TextStyle(
+                    fontSize: 17
+                ),
+              ) : const SizedBox(),
+              Text("Duration of your appointment: ${appointment.duration} ${appointment.activity.category == "Hotels and travels" ? "nights" : "mins"}",
+                style: const TextStyle(
+                    fontSize: 17
+                ),
               ),
-            ),
-            Text("\nAppointment number: ${appointment.index}",
-              style: const TextStyle(
-                  fontSize: 17
+              Text("\nAppointment number: ${appointment.index}",
+                style: const TextStyle(
+                    fontSize: 17
+                ),
               ),
-            ),
-            const Text("Save this number until the day of the appointment",
-              style: TextStyle(
-                  fontSize: 13
+              const Text("Save this number until the day of the appointment",
+                style: TextStyle(
+                    fontSize: 13
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-              child: Row(
-                children: [
-                  const Expanded(child: SizedBox()),
-                  IconButton(
-                    onPressed: () {
-                      // TODO: implement share via WhatsApp
-                    },
-                    icon: const Icon(Icons.whatsapp,
-                      size: 40,
-                      color: Colors.green,
-                    )
-                  ),
-                  const Expanded(child: SizedBox()),
-                  IconButton(
+              Text("\n${appointment.message}",
+                style: const TextStyle(
+                    fontSize: 17
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                child: Row(
+                  children: [
+                    const Expanded(child: SizedBox()),
+                    IconButton(
                       onPressed: () {
-                        // TODO: implement share via email
+                        // TODO: implement share via WhatsApp
                       },
-                      icon: const Icon(Icons.mail,
+                      icon: const FaIcon(FontAwesomeIcons.whatsapp,
                         size: 40,
-                        color: Colors.blue,
+                        color: Colors.green,
                       )
-                  ),
-                  const Expanded(child: SizedBox()),
-                  IconButton(
-                      onPressed: () {
-                        appointment.addToCalendar(isLoggedAsUser);
-                        setState(() {});
-                        // TODO: implement Google Calendar
-                      },
-                      icon: const Icon(Icons.edit_calendar,
-                        size: 40,
-                        color: Colors.red,
-                      )
-                  ),
-                  const Expanded(child: SizedBox()),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(0, 50)
-                      ),
-                      onPressed: () => setState(() {
-                        Navigator.pushNamed(context, '/');
-                      }), child: const Text("Go to Homepage"),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
+                    const Expanded(child: SizedBox()),
+                    IconButton(
+                        onPressed: () {
+                          // TODO: implement share via email
+                        },
+                        icon: const Icon(Icons.mail,
+                          size: 40,
+                          color: Colors.blue,
+                        )
+                    ),
+                    const Expanded(child: SizedBox()),
+                    IconButton(
+                        onPressed: () {
+                          appointment.addToCalendar(isLoggedAsUser);
+                          setState(() {});
+                          // TODO: implement Google Calendar
+                        },
+                        icon: const FaIcon(FontAwesomeIcons.google,
+                          size: 40,
+                          color: Colors.red,
+                        )
+                    ),
+                    const Expanded(child: SizedBox()),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
                           minimumSize: const Size(0, 50)
+                        ),
+                        onPressed: () => setState(() {
+                          Navigator.pushNamed(context, '/');
+                        }), child: const Text("Go to Homepage"),
                       ),
-                      onPressed: () => setState(() {
-                        Navigator.pushNamed(context, '/incoming');
-                      }), child: const Text("Go to your incoming appointments"),
                     ),
-                  ),
-                ],
-              ),
-            )
-          ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(0, 50)
+                        ),
+                        onPressed: () => setState(() {
+                          Navigator.pushNamed(context, '/incoming');
+                        }), child: const Text("Go to your incoming appointments"),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
         bottomNavigationBar: BottomNavigationBar(
